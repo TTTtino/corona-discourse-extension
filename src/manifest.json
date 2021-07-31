@@ -4,7 +4,7 @@
     "version": "1.0",
     "manifest_version": 3,
     "background": {
-        "service_worker": "background.js"
+        "service_worker": "worker_wrapper.js"
     },
     "options_page": "options/options.html",
     "permissions": ["activeTab", "scripting", "tabs", "storage"],
