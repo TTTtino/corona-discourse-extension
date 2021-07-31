@@ -1,0 +1,42 @@
+/* Style the header with a grey background and some padding */
+
+body {
+    background-color: #f3f3f3;
+}
+
+.header {
+    height: 100px;
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+
+/* Style the header links */
+
+.header img {
+    float: left;
+    height: 100px;
+    margin: 5px;
+}
+
+
+/* Float the link section to the right */
+
+.header-title {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.header-title h1 {
+    margin-left: 20px;
+}
+
+.content form {
+    display: flex;
+}
+
+.content input {
+    flex: 1;
+}

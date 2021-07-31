@@ -1,0 +1,37 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="options.css">
+</head>
+
+<body>
+    <div class="header">
+        <img src="../images/logo.png" class="header-logo">
+        <div class="header-title">
+            <h1>Extension Name</h1>
+        </div>
+    </div>
+    <div class="content">
+        <div>
+            <form id="whitelist-form" action="#" onsubmit="return addWebsiteToWhitelist()">
+                <input id="whitelist-input" type="text" pattern="(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)" placeholder="e.g. www.example.com" required aria-required="true">
+                <button id="whitelist-add-button" type="submit">ADD</button>
+            </form>
+            <div>
+                <table id="whitelist-table">
+                    <tr>
+                        <th>Website</th>
+                        <th>Del?</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <script src="options.js"></script>
+</body>
+
+</html>
