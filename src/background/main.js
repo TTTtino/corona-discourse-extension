@@ -24,7 +24,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                             ) {
                                 var scripts = [
                                     data.parsers[i].parser,
-                                    "stat_functions.js",
+                                    "stat.js",
                                     "./foreground.js",
                                 ];
                                 break;
@@ -34,23 +34,23 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                         // Use default parser if none were specified
                         if (!scripts) {
                             var scripts = [
-                                "stat_functions.js",
+                                "stat.js",
                                 "./basic_parser.js",
                                 "./foreground.js",
                             ];
                         }
 
                         // reset- ONLY FOR DEBUGGING
-                        // chrome.storage.local.remove("collectionStats");
-
+                        //chrome.storage.local.remove("collectionStats");
 
                         getStatsToCollect((result) => {
                             // console.log("Stats to collect function completed");
-                            console.log(result);
-                            chrome.storage.local.get("collectionStats", function (result) {
-                                console.log(result.collectionStats);
-                                importScripts(scripts, tabId);
-                            });
+                            fetch("./test.txt")
+                                .then((response) => response.text())
+                                .then((textString) => {
+                                    console.log(tokenize(textString));
+                                });
+                            importScripts(scripts, tabId);
                         });
                     });
             }
@@ -62,10 +62,7 @@ function getStatsToCollect(callback) {
     chrome.storage.local.get("collectionStats", function (result) {
         console.log(result.collectionStats);
         if (typeof result.collectionStats === "undefined") {
-            var defaultCollectionStats = [
-                new WordCount(),
-                new TokenOccurence("covid")
-            ];
+            var defaultCollectionStats = new StatCollectionInfo();
             console.log(defaultCollectionStats);
             chrome.storage.local.set(
                 { collectionStats: defaultCollectionStats },
@@ -108,18 +105,3 @@ function urlInList(url, urlList) {
     }
     return false;
 }
-
-// class StatCollectionInfo {
-//     constructor() {
-//         this.wordCount = false;
-//         this.charCount = false;
-//         this.collocation = {
-//             perform: true,
-//             pivotTokens: [],
-//             targetTokens: [],
-//             selfReference: false,
-//             parseAsRegex: false,
-//             span: [5, 5],
-//         };
-//     }
-// }
