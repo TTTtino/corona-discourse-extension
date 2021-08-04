@@ -117,8 +117,12 @@
 // this.selfReference= selfReference;
 // this.parseAsRegex= regexParsing;
 // this.span= [leftSpan, rightSpan];
+
 function performCollocation(corpus, collocationInfo) {
-    console.log("Performign Collocation on", corpus);
+    //console.log("Performign Collocation on", corpus);
+    var tokens = tokenize(corpus);
+    console.log(tokens.sentenceTokens);
+    console.log(tokens.wordTokens);
 }
 
 function findTokenOccurence(token, corpus) {
@@ -148,23 +152,28 @@ function findWordCount(corpus) {
 }
 
 function tokenize(corpus) {
+    if (corpus === "undefined") {
+        return { sentenceTokens: [], wordTokens: [] };
+    }
     var wordTokens = [];
     var sentenceTokens = [];
     var wordBuffer = "";
+    var sentenceBuffer = "";
+    var quotation = false;
     for (var i = 0; i < corpus.length - 1; i++) {
         var char = corpus[i];
         // if character is a letter
-        if (/[a-zA-Z]+/.test(char)) {
+        if (/[a-zA-Z0-9]+/.test(char)) {
             // add character to buffer
             //console.log("Adding to buffer" + wordBuffer);
             wordBuffer = wordBuffer.concat(char);
         }
 
-        // if the character is '-' dig-a dig-!
+        // if the character is '-'
         if (char === "-") {
             // if the nextChar is a letter
             var nextChar = corpus[i + 1];
-            if (/[a-zA-Z]+/.test(nextChar)) {
+            if (/[a-zA-Z0-9]+/.test(nextChar)) {
                 // add currentChar to buffer
                 wordBuffer = wordBuffer.concat(char);
             } else {
@@ -174,23 +183,41 @@ function tokenize(corpus) {
         }
 
         // if character is ' ' or newline
-        if (/^(\s|\n)$/.test(char) && wordBuffer !== "") {
+        if (/^[\s\n\r]$/.test(char) && wordBuffer !== "") {
             // add word in buffer to wordTokens
             wordTokens.push(wordBuffer);
             // reset buffer
             wordBuffer = "";
         }
+
+        if (/^[^!.?\n\r]$/.test(char)) {
+            sentenceBuffer = sentenceBuffer.concat(char);
+        } else {
+            if (/^[!.?]$/.test(char)) {
+                sentenceBuffer = sentenceBuffer.concat(char);
+            }
+            if (!/^[\n\s\r]*$/.test(sentenceBuffer)) {
+                sentenceTokens.push(sentenceBuffer);
+                sentenceBuffer = "";
+            }
+        }
     }
     // if character is ' '
-    console.log("i is " + i + ", corpus[i] is " + corpus[i] + ", wordBuffer is " + wordBuffer);
     if (wordBuffer !== "") {
         // add word in buffer to wordTokens
-        if(/[a-zA-Z]+/.test(corpus[i])){
+        if (/[a-zA-Z0-9]+/.test(corpus[i])) {
             wordBuffer = wordBuffer.concat(corpus[i]);
         }
         wordTokens.push(wordBuffer);
         // reset buffer
         wordBuffer = "";
     }
-    return wordTokens;
+
+    if (sentenceBuffer !== "") {
+        if (/[a-zA-Z0-9?!.]+/.test(corpus[i])) {
+            sentenceBuffer = sentenceBuffer.concat(corpus[i]);
+        }
+        sentenceTokens.push(sentenceBuffer);
+    }
+    return { sentenceTokens: sentenceTokens, wordTokens: wordTokens };
 }

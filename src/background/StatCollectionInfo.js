@@ -2,7 +2,7 @@ class StatCollectionInfo {
     constructor() {
         this.wordCount = true;
         this.charCount = true;
-        this.collocation = false;
+        this.collocation = new Collocation(["covid", "vaccine"], ["bad", "effects", "death"], false, false, 5, 5);
         // for testing purposes
         this.tokenOccurence = new TokenOccurence("covid");
 

@@ -41,15 +41,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                         }
 
                         // reset- ONLY FOR DEBUGGING
-                        //chrome.storage.local.remove("collectionStats");
+                        chrome.storage.local.remove("collectionStats");
 
                         getStatsToCollect((result) => {
                             // console.log("Stats to collect function completed");
-                            fetch("./test.txt")
-                                .then((response) => response.text())
-                                .then((textString) => {
-                                    console.log(tokenize(textString));
-                                });
+                            // fetch("./test.txt")
+                            //     .then((response) => response.text())
+                            //     .then((textString) => {
+                            //         console.log(tokenize(textString));
+                            //     });
                             importScripts(scripts, tabId);
                         });
                     });

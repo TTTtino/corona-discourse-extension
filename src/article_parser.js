@@ -58,6 +58,6 @@ function traverse(elm, pageText) {
         //console.log(elm.nodeValue);
 
         pageText.value = pageText.value.concat(elm.nodeValue);
-        pageText.value = pageText.value.concat(" ");
+        pageText.value = pageText.value.concat(" \n");
     }
 }
