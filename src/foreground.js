@@ -5,8 +5,10 @@ chrome.storage.local.get("collectionStats", function (result) {
     var statCollection = result.collectionStats;
     // check which stats to collect and find them them
     //console.log(statCollection);
-    pageText = getPageContent();
+    var pageText = getPageContent();
+    var tokens = tokenize(pageText);
     console.log(pageText);
+
     if (statCollection.charCount) {
         console.log("Char Count: " + findCharacterCount(pageText));
     }
@@ -20,8 +22,8 @@ chrome.storage.local.get("collectionStats", function (result) {
     }
 
     if(statCollection.collocation){
-        console.log("Performing Collcaiton")
-        performCollocation(pageText, statCollection.collocation);
+        console.log("Performing Collocation");
+        performCollocation(tokens.wordTokens, statCollection.collocation);
     }
 
     // chrome.runtime.sendMessage(

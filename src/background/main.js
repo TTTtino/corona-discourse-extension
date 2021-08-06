@@ -60,7 +60,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 function getStatsToCollect(callback) {
     chrome.storage.local.get("collectionStats", function (result) {
-        console.log(result.collectionStats);
         if (typeof result.collectionStats === "undefined") {
             var defaultCollectionStats = new StatCollectionInfo();
             console.log(defaultCollectionStats);
