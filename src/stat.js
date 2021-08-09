@@ -1,23 +1,53 @@
 function performCollocation(wordTokens, collocationInfo) {
     //console.log("Performign Collocation on", corpus);
     console.log(wordTokens);
+    var index = 0;
+    for (index = 0; index < wordTokens.length-1; index++) {
+        const element = wordTokens[index];
+        if(/^seed$/.test(element)){
+            console.log(element + " " + wordTokens[index+1]);
+        }
+    }
+    console.log(index);
     const nGrams = generateNgrams(wordTokens, collocationInfo.span);
+
     console.log("nGrams: ", nGrams);
     var pivotFrequencies = {};
     var targetFrequencies = {};
     var nGramFrequency = {};
     for (let iPivot = 0; iPivot < collocationInfo.pivotTokens.length; iPivot++) {
         const pivot = collocationInfo.pivotTokens[iPivot];
-        pivotFrequencies[pivot] = getFrequency(pivot, wordTokens);
+        pivotFrequencies[pivot] = getFrequency(
+            pivot,
+            wordTokens,
+            collocationInfo.parseAsRegex
+        );
         for (let iTarget = 0; iTarget < collocationInfo.targetTokens.length; iTarget++) {
             const target = collocationInfo.targetTokens[iTarget];
-            nGramFrequency[pivot + " " + target] =  getNgramFrequency(pivot, target, nGrams);
+            if (!collocationInfo.selfReference && pivot === target) {
+                continue;
+            } else {
+                nGramFrequency[pivot + " " + target] = getNgramFrequency(
+                    pivot,
+                    target,
+                    nGrams,
+                    collocationInfo.parseAsRegex
+                );
+            }
         }
     }
-    
-    for (let iTarget = 0; iTarget < collocationInfo.targetTokens.length; iTarget++) {
+
+    for (
+        let iTarget = 0;
+        iTarget < collocationInfo.targetTokens.length;
+        iTarget++
+    ) {
         const target = collocationInfo.targetTokens[iTarget];
-        targetFrequencies[target] = getFrequency(target, wordTokens);
+        targetFrequencies[target] = getFrequency(
+            target,
+            wordTokens,
+            collocationInfo.parseAsRegex
+        );
     }
     console.log("pivot frequencies: ", pivotFrequencies);
     console.log("target frequencies: ", targetFrequencies);
@@ -26,26 +56,30 @@ function performCollocation(wordTokens, collocationInfo) {
     var pivotProb = {};
     for (let iFreq = 0; iFreq < collocationInfo.pivotTokens.length; iFreq++) {
         const element = collocationInfo.pivotTokens[iFreq];
-        pivotProb[element] = ( pivotFrequencies[element] / wordTokens.length);
+        pivotProb[element] = pivotFrequencies[element] / wordTokens.length;
     }
     console.log("pivot probabilities: ", pivotProb);
-
 
     var targetProb = {};
     for (let iFreq = 0; iFreq < collocationInfo.targetTokens.length; iFreq++) {
         const element = collocationInfo.targetTokens[iFreq];
-        targetProb[element] = ( targetFrequencies[element] / wordTokens.length);
+        targetProb[element] = targetFrequencies[element] / wordTokens.length;
     }
     console.log("target probabilities: ", targetProb);
 
     var nGramProb = {};
-    for (var key in nGramFrequency){
+    for (var key in nGramFrequency) {
         var value = nGramFrequency[key];
-        nGramProb[key] = (value / nGrams.length)
+        nGramProb[key] = value / nGrams.length;
     }
     console.log("n-gram probabilities: ", nGramProb);
 
-    var pmi = calculatePMI(pivotProb, targetProb, nGramProb);
+    var pmi = calculatePMI(
+        pivotProb,
+        targetProb,
+        nGramProb,
+        collocationInfo.selfReference
+    );
     console.log("PMI: ", pmi);
 }
 
@@ -154,15 +188,15 @@ function generateNgrams(wordTokens, [l, r]) {
         for (var j = l; j > 0; j--) {
             if (i - j >= 0) {
                 left.push(wordTokens[i - j]);
-            } else{
-                break;
+            } else {
+                continue;
             }
         }
-        for (var k = 1; k <= r; k++){
+        for (var k = 1; k <= r; k++) {
             if (i + k < wordTokens.length) {
                 right.push(wordTokens[i + k]);
-            } else{
-                break;
+            } else {
+                continue;
             }
         }
         ngram.push({ word: wordTokens[i], left: left, right: right });
@@ -170,55 +204,60 @@ function generateNgrams(wordTokens, [l, r]) {
     return ngram;
 }
 
-function getFrequency(word, wordTokens, regex=false){
+function getFrequency(word, wordTokens, regex = true) {
     var count = 0;
-    if(regex === false){
+    if (regex === false) {
         for (let i = 0; i < wordTokens.length; i++) {
-            if(wordTokens[i] === word){
+            if (wordTokens[i] === word) {
                 count++;
             }
         }
-    } else{
+    } else {
         let re = new RegExp("^" + word + "$");
+        console.log(re.source);
         for (let i = 0; i < wordTokens.length; i++) {
-            if(re.test(wordTokens[i])){
+            if (re.test(wordTokens[i])) {
                 count++;
+                if (wordTokens[i] === "death") {
+                    console.log("found death");
+                }
             }
         }
     }
     return count;
 }
 
-function getNgramFrequency(pivot, target, ngrams,regex=false){
+function getNgramFrequency(pivot, target, ngrams, regex = true) {
     var count = 0;
-    if(regex === false){
+    if (regex === false) {
         for (let i = 0; i < ngrams.length; i++) {
             var element = ngrams[i];
-            if(element.word === pivot){
+            if (element.word === pivot) {
                 for (let li = 0; li < element.left.length; li++) {
-                    if(element.left[li] === target){
+                    if (element.left[li] === target) {
                         count++;
                     }
                 }
                 for (let ri = 0; ri < element.right.length; ri++) {
-                    if(element.right[ri] === target){
+                    if (element.right[ri] === target) {
                         count++;
                     }
                 }
             }
         }
-    } else{
+    } else {
         let pivotRe = new RegExp("^" + pivot + "$");
         let targetRe = new RegExp("^" + target + "$");
         for (let i = 0; i < ngrams.length; i++) {
-            if(pivotRe.test(element.word)){
+            var element = ngrams[i];
+            if (pivotRe.test(element.word)) {
                 for (let li = 0; li < element.left.length; li++) {
-                    if(targetRe.test(element.left[li])){
+                    if (targetRe.test(element.left[li])) {
                         count++;
                     }
                 }
                 for (let ri = 0; ri < element.right.length; ri++) {
-                    if(targetRe.test(element.right[ri])){
+                    if (targetRe.test(element.right[ri])) {
                         count++;
                     }
                 }
@@ -228,14 +267,23 @@ function getNgramFrequency(pivot, target, ngrams,regex=false){
     return count;
 }
 
-function calculatePMI(pivotProbs, targetProbs, nGramProbs){
+function calculatePMI(pivotProbs, targetProbs, nGramProbs, canSelfReference) {
     var pmi = {};
-    for(var pivot in pivotProbs){
+    for (var pivot in pivotProbs) {
         pProb = pivotProbs[pivot];
-        for(var target in targetProbs){
+        for (var target in targetProbs) {
             pTarget = targetProbs[target];
+            if (pivot === target && !canSelfReference) {
+                continue;
+            }
             pNGram = nGramProbs[pivot + " " + target];
-            pmi[pivot + " " + target] = Math.log2(pNGram / (pProb * pTarget));
+            if (pProb === 0 || pTarget === 0 || pNGram === 0) {
+                pmi[pivot + " " + target] = 0;
+            } else {
+                pmi[pivot + " " + target] = Math.log2(
+                    pNGram / (pProb * pTarget)
+                );
+            }
         }
     }
     return pmi;
