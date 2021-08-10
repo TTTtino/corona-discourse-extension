@@ -5,7 +5,6 @@ class StatCollectionInfo {
         this.collocation = new Collocation(["sunflower"], ["field", "seed", "oil"], false, true, 0, 1);
         // for testing purposes
         this.tokenOccurence = new TokenOccurence("covid");
-
     }
 }
 

@@ -23,8 +23,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                                 url.hostname.includes(data.parsers[i].hostname)
                             ) {
                                 var scripts = [
-                                    data.parsers[i].parser,
+                                    "stat_storage.js",
                                     "stat.js",
+                                    data.parsers[i].parser,
                                     "./foreground.js",
                                 ];
                                 break;
@@ -34,6 +35,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                         // Use default parser if none were specified
                         if (!scripts) {
                             var scripts = [
+                                "stat_storage.js",
                                 "stat.js",
                                 "./basic_parser.js",
                                 "./foreground.js",

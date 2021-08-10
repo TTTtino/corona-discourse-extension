@@ -74,14 +74,26 @@ function performCollocation(wordTokens, collocationInfo) {
     }
     console.log("n-gram probabilities: ", nGramProb);
 
-    var pmi = calculatePMI(
+    var pmi = calculateProbPMI(
         pivotProb,
         targetProb,
         nGramProb,
         collocationInfo.selfReference
     );
     console.log("PMI: ", pmi);
+    
+    var colStorage = new CollocationData();
+    colStorage.pivotFrequencies = pivotFrequencies;
+    colStorage.targetFrequencies = targetFrequencies;
+    colStorage.nGramFrequencies = nGramFrequency;
+    colStorage.nGramSum = nGrams.length;
+    colStorage.tokenSum = wordTokens.length;
+
+    console.log(colStorage);
+    return colStorage;
 }
+
+
 
 function findTokenOccurence(token, corpus) {
     var newString = corpus.replace(/[-]/g, " ").toLowerCase();
@@ -267,7 +279,7 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
     return count;
 }
 
-function calculatePMI(pivotProbs, targetProbs, nGramProbs, canSelfReference) {
+function calculateProbPMI(pivotProbs, targetProbs, nGramProbs, canSelfReference) {
     var pmi = {};
     for (var pivot in pivotProbs) {
         pProb = pivotProbs[pivot];
@@ -287,4 +299,35 @@ function calculatePMI(pivotProbs, targetProbs, nGramProbs, canSelfReference) {
         }
     }
     return pmi;
+}
+
+function calculateFreqPMI(collocationData, canSelfReference){
+    var pivotProb = {};
+    for (var key in collocationData.pivotFrequencies) {
+        var freq = collocationData.pivotFrequencies[key];
+        pivotProb[key] = freq / collocationData.tokenSum;
+    }
+    console.log("pivot probabilities: ", pivotProb);
+
+    var targetProb = {};
+    for (var key in collocationData.targetFrequencies) {
+        var freq = collocationData.targetFrequencies[key];
+        targetProb[key] = freq / collocationData.tokenSum;
+    }
+    console.log("target probabilities: ", targetProb);
+
+    var nGramProb = {};
+    for (var key in collocationData.nGramFrequencies) {
+        var freq = collocationData.nGramFrequencies[key];
+        nGramProb[key] = freq / collocationData.tokenSum;
+    }
+    console.log("n-gram probabilities: ", nGramProb);
+
+    var pmi = calculateProbPMI(
+        pivotProb,
+        targetProb,
+        nGramProb,
+        canSelfReference
+    );
+    console.log("PMI: ", pmi);
 }

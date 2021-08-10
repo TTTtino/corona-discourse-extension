@@ -1,37 +1,71 @@
 <html>
+    <head>
+        <link rel="stylesheet" href="options.css" />
+    </head>
 
-<head>
-    <link rel="stylesheet" href="options.css">
-</head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <img src="../images/logo.png" class="header-logo" />
+                <h1>Extension Name</h1>
+            </div>
+            <!-- Side navigation -->
+            <div class="sidenav">
+                <a id="general-link" class="tablink active">General</a>
+                <a id="whitelist-link" class="tablink">Whitelisted Websites</a>
+                <a id="import-export-link" class="tablink">Import/Export</a>
+                <a id="help-link" class="tablink">Help</a>
+            </div>
 
-<body>
-    <div class="header">
-        <img src="../images/logo.png" class="header-logo">
-        <div class="header-title">
-            <h1>Extension Name</h1>
-        </div>
-    </div>
-    <div class="content">
-        <div>
-            <form id="whitelist-form" action="#" onsubmit="return addWebsiteToWhitelist()">
-                <input id="whitelist-input" type="text" pattern="(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)" placeholder="e.g. www.example.com" required aria-required="true">
-                <button id="whitelist-add-button" type="submit">ADD</button>
-            </form>
-            <div>
-                <table id="whitelist-table">
-                    <tr>
-                        <th>Website</th>
-                        <th>Del?</th>
-                    </tr>
-                </table>
+            <div class="content">
+                <div id="whitelist" class="tabcontent">
+                    <form id="whitelist-form">
+                        <input
+                            id="whitelist-input"
+                            type="text"
+                            pattern="(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
+                            placeholder="e.g. www.example.com"
+                            required
+                            aria-required="true"
+                        />
+                        <button id="whitelist-add-button" type="submit">
+                            ADD
+                        </button>
+                    </form>
+                    <div>
+                        <table id="whitelist-table">
+                            <tr>
+                                <th>Website</th>
+                                <th>Del?</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="general" class="tabcontent">
+                    <div>
+                        <table id="stat-table">
+                            <tr>
+                                <th>Stat</th>
+                                <th>What?</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="import-export" class="tabcontent">
+                    <div>
+                        <button>Import</button>
+                    </div>
+                </div>
+
+                <div id="help" class="tabcontent">
+                    <div>
+                        <p>Heard you needed help!</p>
+                    </div>
+                </div>
             </div>
         </div>
-
-
-    </div>
-
-
-    <script src="options.js"></script>
-</body>
-
+        <script src="options.js"></script>
+    </body>
 </html>
