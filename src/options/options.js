@@ -76,19 +76,17 @@ function openPage(tabLink, pageName) {
             tablinks[i].classList.remove("active");
         }
     }
-    console.log(tabLink)
     document.getElementById(tabLink).classList.add("active");
     document.getElementById(pageName).style.display = "block";
 }
 
 document.addEventListener("DOMContentLoaded", restore_options);
 document
-    .getElementById("whitelist-form")
-    .addEventListener("submit", addWebsiteToWhitelist);
+    .getElementById("whitelist-add-button")
+    .addEventListener("click", addWebsiteToWhitelist);
 
 var tablinks = document.getElementsByClassName("tablink");
 for (i = 0; i < tablinks.length; i++) {
-    console.log(tablinks[i].id)
     const id = tablinks[i].id;
     tablinks[i].addEventListener("click", function () {
         openPage(id, id.replace(/-link/, ""));
