@@ -29,7 +29,40 @@ function restore_options() {
         for (var i = 0; i < websites.length; i++) {
             createWhitelistRow(websiteTable, websites[i], i);
         }
+
+        chrome.storage.local.get("collocationData", function (result) {
+            if (typeof result.collocationData === "undefined") {
+                // should create an empty table since there is no data
+                createCollocationStatTable(null, false);
+            } else {
+                chrome.storage.local.get(
+                    "collectionStats",
+                    function (collectionResult) {
+                        var statCollection = collectionResult.collectionStats;
+                        console.log(result.collocationData);
+                        createCollocationStatTable(
+                            calculateFreqPMI(
+                                result.collocationData,
+                                statCollection.collocation.selfReference
+                            ),
+                            statCollection.collocation.selfReference,
+                            document.getElementById("general-stat-section")
+                        );
+                    }
+                );
+            }
+    
+            var docWidth = document.documentElement.offsetWidth;
+    
+            [].forEach.call(document.querySelectorAll("*"), function (el) {
+                if (el.offsetWidth > docWidth) {
+                    console.log(el);
+                }
+            });
+        });
     });
+
+
 }
 
 function createWhitelistRow(websiteTable, input, rowI) {
@@ -93,7 +126,6 @@ function onReaderLoad(event) {
     // console.log("input", jsonIn);
     storeNewCollocateInstructions(jsonIn["collocate-groups"]);
     resetStoredData();
-
 }
 
 function storeNewCollocateInstructions(collocateInst) {
@@ -120,7 +152,7 @@ function storeNewCollocateInstructions(collocateInst) {
                 collocateInst["span"][0],
                 collocateInst["span"][1]
             );
-            
+
             chrome.storage.local.set({
                 collectionStats: result.collectionStats,
             });
@@ -128,7 +160,88 @@ function storeNewCollocateInstructions(collocateInst) {
     });
 }
 
-function resetStoredData(){
+function createCollocationStatTable(
+    collocationData,
+    selfReference,
+    parentElement
+) {
+    if (collocationData !== null) {
+        var data = formatCollocationStatsForTable(
+            collocationData,
+            selfReference
+        );
+        console.log(
+            formatCollocationStatsForTable(collocationData, selfReference)
+        );
+        var table = document.createElement("table");
+        table.classList.add("stat-table");
+
+        for (let element of data) {
+            let row = table.insertRow();
+            for (key in element) {
+                let cell = row.insertCell();
+                if(!isNaN(element[key])){
+                    let text = document.createElement("span");
+                    text.innerHTML= Number(element[key].toFixed(4));
+                    text.setAttribute("title", element[key]);
+                    cell.appendChild(text);
+                } else{
+                    let text = document.createTextNode(element[key]);
+                    cell.appendChild(text);
+                }
+            }
+        }
+
+        let thead = table.createTHead();
+        let row = thead.insertRow();
+        for (let key in data[0]) {
+            let th = document.createElement("th");
+            let text = document.createTextNode(key);
+            th.appendChild(text);
+            row.appendChild(th);
+        }
+
+        parentElement.appendChild(table);
+    } else {
+        // Create an element saying no stats have been collected yet.
+    }
+}
+
+function formatCollocationStatsForTable(collocationData, selfReference) {
+    // pivot, target, pivotFreq, targetFreq, pivotTargetFreq, pivotProb, targetProb, pivotTargetProb, PMI(pivot, Target)
+    var tableLines = [];
+    for (var pivot in collocationData.pivotFrequencies) {
+        const pivotFreq = collocationData.pivotFrequencies[pivot];
+        const pivotProb = collocationData.pivotProbabilities[pivot];
+        for (var target in collocationData.targetFrequencies) {
+            if(selfReference || target !== pivot){
+                const targetFreq = collocationData.pivotFrequencies[target];
+                const targetProb = collocationData.pivotProbabilities[target];
+                const pivotTargetFreq =
+                    collocationData.nGramFrequencies[pivot + " " + target];
+                const pivotTargetProb =
+                    collocationData.nGramProbabilities[pivot + " " + target];
+                const pmi = collocationData.pmi[pivot + " " + target];
+                const line = {
+                    "pivot": pivot,
+                    "target": target,
+                    "pivotFreq": pivotFreq,
+                    "targetFreq": targetFreq,
+                    "pivotTargetFreq": pivotTargetFreq,
+                    "pivotProb": pivotProb,
+                    "targetProb": targetProb,
+                    "pivotTargetProb": pivotTargetProb,
+                    "pmi": pmi,
+                };
+                tableLines.push(line);
+            }
+        }
+    }
+
+    return tableLines;
+}
+
+function resetStoredData() {
     chrome.storage.local.remove("collocationData");
 }
 
@@ -140,18 +253,18 @@ document
     .getElementById("inst-file-input")
     .addEventListener("change", onFileInputChange);
 
-const tabs = document.querySelectorAll('[data-tab-target]');
-const tabContents = document.querySelectorAll('[data-tab-content]');
-tabs.forEach(tab =>{
-    tab.addEventListener('click', ()=>{
+const tabs = document.querySelectorAll("[data-tab-target]");
+const tabContents = document.querySelectorAll("[data-tab-content]");
+tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
         const target = document.querySelector(tab.dataset.tabTarget);
-        tabContents.forEach(tabContent => {
+        tabContents.forEach((tabContent) => {
             tabContent.classList.remove("active");
         });
-        tabs.forEach(tab => {
+        tabs.forEach((tab) => {
             tab.classList.remove("active");
         });
         tab.classList.add("active");
         target.classList.add("active");
-    })
-})
+    });
+});

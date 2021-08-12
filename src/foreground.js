@@ -4,10 +4,10 @@ console.log("EXECUTING foreground.js");
 chrome.storage.local.get("collectionStats", function (result) {
     var statCollection = result.collectionStats;
     // check which stats to collect and find them them
-     console.log(statCollection);
+    console.log("Stats to collect: ", statCollection);
     var pageText = getPageContent();
     var tokens = tokenize(pageText);
-    console.log(pageText);
+    console.log("Extracted Text", pageText);
 
     if (statCollection.charCount) {
         console.log("Char Count: " + findCharacterCount(pageText));
@@ -23,6 +23,7 @@ chrome.storage.local.get("collectionStats", function (result) {
 
     if(statCollection.collocation){
         var calculatedCollocation = performCollocation(tokens.wordTokens, statCollection.collocation);
+        console.log("PMI Results for Current Page: ", calculateFreqPMI(calculatedCollocation, statCollection.collocation.selfReference));
         
         chrome.storage.local.get("collocationData", function(result){
             if (typeof result.collocationData === "undefined") {
@@ -35,10 +36,9 @@ chrome.storage.local.get("collectionStats", function (result) {
                     }
                 );
             } else {
-                var newCol = combineCollocationData(result.collocationData, calculatedCollocation);
-                calculateFreqPMI(newCol, statCollection.collocation.selfReference);
-                console.log(newCol);
-                chrome.storage.local.set({ collocationData: newCol }, function () {});
+                var newCollocation = combineCollocationData(result.collocationData, calculatedCollocation);
+                console.log("Combined PMI Results: ", calculateFreqPMI(newCollocation, statCollection.collocation.selfReference));
+                chrome.storage.local.set({ collocationData: newCollocation }, function () {});
             }
         });
     }

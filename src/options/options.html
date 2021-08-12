@@ -26,18 +26,14 @@
             <div class="tab-content">
                 <div id="general" class="active" data-tab-content>
                     <h1 class="title">General</h1>
+                    <div id="general-stat-section" class="stats section">
                         <h2 class="sub-title">Collected Statistics</h2>
-                        <table id="stat-table">
-                            <tr>
-                                <th>Statistic</th>
-                                <th>Value</th>
-                            </tr>
-                        </table>
+                    </div>
                 </div>
 
                 <div id="whitelist" data-tab-content>
                     <h1 class="title">Whitelist</h1>
-                    <div class="whitelist-section">
+                    <div class="section">
                         <form id="whitelist-form">
                             <input
                                 id="whitelist-input"
@@ -53,10 +49,10 @@
                         </form>
                         <div>
                             <table id="whitelist-table">
-                                <tr>
+                                <thead>
                                     <th>Website</th>
                                     <th></th>
-                                </tr>
+                                </thead>
                             </table>
                         </div>
                     </div>
@@ -79,6 +75,7 @@
             </div>
         </div>
         <script src="../background/StatCollectionInfo.js"></script>
+        <script src="../stat.js"></script>
         <script src="options.js"></script>
     </body>
 </html>

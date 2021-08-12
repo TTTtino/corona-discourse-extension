@@ -5,8 +5,9 @@ body {
     margin: 0;
 }
 
+
 .container {
-    width: 100vw;
+    width: inherit;
     height: 100vh;
 
     display: grid;
@@ -22,7 +23,7 @@ body {
 .header {
     grid-column-start: 1;
     grid-column-end: 3;
-    width: 100vw;
+    width: inherit;
     height: 100%;
 
     display: flex;
@@ -83,12 +84,11 @@ body {
 
 [data-tab-content]{
     display:none;
+    width: inherit;
 }
 
 .active[data-tab-content]{
     display:block;
-    height: 100%;
-    width: 100%;
 }
 
 .tab-content{
@@ -109,13 +109,14 @@ body {
     font-size: 18;
     margin-top: 0px;
 }
+
+
 table{
     border-collapse: collapse;
     border-radius: 3px;
-    width: 100%;
+    width: inherit;
     border: 1px solid #2A9D8F;
     border-spacing: 0;
-    display: block;
     max-height:70%;
     overflow-y: auto;
 }
@@ -131,8 +132,8 @@ th {
 }
 
 td{
-    padding: 10px;
-
+    padding: 10px 15px ;
+    width:100%;
 }
 
 
@@ -203,10 +204,20 @@ td:hover .whitelist-delete-button[type="image" i]{
     display: flex;
 }
 
-.whitelist-section{
+
+
+.section{
     min-width: 400px;
     width: 40%;
     display: flex;
     justify-content: normal;
     flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+    
+}
+
+.stats.section{
+    min-width: 400px;
+    width: 100%;
 }

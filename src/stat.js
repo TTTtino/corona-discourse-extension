@@ -1,6 +1,5 @@
 function performCollocation(wordTokens, collocationInfo) {
     //console.log("Performign Collocation on", corpus);
-    console.log(wordTokens);
     var index = 0;
     for (index = 0; index < wordTokens.length-1; index++) {
         const element = wordTokens[index];
@@ -8,10 +7,8 @@ function performCollocation(wordTokens, collocationInfo) {
             console.log(element + " " + wordTokens[index+1]);
         }
     }
-    console.log(index);
     const nGrams = generateNgrams(wordTokens, collocationInfo.span);
 
-    console.log("nGrams: ", nGrams);
     var pivotFrequencies = {};
     var targetFrequencies = {};
     var nGramFrequency = {};
@@ -49,30 +46,24 @@ function performCollocation(wordTokens, collocationInfo) {
             collocationInfo.parseAsRegex
         );
     }
-    console.log("pivot frequencies: ", pivotFrequencies);
-    console.log("target frequencies: ", targetFrequencies);
-    console.log("n-gram frequencies: ", nGramFrequency);
 
     var pivotProb = {};
     for (let iFreq = 0; iFreq < collocationInfo.pivotTokens.length; iFreq++) {
         const element = collocationInfo.pivotTokens[iFreq];
         pivotProb[element] = pivotFrequencies[element] / wordTokens.length;
     }
-    console.log("pivot probabilities: ", pivotProb);
 
     var targetProb = {};
     for (let iFreq = 0; iFreq < collocationInfo.targetTokens.length; iFreq++) {
         const element = collocationInfo.targetTokens[iFreq];
         targetProb[element] = targetFrequencies[element] / wordTokens.length;
     }
-    console.log("target probabilities: ", targetProb);
 
     var nGramProb = {};
     for (var key in nGramFrequency) {
         var value = nGramFrequency[key];
         nGramProb[key] = value / nGrams.length;
     }
-    console.log("n-gram probabilities: ", nGramProb);
 
     var pmi = calculateProbPMI(
         pivotProb,
@@ -80,7 +71,6 @@ function performCollocation(wordTokens, collocationInfo) {
         nGramProb,
         collocationInfo.selfReference
     );
-    console.log("PMI: ", pmi);
     
     var colStorage = new CollocationData();
     colStorage.pivotFrequencies = pivotFrequencies;
@@ -89,7 +79,6 @@ function performCollocation(wordTokens, collocationInfo) {
     colStorage.nGramSum = nGrams.length;
     colStorage.tokenSum = wordTokens.length;
 
-    console.log(colStorage);
     return colStorage;
 }
 
@@ -226,13 +215,9 @@ function getFrequency(word, wordTokens, regex = true) {
         }
     } else {
         let re = new RegExp("^" + word + "$");
-        console.log(re.source);
         for (let i = 0; i < wordTokens.length; i++) {
             if (re.test(wordTokens[i])) {
                 count++;
-                if (wordTokens[i] === "death") {
-                    console.log("found death");
-                }
             }
         }
     }
@@ -307,21 +292,21 @@ function calculateFreqPMI(collocationData, canSelfReference){
         var freq = collocationData.pivotFrequencies[key];
         pivotProb[key] = freq / collocationData.tokenSum;
     }
-    console.log("pivot probabilities: ", pivotProb);
+    //console.log("pivot probabilities: ", pivotProb);
 
     var targetProb = {};
     for (var key in collocationData.targetFrequencies) {
         var freq = collocationData.targetFrequencies[key];
         targetProb[key] = freq / collocationData.tokenSum;
     }
-    console.log("target probabilities: ", targetProb);
+    //console.log("target probabilities: ", targetProb);
 
     var nGramProb = {};
     for (var key in collocationData.nGramFrequencies) {
         var freq = collocationData.nGramFrequencies[key];
         nGramProb[key] = freq / collocationData.tokenSum;
     }
-    console.log("n-gram probabilities: ", nGramProb);
+    //console.log("n-gram probabilities: ", nGramProb);
 
     var pmi = calculateProbPMI(
         pivotProb,
@@ -329,5 +314,9 @@ function calculateFreqPMI(collocationData, canSelfReference){
         nGramProb,
         canSelfReference
     );
-    console.log("PMI: ", pmi);
+    collocationData["pivotProbabilities"] = pivotProb;
+    collocationData["targetProbabilities"] = targetProb;
+    collocationData["nGramProbabilities"] = nGramProb;
+    collocationData["pmi"] = pmi;
+    return collocationData;
 }
