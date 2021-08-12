@@ -11,7 +11,7 @@ body {
 
     display: grid;
 
-    grid-template-columns: minmax(200px, 15%) 1fr;
+    grid-template-columns: minmax(250px, 15%) 1fr;
 
     grid-template-rows: 15vh 10fr;
     gap: 20px;
@@ -34,38 +34,179 @@ body {
     box-sizing: border-box;
 }
 .header h1 {
-    padding-left: 3%;
+    padding-left: 20px;
 }
 
 .header img {
     height: 100%;
 }
 
-.sidenav {
-    width: 100%;
-    height: fit-content;
-    background-color: white;
-    border-radius: 10px;
+.tabs {
+    display:flex;
+    justify-content: normal;
+    flex-direction: column;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
 }
 
-.sidenav a {
-    padding: 6px 8px 6px 16px;
+.tab:first-child {
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.tab:last-child {
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.tab{
+    padding: 15px 12px 15px 20px;
     text-decoration: none;
     font-size: 16px;
     color: black;
     display: block;
+    cursor: pointer;
+    background-color: white;
 }
 
-.sidenav a:hover {
+.tab:hover {
     background-color: #2A9C8E;
     color: white;
 }
 
-.sidenav a.active {
+.tab.active {
     background-color: #26887C;
     color: white;
+} 
+
+
+[data-tab-content]{
+    display:none;
 }
 
-.content{
-    padding-left: minmax(240px, 2%);
+.active[data-tab-content]{
+    display:block;
+    height: 100%;
+    width: 100%;
+}
+
+.tab-content{
+    margin-left: 20px;
+}
+
+.title{
+    font-family: "Source Sans Pro", sans-serif;
+    font-weight: 300;
+    font-size: 48;
+    margin-top: 0px;
+}
+
+.sub-title{
+    
+    font-family: "Source Sans Pro", sans-serif;
+    font-weight: 600;
+    font-size: 18;
+    margin-top: 0px;
+}
+table{
+    border-collapse: collapse;
+    border-radius: 3px;
+    width: 100%;
+    border: 1px solid #2A9D8F;
+    border-spacing: 0;
+    display: block;
+    max-height:70%;
+    overflow-y: auto;
+}
+
+th {
+    text-align:left;
+    height: 35px;
+    padding: 12px 10px;
+    position: sticky;
+    top: 0;
+    width:100%;
+    background-image: linear-gradient(#f3f3f3, #f3f3f3dd, #f3f3f300);
+}
+
+td{
+    padding: 10px;
+
+}
+
+
+tr {
+    height: 30px;
+    padding: 8px 10px;
+    width:100%;
+}
+
+.whitelist-delete-button {
+    background-color: #2A9D8F7F; 
+    border: none;
+    color: white;
+    padding: 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 10px;
+    height: 15px;
+    width: 15px;
+    border-radius: 3px;
+}
+
+
+
+.whitelist-delete-button[type="image" i]{
+    opacity: 0.5;
+}
+
+td:hover .whitelist-delete-button {
+    background-color: #2A9D8F; 
+    height: 15px;
+    width: 15px;
+}
+
+td:hover .whitelist-delete-button[type="image" i]{
+    opacity: 1.0;
+}
+
+#whitelist-add-button{
+    background-color: #2A9D8F; 
+    border: none;
+    color: white;
+    padding: 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 10px;
+    border-radius: 3px;
+}
+
+#whitelist-input{
+    flex-grow: 1;
+    border: 1px solid #2A9D8F;
+    margin-right: 5px;
+    border-radius: 3px;
+    padding: 0px 10px;
+}
+
+#whitelist-input:focus {
+    outline: none;
+    border: 2px solid #2A9D8F;
+}
+
+
+#whitelist-form{
+    width:100%;
+    display: flex;
+}
+
+.whitelist-section{
+    min-width: 400px;
+    width: 40%;
+    display: flex;
+    justify-content: normal;
+    flex-direction: column;
 }
