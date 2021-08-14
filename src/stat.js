@@ -318,5 +318,6 @@ function calculateFreqPMI(collocationData, canSelfReference){
     collocationData["targetProbabilities"] = targetProb;
     collocationData["nGramProbabilities"] = nGramProb;
     collocationData["pmi"] = pmi;
+    console.log(collocationData);
     return collocationData;
 }

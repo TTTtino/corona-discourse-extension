@@ -1,24 +1,35 @@
 <html>
     <head>
-        <link rel="icon" type="image/png" href="../images/logo.png">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" href="../images/logo.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap"
+            rel="stylesheet"
+        />
         <link rel="stylesheet" href="options.css" />
     </head>
 
     <body>
         <div class="container">
             <div class="header">
-                <img src="../images/logo.png" class="header-logo" />
+                <div>
+                    <img src="../images/logo.png" class="header-logo" />
+                </div>
                 <h1>Extension Name</h1>
             </div>
             <!-- Side navigation -->
             <div class="sidenav">
                 <ul class="tabs">
-                    <li data-tab-target="#general" class="tab active">General</li>
-                    <li data-tab-target="#whitelist" class="tab">Whitelisted Websites</li>
-                    <li data-tab-target="#import-export" class="tab">Import/Export</li>
+                    <li data-tab-target="#general" class="tab active">
+                        General
+                    </li>
+                    <li data-tab-target="#whitelist" class="tab">
+                        Whitelisted Websites
+                    </li>
+                    <li data-tab-target="#import-export" class="tab">
+                        Import/Export
+                    </li>
                     <li data-tab-target="#help" class="tab">Help</li>
                 </ul>
             </div>
@@ -58,11 +69,39 @@
                     </div>
                 </div>
 
-
                 <div id="import-export" data-tab-content>
                     <h1 class="title">Import/Export</h1>
                     <div>
-                        <input type="file" id="inst-file-input"></input>
+                        <h2 class="sub-title">Import Researcher Parameters</h2>
+                        <p1
+                            >Import the file provided by the researcher to set
+                            the relevant parameters for data collection</p1
+                        >
+                        <label for="inst-file-input" class="custom-file-upload">
+                            Import
+                        </label>
+                        <input id="inst-file-input" type="file" />
+                        <br />
+                        <h2 class="sub-title">Export Collected Statistics</h2>
+                        <p1>Export all collected statistics as a *.txt file</p1>
+                        <!-- <label for="inst-file-input" class="custom-file-upload">
+                            Copy To Clipboard
+                        </label> -->
+                        <div>
+                            <button
+                                id="copy-clipboard"
+                                class="custom-file-upload"
+                            >
+                                Copy To Clipboard
+                            </button>
+
+                            <button
+                                id="download-stats"
+                                class="custom-file-upload"
+                            >
+                                Download
+                            </button>
+                        </div>
                     </div>
                 </div>
 

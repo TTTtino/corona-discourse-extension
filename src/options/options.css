@@ -14,7 +14,7 @@ body {
 
     grid-template-columns: minmax(250px, 15%) 1fr;
 
-    grid-template-rows: 15vh 10fr;
+    grid-template-rows: minmax(250px, 15vh) 10fr;
     gap: 20px;
     padding: 10px;
     box-sizing: border-box;
@@ -34,12 +34,19 @@ body {
     padding: 10px;
     box-sizing: border-box;
 }
+
 .header h1 {
     padding-left: 20px;
+    font-size: 48px;
 }
 
 .header img {
+    height:100%;
+    display:inline-block;
+    overflow: hidden;
+    object-fit: cover;
     height: 100%;
+    vertical-align: bottom;
 }
 
 .tabs {
@@ -81,7 +88,6 @@ body {
     color: white;
 } 
 
-
 [data-tab-content]{
     display:none;
     width: inherit;
@@ -92,7 +98,11 @@ body {
 }
 
 .tab-content{
-    margin-left: 20px;
+    border-radius: 10px;
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 10px;
+    margin-right: 10px;
 }
 
 .title{
@@ -103,45 +113,13 @@ body {
 }
 
 .sub-title{
-    
     font-family: "Source Sans Pro", sans-serif;
     font-weight: 600;
     font-size: 18;
     margin-top: 0px;
+    margin-bottom: 3px;
 }
 
-
-table{
-    border-collapse: collapse;
-    border-radius: 3px;
-    width: inherit;
-    border: 1px solid #2A9D8F;
-    border-spacing: 0;
-    max-height:70%;
-    overflow-y: auto;
-}
-
-th {
-    text-align:left;
-    height: 35px;
-    padding: 12px 10px;
-    position: sticky;
-    top: 0;
-    width:100%;
-    background-image: linear-gradient(#f3f3f3, #f3f3f3dd, #f3f3f300);
-}
-
-td{
-    padding: 10px 15px ;
-    width:100%;
-}
-
-
-tr {
-    height: 30px;
-    padding: 8px 10px;
-    width:100%;
-}
 
 .whitelist-delete-button {
     background-color: #2A9D8F7F; 
@@ -177,7 +155,7 @@ td:hover .whitelist-delete-button[type="image" i]{
     background-color: #2A9D8F; 
     border: none;
     color: white;
-    padding: 10px 10px;
+    padding: 10px 20px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -204,7 +182,50 @@ td:hover .whitelist-delete-button[type="image" i]{
     display: flex;
 }
 
+#whitelist-table{
+    min-width: 200;
+    width: 100%;
+}
 
+.centered-cell{
+    text-align: center;
+    width:1%;
+}
+
+table{
+    border-collapse: collapse;
+    border-radius: 3px;
+    min-width: 200;
+    width: 100%;
+    border: 1px solid #2A9D8F;
+    border-spacing: 0;
+    max-height:70%;
+    overflow-y: auto;
+}
+
+th {
+    text-align:left;
+    height: 35px;
+    padding: 12px 10px;
+    position: sticky;
+    top: 0;
+    background-image: linear-gradient(#f3f3f3, #f3f3f3dd, #f3f3f300);
+}
+
+td{
+    padding: 10px 15px ;
+}
+
+
+tr {
+    height: 30px;
+    padding: 8px 10px;
+}
+
+tbody > tr:hover{
+    background-color: #2A9C8E;
+    color:white;
+}
 
 .section{
     min-width: 400px;
@@ -220,4 +241,34 @@ td:hover .whitelist-delete-button[type="image" i]{
 .stats.section{
     min-width: 400px;
     width: 100%;
+}
+
+
+input[type="file"] {
+    display: none;
+}
+
+
+
+.custom-file-upload {
+    display: inline-block;
+    cursor: pointer;
+    background-color: #2A9D8F; 
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    text-align: center;
+    height: 40px;
+    font-size: 15px;
+    border-radius: 3px;
+    margin-top: 15px;
+    box-sizing: border-box;
+}
+
+label.custom-file-upload {
+    display: block;
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

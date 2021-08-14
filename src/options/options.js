@@ -51,9 +51,9 @@ function restore_options() {
                     }
                 );
             }
-    
+
             var docWidth = document.documentElement.offsetWidth;
-    
+
             [].forEach.call(document.querySelectorAll("*"), function (el) {
                 if (el.offsetWidth > docWidth) {
                     console.log(el);
@@ -61,14 +61,13 @@ function restore_options() {
             });
         });
     });
-
-
 }
 
 function createWhitelistRow(websiteTable, input, rowI) {
     const row = websiteTable.insertRow(rowI + 1);
     var siteName = row.insertCell(0);
     var delButtonCell = row.insertCell(1);
+    delButtonCell.classList.add("centered-cell");
     siteName.innerHTML = input;
     let delButton = document.createElement("input");
     delButton.type = "image";
@@ -170,9 +169,6 @@ function createCollocationStatTable(
             collocationData,
             selfReference
         );
-        console.log(
-            formatCollocationStatsForTable(collocationData, selfReference)
-        );
         var table = document.createElement("table");
         table.classList.add("stat-table");
 
@@ -180,23 +176,25 @@ function createCollocationStatTable(
             let row = table.insertRow();
             for (key in element) {
                 let cell = row.insertCell();
-                if(!isNaN(element[key])){
+                if (!isNaN(element[key])) {
                     let text = document.createElement("span");
-                    text.innerHTML= Number(element[key].toFixed(4));
+                    // text.style.color = "#2A9C8E";
+                    text.innerHTML = "<b>" + Number(element[key].toFixed(4)) + "</b>";
                     text.setAttribute("title", element[key]);
                     cell.appendChild(text);
-                } else{
+                } else {
                     let text = document.createTextNode(element[key]);
                     cell.appendChild(text);
                 }
             }
         }
-
+        
+        var header = [ "Pivot", "Target", "Pivot Frequency", "Target Frequency", "Pivot-Target Frequency", "Pivot Probability", "Target Probability", "Pivot-Target Probability", "PMI"];
         let thead = table.createTHead();
         let row = thead.insertRow();
-        for (let key in data[0]) {
+        for (let value of header) {
             let th = document.createElement("th");
-            let text = document.createTextNode(key);
+            let text = document.createTextNode(value);
             th.appendChild(text);
             row.appendChild(th);
         }
@@ -210,11 +208,12 @@ function createCollocationStatTable(
 function formatCollocationStatsForTable(collocationData, selfReference) {
     // pivot, target, pivotFreq, targetFreq, pivotTargetFreq, pivotProb, targetProb, pivotTargetProb, PMI(pivot, Target)
     var tableLines = [];
+
     for (var pivot in collocationData.pivotFrequencies) {
         const pivotFreq = collocationData.pivotFrequencies[pivot];
         const pivotProb = collocationData.pivotProbabilities[pivot];
         for (var target in collocationData.targetFrequencies) {
-            if(selfReference || target !== pivot){
+            if (selfReference || target !== pivot) {
                 const targetFreq = collocationData.pivotFrequencies[target];
                 const targetProb = collocationData.pivotProbabilities[target];
                 const pivotTargetFreq =
@@ -223,15 +222,15 @@ function formatCollocationStatsForTable(collocationData, selfReference) {
                     collocationData.nGramProbabilities[pivot + " " + target];
                 const pmi = collocationData.pmi[pivot + " " + target];
                 const line = {
-                    "pivot": pivot,
-                    "target": target,
-                    "pivotFreq": pivotFreq,
-                    "targetFreq": targetFreq,
-                    "pivotTargetFreq": pivotTargetFreq,
-                    "pivotProb": pivotProb,
-                    "targetProb": targetProb,
-                    "pivotTargetProb": pivotTargetProb,
-                    "pmi": pmi,
+                    pivot: pivot,
+                    target: target,
+                    pivotFreq: pivotFreq,
+                    targetFreq: targetFreq,
+                    pivotTargetFreq: pivotTargetFreq,
+                    pivotProb: pivotProb,
+                    targetProb: targetProb,
+                    pivotTargetProb: pivotTargetProb,
+                    pmi: pmi,
                 };
                 tableLines.push(line);
             }
@@ -245,10 +244,98 @@ function resetStoredData() {
     chrome.storage.local.remove("collocationData");
 }
 
+function getCalculatedCollocationData(callback) {
+    chrome.storage.local.get("collocationData", function (result) {
+        if (typeof result.collocationData === "undefined") {
+            console.log("No collocation data found");
+            callback(null);
+        } else {
+            chrome.storage.local.get(
+                "collectionStats",
+                function (collectionResult) {
+                    console.log("Collocation data found");
+                    var statCollection = collectionResult.collectionStats;
+                    var finalCollocationData = calculateFreqPMI(
+                        result.collocationData,
+                        statCollection.collocation.selfReference
+                    );
+                    callback(finalCollocationData);
+                }
+            );
+        }
+    });
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text);
+}
+
+function copyStatsToClipBoard() {
+    var textToCopy = "";
+
+    getCalculatedCollocationData((collocationStats) => {
+        textToCopy += JSON.stringify(collocationStats, null, "\t");
+        copyToClipboard(textToCopy);
+    });
+}
+
+// Function to download data to a file
+// https://stackoverflow.com/questions/13405129/javascript-create-and-save-file
+function download(data, filename, type) {
+    var file = new Blob([data], { type: type });
+    if (window.navigator.msSaveOrOpenBlob)
+        // IE10+
+        window.navigator.msSaveOrOpenBlob(file, filename);
+    else {
+        // Others
+        var a = document.createElement("a"),
+            url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 0);
+    }
+}
+
+function downloadCollectedStats() {
+    var textToCopy = "";
+
+    getCalculatedCollocationData((collocationStats) => {
+        textToCopy += JSON.stringify(collocationStats, null, "\t");
+
+        var currentDate = new Date();
+        var fileName =
+            "ExtensionName-Collected-Stats-" +
+            currentDate.getDate() +
+            "/" +
+            currentDate.getMonth() +
+            "/" +
+            currentDate.getFullYear() +
+            "-" +
+            currentDate.getHours() +
+            ":" +
+            currentDate.getMinutes() +
+            ":" +
+            currentDate.getSeconds();
+        download(textToCopy, fileName, "application/json");
+    });
+}
+
 document.addEventListener("DOMContentLoaded", restore_options);
 document
     .getElementById("whitelist-add-button")
     .addEventListener("click", addWebsiteToWhitelist);
+document
+    .getElementById("copy-clipboard")
+    .addEventListener("click", copyStatsToClipBoard);
+
+document
+    .getElementById("download-stats")
+    .addEventListener("click", downloadCollectedStats);
 document
     .getElementById("inst-file-input")
     .addEventListener("change", onFileInputChange);
