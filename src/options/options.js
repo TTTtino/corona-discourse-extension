@@ -33,7 +33,7 @@ function restore_options() {
         chrome.storage.local.get("collocationData", function (result) {
             if (typeof result.collocationData === "undefined") {
                 // should create an empty table since there is no data
-                createCollocationStatTable(null, false);
+                createCollocationStatTable(null, false, document.getElementById("general-stat-section"));
             } else {
                 chrome.storage.local.get(
                     "collectionStats",
@@ -178,8 +178,11 @@ function createCollocationStatTable(
                 let cell = row.insertCell();
                 if (!isNaN(element[key])) {
                     let text = document.createElement("span");
-                    // text.style.color = "#2A9C8E";
-                    text.innerHTML = "<b>" + Number(element[key].toFixed(4)) + "</b>";
+                    var roundedNum = Number(element[key].toFixed(4));
+                    if (roundedNum != element[key]) {
+                        text.classList.add("roundedNum");
+                    }
+                    text.innerHTML = roundedNum;
                     text.setAttribute("title", element[key]);
                     cell.appendChild(text);
                 } else {
@@ -188,8 +191,18 @@ function createCollocationStatTable(
                 }
             }
         }
-        
-        var header = [ "Pivot", "Target", "Pivot Frequency", "Target Frequency", "Pivot-Target Frequency", "Pivot Probability", "Target Probability", "Pivot-Target Probability", "PMI"];
+
+        var header = [
+            "Pivot",
+            "Target",
+            "Pivot Frequency",
+            "Target Frequency",
+            "Pivot-Target Frequency",
+            "Pivot Probability",
+            "Target Probability",
+            "Pivot-Target Probability",
+            "PMI",
+        ];
         let thead = table.createTHead();
         let row = thead.insertRow();
         for (let value of header) {
@@ -202,6 +215,9 @@ function createCollocationStatTable(
         parentElement.appendChild(table);
     } else {
         // Create an element saying no stats have been collected yet.
+        var noDataMessage = document.createElement("p");
+        noDataMessage.innerHTML = "No data has been collected so far. Browse some whitelisted websites to collect data."
+        parentElement.appendChild(noDataMessage);
     }
 }
 
@@ -242,6 +258,7 @@ function formatCollocationStatsForTable(collocationData, selfReference) {
 
 function resetStoredData() {
     chrome.storage.local.remove("collocationData");
+    location.reload();
 }
 
 function getCalculatedCollocationData(callback) {
@@ -325,10 +342,25 @@ function downloadCollectedStats() {
     });
 }
 
+function getDecimalPlaces(num) {
+    if (Math.floor(num) === num) return 0;
+
+    var str = num.toString();
+    if (str.indexOf(".") !== -1 && str.indexOf("-") !== -1) {
+        return str.split("-")[1] || 0;
+    } else if (str.indexOf(".") !== -1) {
+        return str.split(".")[1].length || 0;
+    }
+    return str.split("-")[1] || 0;
+}
+
 document.addEventListener("DOMContentLoaded", restore_options);
 document
     .getElementById("whitelist-add-button")
     .addEventListener("click", addWebsiteToWhitelist);
+document
+    .getElementById("reset-stats-button")
+    .addEventListener("click", resetStoredData);
 document
     .getElementById("copy-clipboard")
     .addEventListener("click", copyStatsToClipBoard);
@@ -355,3 +387,19 @@ tabs.forEach((tab) => {
         target.classList.add("active");
     });
 });
+
+var coll = document.getElementsByClassName("collapsible-button");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        console.log(content);
+        if (content.style.display === "block") {
+            content.style.display = "none";
+        } else {
+            content.style.display = "block";
+        }
+    });
+}

@@ -1,10 +1,17 @@
 /* Style the header with a grey background and some padding */
+html {
+    overflow: -moz-scrollbars-vertical; 
+    overflow-y: scroll;
+}
+
+* {
+    font-family: "Roboto", sans-serif;
+}
 
 body {
     background-color: #f3f3f3;
     margin: 0;
 }
-
 
 .container {
     width: inherit;
@@ -41,8 +48,8 @@ body {
 }
 
 .header img {
-    height:100%;
-    display:inline-block;
+    height: 100%;
+    display: inline-block;
     overflow: hidden;
     object-fit: cover;
     height: 100%;
@@ -50,7 +57,7 @@ body {
 }
 
 .tabs {
-    display:flex;
+    display: flex;
     justify-content: normal;
     flex-direction: column;
     list-style-type: none;
@@ -68,7 +75,7 @@ body {
     border-bottom-left-radius: 10px;
 }
 
-.tab{
+.tab {
     padding: 15px 12px 15px 20px;
     text-decoration: none;
     font-size: 16px;
@@ -79,25 +86,25 @@ body {
 }
 
 .tab:hover {
-    background-color: #2A9C8E;
+    background-color: #2a9c8e;
     color: white;
 }
 
 .tab.active {
-    background-color: #26887C;
+    background-color: #26887c;
     color: white;
-} 
+}
 
-[data-tab-content]{
-    display:none;
+[data-tab-content] {
+    display: none;
     width: inherit;
 }
 
-.active[data-tab-content]{
-    display:block;
+.active[data-tab-content] {
+    display: block;
 }
 
-.tab-content{
+.tab-content {
     border-radius: 10px;
     background-color: white;
     padding: 20px;
@@ -105,14 +112,14 @@ body {
     margin-right: 10px;
 }
 
-.title{
+.title {
     font-family: "Source Sans Pro", sans-serif;
     font-weight: 300;
     font-size: 48;
     margin-top: 0px;
 }
 
-.sub-title{
+.sub-title {
     font-family: "Source Sans Pro", sans-serif;
     font-weight: 600;
     font-size: 18;
@@ -120,9 +127,8 @@ body {
     margin-bottom: 3px;
 }
 
-
 .whitelist-delete-button {
-    background-color: #2A9D8F7F; 
+    background-color: #2a9d8f7f;
     border: none;
     color: white;
     padding: 10px 10px;
@@ -135,24 +141,22 @@ body {
     border-radius: 3px;
 }
 
-
-
-.whitelist-delete-button[type="image" i]{
+.whitelist-delete-button[type="image" i] {
     opacity: 0.5;
 }
 
 td:hover .whitelist-delete-button {
-    background-color: #2A9D8F; 
+    background-color: #2a9d8f;
     height: 15px;
     width: 15px;
 }
 
-td:hover .whitelist-delete-button[type="image" i]{
-    opacity: 1.0;
+td:hover .whitelist-delete-button[type="image" i] {
+    opacity: 1;
 }
 
-#whitelist-add-button{
-    background-color: #2A9D8F; 
+#whitelist-add-button {
+    background-color: #2a9d8f;
     border: none;
     color: white;
     padding: 10px 20px;
@@ -163,9 +167,9 @@ td:hover .whitelist-delete-button[type="image" i]{
     border-radius: 3px;
 }
 
-#whitelist-input{
+#whitelist-input {
     flex-grow: 1;
-    border: 1px solid #2A9D8F;
+    border: 1px solid #2a9d8f;
     margin-right: 5px;
     border-radius: 3px;
     padding: 0px 10px;
@@ -173,38 +177,39 @@ td:hover .whitelist-delete-button[type="image" i]{
 
 #whitelist-input:focus {
     outline: none;
-    border: 2px solid #2A9D8F;
+    border: 2px solid #2a9d8f;
 }
 
-
-#whitelist-form{
-    width:100%;
+#whitelist-form {
+    width: 100%;
     display: flex;
+    margin-bottom: 0px;
 }
 
-#whitelist-table{
+#whitelist-table {
     min-width: 200;
     width: 100%;
 }
 
-.centered-cell{
+.centered-cell {
     text-align: center;
-    width:1%;
+    width: 1%;
 }
 
-table{
+table {
     border-collapse: collapse;
     border-radius: 3px;
     min-width: 200;
     width: 100%;
-    border: 1px solid #2A9D8F;
+    border: 1px solid #2a9d8f;
     border-spacing: 0;
-    max-height:70%;
+    max-height: 70%;
     overflow-y: auto;
+    margin-top: 10px;
 }
 
 th {
-    text-align:left;
+    text-align: left;
     height: 35px;
     padding: 12px 10px;
     position: sticky;
@@ -212,22 +217,26 @@ th {
     background-image: linear-gradient(#f3f3f3, #f3f3f3dd, #f3f3f300);
 }
 
-td{
-    padding: 10px 15px ;
+td {
+    padding: 10px 15px;
 }
-
 
 tr {
     height: 30px;
     padding: 8px 10px;
 }
 
-tbody > tr:hover{
-    background-color: #2A9C8E;
-    color:white;
+tbody > tr:hover {
+    background-color: #2a9c8e;
+    color: white;
 }
 
-.section{
+.roundedNum {
+    color: #1c695f;
+    font-weight: 500;
+}
+
+.section {
     min-width: 400px;
     width: 40%;
     display: flex;
@@ -235,25 +244,67 @@ tbody > tr:hover{
     flex-direction: column;
     padding: 10px;
     box-sizing: border-box;
-    
 }
 
-.stats.section{
+.stats.section {
     min-width: 400px;
     width: 100%;
 }
 
+/* Style the button that is used to open and close the collapsible content */
+.collapsible-button {
+    background-color: #eee;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.collapsible-button:hover {
+    background-color: #2a9c8e;
+    color: white;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.collapsible-button:hover {
+    background-color: #2a9c8e;
+    color: white;
+}
+
+.collapsible-button:after {
+    content: "\25BC"; /* Unicode character for "plus" sign (+) */
+    font-size: 13px;
+    float: right;
+    margin-left: 5px;
+}
+
+.collapsible-button:hover:after {
+    color: white;
+}
+
+
+.active.collapsible-button:after {
+    content: "\25B2"; /* Unicode character for "minus" sign (-) */
+}
+
+/* Style the collapsible content. Note: hidden by default */
+.collapsible-content {
+    padding: 0 18px;
+}
 
 input[type="file"] {
     display: none;
 }
 
-
-
 .custom-file-upload {
     display: inline-block;
     cursor: pointer;
-    background-color: #2A9D8F; 
+    background-color: #2a9d8f;
     border: none;
     color: white;
     padding: 6px 12px;
