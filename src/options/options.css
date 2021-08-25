@@ -180,7 +180,7 @@ td:hover .whitelist-delete-button[type="image" i] {
     border: 2px solid #2a9d8f;
 }
 
-#whitelist-form {
+#whitelist-form-div {
     width: 100%;
     display: flex;
     margin-bottom: 0px;

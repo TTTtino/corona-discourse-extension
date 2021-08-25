@@ -1,6 +1,7 @@
 // Saves options to chrome.storage
 function addWebsiteToWhitelist() {
-    var input = document.getElementById("whitelist-input").value;
+    var inputField = document.getElementById("whitelist-input")
+    var input = inputField.value;
     if (
         /^(http(s)?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/.test(
             input
@@ -14,6 +15,7 @@ function addWebsiteToWhitelist() {
 
             var websiteTable = document.getElementById("whitelist-table");
             createWhitelistRow(websiteTable, input, whitelist.length - 1);
+            inputField.value = "";
             return true;
         });
     } else {
@@ -31,9 +33,14 @@ function restore_options() {
         }
 
         chrome.storage.local.get("collocationData", function (result) {
+            console.log("Result:", result);
             if (typeof result.collocationData === "undefined") {
                 // should create an empty table since there is no data
-                createCollocationStatTable(null, false, document.getElementById("general-stat-section"));
+                createCollocationStatTable(
+                    null,
+                    false,
+                    document.getElementById("general-stat-section")
+                );
             } else {
                 chrome.storage.local.get(
                     "collectionStats",
@@ -121,10 +128,11 @@ function onFileInputChange(event) {
 }
 
 function onReaderLoad(event) {
-    var jsonIn = JSON.parse(event.target.result);
-    // console.log("input", jsonIn);
-    storeNewCollocateInstructions(jsonIn["collocate-groups"]);
-    resetStoredData();
+    resetStoredData(() => {
+        var jsonIn = JSON.parse(event.target.result);
+        // console.log("input", jsonIn);
+        storeNewCollocateInstructions(jsonIn["collocate-groups"]);
+    });
 }
 
 function storeNewCollocateInstructions(collocateInst) {
@@ -164,11 +172,13 @@ function createCollocationStatTable(
     selfReference,
     parentElement
 ) {
+    console.log("CollcoationData to create:", collocationData)
     if (collocationData !== null) {
         var data = formatCollocationStatsForTable(
             collocationData,
             selfReference
         );
+        console.log("Formated CollocationData", data)
         var table = document.createElement("table");
         table.classList.add("stat-table");
 
@@ -216,7 +226,8 @@ function createCollocationStatTable(
     } else {
         // Create an element saying no stats have been collected yet.
         var noDataMessage = document.createElement("p");
-        noDataMessage.innerHTML = "No data has been collected so far. Browse some whitelisted websites to collect data."
+        noDataMessage.innerHTML =
+            "No data has been collected so far. Browse some whitelisted websites to collect data.";
         parentElement.appendChild(noDataMessage);
     }
 }
@@ -230,25 +241,27 @@ function formatCollocationStatsForTable(collocationData, selfReference) {
         const pivotProb = collocationData.pivotProbabilities[pivot];
         for (var target in collocationData.targetFrequencies) {
             if (selfReference || target !== pivot) {
-                const targetFreq = collocationData.pivotFrequencies[target];
-                const targetProb = collocationData.pivotProbabilities[target];
+                const targetFreq = collocationData.targetFrequencies[target];
+                const targetProb = collocationData.targetProbabilities[target];
                 const pivotTargetFreq =
                     collocationData.nGramFrequencies[pivot + " " + target];
                 const pivotTargetProb =
                     collocationData.nGramProbabilities[pivot + " " + target];
                 const pmi = collocationData.pmi[pivot + " " + target];
-                const line = {
-                    pivot: pivot,
-                    target: target,
-                    pivotFreq: pivotFreq,
-                    targetFreq: targetFreq,
-                    pivotTargetFreq: pivotTargetFreq,
-                    pivotProb: pivotProb,
-                    targetProb: targetProb,
-                    pivotTargetProb: pivotTargetProb,
-                    pmi: pmi,
-                };
-                tableLines.push(line);
+                if(pivotFreq !== 0 || targetFreq !== 0){
+                    const line = {
+                        pivot: pivot,
+                        target: target,
+                        pivotFreq: pivotFreq,
+                        targetFreq: targetFreq,
+                        pivotTargetFreq: pivotTargetFreq,
+                        pivotProb: pivotProb,
+                        targetProb: targetProb,
+                        pivotTargetProb: pivotTargetProb,
+                        pmi: pmi,
+                    };
+                    tableLines.push(line);
+                }
             }
         }
     }
@@ -256,9 +269,20 @@ function formatCollocationStatsForTable(collocationData, selfReference) {
     return tableLines;
 }
 
-function resetStoredData() {
-    chrome.storage.local.remove("collocationData");
-    location.reload();
+// if the user confirms the alert, then "callback" function is performed before resetting the stored data
+function resetStoredData(callback) {
+    var deleteWarningMessage = `This will reset all collected data. Would you like to delete all collected data? \nYou can download the collected data first, by going to the "import/export" section on the left.`;
+    if(confirm(deleteWarningMessage)){
+        console.log(callback);
+        if(callback != null){
+            callback();
+        }
+        chrome.storage.local.remove("collocationData");
+        location.reload();
+        return true;
+    } else{
+        return false;
+    }
 }
 
 function getCalculatedCollocationData(callback) {
@@ -289,8 +313,11 @@ function copyToClipboard(text) {
 
 function copyStatsToClipBoard() {
     var textToCopy = "";
-
     getCalculatedCollocationData((collocationStats) => {
+        if(collocationStats === null){
+            alert("No stats have been collected.");
+            return;
+        }
         textToCopy += JSON.stringify(collocationStats, null, "\t");
         copyToClipboard(textToCopy);
     });
@@ -322,6 +349,11 @@ function downloadCollectedStats() {
     var textToCopy = "";
 
     getCalculatedCollocationData((collocationStats) => {
+        
+        if(collocationStats === null){
+            alert("No stats have been collected.");
+            return;
+        }
         textToCopy += JSON.stringify(collocationStats, null, "\t");
 
         var currentDate = new Date();
@@ -355,12 +387,13 @@ function getDecimalPlaces(num) {
 }
 
 document.addEventListener("DOMContentLoaded", restore_options);
-document
-    .getElementById("whitelist-add-button")
+document.getElementById("whitelist-add-button")
     .addEventListener("click", addWebsiteToWhitelist);
+
+document.getElementById("whitelist-input").addEventListener("keyup", addWebsiteToWhitelist);
 document
     .getElementById("reset-stats-button")
-    .addEventListener("click", resetStoredData);
+    .addEventListener("click", ()=>{resetStoredData();});
 document
     .getElementById("copy-clipboard")
     .addEventListener("click", copyStatsToClipBoard);

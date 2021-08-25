@@ -1,5 +1,4 @@
-//onsole.log("Runnign Background Script");
-
+// Listens for changes on any of the tabs
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // only continue if the tab has been loaded and the link starts with http
     if (changeInfo.status === "complete" && /^http/.test(tab.url)) {
@@ -60,11 +59,14 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
+// gets the stat collection info and calls the callback parameter function with result as an argument
 function getStatsToCollect(callback) {
     chrome.storage.local.get("collectionStats", function (result) {
+        // if no collection stats havfe been defined
         if (typeof result.collectionStats === "undefined") {
             var defaultCollectionStats = new StatCollectionInfo();
             console.log(defaultCollectionStats);
+            // create and set a "default collection stat"
             chrome.storage.local.set(
                 { collectionStats: defaultCollectionStats },
                 function () {
