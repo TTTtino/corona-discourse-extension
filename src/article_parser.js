@@ -1,4 +1,4 @@
-console.log("Loaded Alt_Parser.js");
+console.log("Loaded article_parser.js");
 
 function getPageContent() {
     pageText = { value: "" };

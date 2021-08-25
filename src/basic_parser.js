@@ -1,4 +1,4 @@
-console.log("Loaded TextExtraction.js");
+console.log("Loaded basic_parser.js");
 
 function getPageContent() {
     pageText = { value: "" };

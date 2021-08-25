@@ -33,7 +33,7 @@ function restore_options() {
         }
 
         chrome.storage.local.get("collocationData", function (result) {
-            console.log("Result:", result);
+            // console.log("Result:", result);
             if (typeof result.collocationData === "undefined") {
                 // should create an empty table since there is no data
                 createCollocationStatTable(
@@ -46,7 +46,7 @@ function restore_options() {
                     "collectionStats",
                     function (collectionResult) {
                         var statCollection = collectionResult.collectionStats;
-                        console.log(result.collocationData);
+                        // console.log(result.collocationData);
                         createCollocationStatTable(
                             calculateFreqPMI(
                                 result.collocationData,
@@ -59,13 +59,6 @@ function restore_options() {
                 );
             }
 
-            var docWidth = document.documentElement.offsetWidth;
-
-            [].forEach.call(document.querySelectorAll("*"), function (el) {
-                if (el.offsetWidth > docWidth) {
-                    console.log(el);
-                }
-            });
         });
     });
 }
@@ -172,13 +165,13 @@ function createCollocationStatTable(
     selfReference,
     parentElement
 ) {
-    console.log("CollcoationData to create:", collocationData)
+    // console.log("CollcoationData to create:", collocationData)
     if (collocationData !== null) {
         var data = formatCollocationStatsForTable(
             collocationData,
             selfReference
         );
-        console.log("Formated CollocationData", data)
+        // console.log("Formated CollocationData", data)
         var table = document.createElement("table");
         table.classList.add("stat-table");
 
@@ -273,7 +266,7 @@ function formatCollocationStatsForTable(collocationData, selfReference) {
 function resetStoredData(callback) {
     var deleteWarningMessage = `This will reset all collected data. Would you like to delete all collected data? \nYou can download the collected data first, by going to the "import/export" section on the left.`;
     if(confirm(deleteWarningMessage)){
-        console.log(callback);
+        // console.log(callback);
         if(callback != null){
             callback();
         }
@@ -294,7 +287,7 @@ function getCalculatedCollocationData(callback) {
             chrome.storage.local.get(
                 "collectionStats",
                 function (collectionResult) {
-                    console.log("Collocation data found");
+                    // console.log("Collocation data found");
                     var statCollection = collectionResult.collectionStats;
                     var finalCollocationData = calculateFreqPMI(
                         result.collocationData,
@@ -428,7 +421,7 @@ for (i = 0; i < coll.length; i++) {
     coll[i].addEventListener("click", function () {
         this.classList.toggle("active");
         var content = this.nextElementSibling;
-        console.log(content);
+        // console.log(content);
         if (content.style.display === "block") {
             content.style.display = "none";
         } else {

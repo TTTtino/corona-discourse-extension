@@ -23,7 +23,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                             ) {
                                 var scripts = [
                                     "stat_storage.js",
-                                    "stat.js",
+                                    "stat_functions/generic.js",
+                                    "stat_functions/collocation.js",
+                                    "stat_functions/concordance.js",
                                     data.parsers[i].parser,
                                     "./foreground.js",
                                 ];
@@ -35,7 +37,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                         if (!scripts) {
                             var scripts = [
                                 "stat_storage.js",
-                                "stat.js",
+                                "stat_functions/generic.js",
+                                "stat_functions/collocation.js",
+                                "stat_functions/concordance.js",
                                 "./basic_parser.js",
                                 "./foreground.js",
                             ];
@@ -65,12 +69,12 @@ function getStatsToCollect(callback) {
         // if no collection stats havfe been defined
         if (typeof result.collectionStats === "undefined") {
             var defaultCollectionStats = new StatCollectionInfo();
-            console.log(defaultCollectionStats);
             // create and set a "default collection stat"
             chrome.storage.local.set(
                 { collectionStats: defaultCollectionStats },
                 function () {
                     console.log("collectionStats not stored using defautlts");
+                    console.log(defaultCollectionStats);
                     callback(defaultCollectionStats);
                 }
             );
