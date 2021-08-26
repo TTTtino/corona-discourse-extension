@@ -7,7 +7,7 @@ chrome.storage.local.get("collectionStats", function (result) {
     // check which stats to collect and find them them
     console.log("Stats to collect: ", statCollection);
     var pageText = getPageContent();
-    var tokens = tokenize(pageText);
+    var tokens = tokenize(pageText, true);;
     // console.log("Extracted Text", pageText);
 
     // // Not important stat, so just being logged
@@ -26,9 +26,10 @@ chrome.storage.local.get("collectionStats", function (result) {
     // }
 
     if(statCollection.collocation){
-        
+
         // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage.js)
-        var calculatedCollocation = performCollocation(tokens.wordTokens, statCollection.collocation);
+        const positionsRemoved = removePositionsFromTokenList(tokens)
+        var calculatedCollocation = performCollocation(positionsRemoved, statCollection.collocation);
         // get the currently stored data on collocation
         chrome.storage.local.get("collocationData", function(result){
             // if none found...
@@ -60,7 +61,7 @@ chrome.storage.local.get("collectionStats", function (result) {
 
     if(statCollection.concordance){
         // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage.js)
-        var calculatedConcordance = performConcordance(tokens.wordTokens, statCollection.concordance);
+        var calculatedConcordance = performConcordance(tokens.wordTokens, pageText, statCollection.concordance);
         // console.log("PMI Results for Current Page: ", calculateFreqPMI(calculatedCollocation, statCollection.collocation.selfReference));
         
         // // get the currently stored data on collocation

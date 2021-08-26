@@ -1,6 +1,6 @@
 // Saves options to chrome.storage
 function addWebsiteToWhitelist() {
-    var inputField = document.getElementById("whitelist-input")
+    var inputField = document.getElementById("whitelist-input");
     var input = inputField.value;
     if (
         /^(http(s)?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/.test(
@@ -23,7 +23,7 @@ function addWebsiteToWhitelist() {
     }
 }
 
-function restore_options() {
+function load_options() {
     chrome.storage.local.get({ whitelistWebsites: [] }, function (result) {
         var websites = result.whitelistWebsites;
         // console.log(websites);
@@ -124,11 +124,13 @@ function onReaderLoad(event) {
     resetStoredData(() => {
         var jsonIn = JSON.parse(event.target.result);
         // console.log("input", jsonIn);
-        storeNewCollocateInstructions(jsonIn["collocate-groups"]);
+        storeNewCollocateInstructions(jsonIn["collocate-groups"], ()=>{
+            storeNewConcordanceInstructions(jsonIn["concordance-lines"]);
+        });
     });
 }
 
-function storeNewCollocateInstructions(collocateInst) {
+function storeNewCollocateInstructions(collocateInst, callback) {
     chrome.storage.local.get("collectionStats", function (result) {
         if (typeof result.collectionStats === "undefined") {
             var defaultCollectionStats = new StatCollectionInfo();
@@ -140,9 +142,15 @@ function storeNewCollocateInstructions(collocateInst) {
                 collocateInst["span"][0],
                 collocateInst["span"][1]
             );
-            chrome.storage.local.set({
-                collectionStats: defaultCollectionStats,
-            });
+            chrome.storage.local.set(
+                {
+                    collectionStats: defaultCollectionStats,
+                },
+                () => {
+                    alert("Collocation Changed to ", defaultCollectionStats.collocation);
+                    callback();
+                }
+            );
         } else {
             result.collectionStats.collocation = new Collocation(
                 collocateInst["pivot-tokens"],
@@ -153,9 +161,63 @@ function storeNewCollocateInstructions(collocateInst) {
                 collocateInst["span"][1]
             );
 
-            chrome.storage.local.set({
-                collectionStats: result.collectionStats,
-            });
+            chrome.storage.local.set(
+                {
+                    collectionStats: result.collectionStats,
+                },
+                () => {
+                    alert("Collocation Changed to ", result.collectionStats.collocation);
+                    callback();
+                }
+            );
+        }
+    });
+}
+
+function storeNewConcordanceInstructions(concordanceInst, callback) {
+    chrome.storage.local.get("collectionStats", function (result) {
+        if (typeof result.collectionStats === "undefined") {
+            var defaultCollectionStats = new StatCollectionInfo();
+            defaultCollectionStats.concordance = new ConcordanceLines(
+                concordanceInst["pivot-tokens"], // pivots
+                concordanceInst["target-tokens"], // targets
+                concordanceInst["allow-self-reference"], // selfReference
+                concordanceInst["parse-as-regex"], // regex parsing
+                concordanceInst["span"][0], // left span
+                concordanceInst["span"][1], // right span
+                concordanceInst["context"][0], // left context
+                concordanceInst["context"][1] // right context
+            );
+            chrome.storage.local.set(
+                {
+                    collectionStats: defaultCollectionStats,
+                },
+                () => {
+                    alert("Concordance Changed to ", defaultCollectionStats.concordance);
+                    callback();
+                }
+            );
+        } else {
+            result.collectionStats.concordance = new ConcordanceLines(
+                concordanceInst["pivot-tokens"], // pivots
+                concordanceInst["target-tokens"], // targets
+                concordanceInst["allow-self-reference"], // selfReference
+                concordanceInst["parse-as-regex"], // regex parsing
+                concordanceInst["span"][0], // left span
+                concordanceInst["span"][1], // right span
+                concordanceInst["context"][0], // left context
+                concordanceInst["context"][1] // right context
+            );
+
+            chrome.storage.local.set(
+                {
+                    collectionStats: result.collectionStats,
+                },
+                () => {
+                    alert("Concordance Changed to ", result.collectionStats.concordance);
+                    callback();
+                }
+            );
         }
     });
 }
@@ -241,7 +303,7 @@ function formatCollocationStatsForTable(collocationData, selfReference) {
                 const pivotTargetProb =
                     collocationData.nGramProbabilities[pivot + " " + target];
                 const pmi = collocationData.pmi[pivot + " " + target];
-                if(pivotFreq !== 0 || targetFreq !== 0){
+                if (pivotFreq !== 0 || targetFreq !== 0) {
                     const line = {
                         pivot: pivot,
                         target: target,
@@ -265,15 +327,15 @@ function formatCollocationStatsForTable(collocationData, selfReference) {
 // if the user confirms the alert, then "callback" function is performed before resetting the stored data
 function resetStoredData(callback) {
     var deleteWarningMessage = `This will reset all collected data. Would you like to delete all collected data? \nYou can download the collected data first, by going to the "import/export" section on the left.`;
-    if(confirm(deleteWarningMessage)){
+    if (confirm(deleteWarningMessage)) {
         // console.log(callback);
-        if(callback != null){
+        if (callback != null) {
             callback();
         }
         chrome.storage.local.remove("collocationData");
         location.reload();
         return true;
-    } else{
+    } else {
         return false;
     }
 }
@@ -307,7 +369,7 @@ function copyToClipboard(text) {
 function copyStatsToClipBoard() {
     var textToCopy = "";
     getCalculatedCollocationData((collocationStats) => {
-        if(collocationStats === null){
+        if (collocationStats === null) {
             alert("No stats have been collected.");
             return;
         }
@@ -342,8 +404,7 @@ function downloadCollectedStats() {
     var textToCopy = "";
 
     getCalculatedCollocationData((collocationStats) => {
-        
-        if(collocationStats === null){
+        if (collocationStats === null) {
             alert("No stats have been collected.");
             return;
         }
@@ -379,14 +440,17 @@ function getDecimalPlaces(num) {
     return str.split("-")[1] || 0;
 }
 
-document.addEventListener("DOMContentLoaded", restore_options);
-document.getElementById("whitelist-add-button")
+document.addEventListener("DOMContentLoaded", load_options);
+document
+    .getElementById("whitelist-add-button")
     .addEventListener("click", addWebsiteToWhitelist);
 
-document.getElementById("whitelist-input").addEventListener("keyup", addWebsiteToWhitelist);
 document
-    .getElementById("reset-stats-button")
-    .addEventListener("click", ()=>{resetStoredData();});
+    .getElementById("whitelist-input")
+    .addEventListener("keyup", addWebsiteToWhitelist);
+document.getElementById("reset-stats-button").addEventListener("click", () => {
+    resetStoredData();
+});
 document
     .getElementById("copy-clipboard")
     .addEventListener("click", copyStatsToClipBoard);
