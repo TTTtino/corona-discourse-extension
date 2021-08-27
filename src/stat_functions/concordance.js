@@ -1,4 +1,43 @@
-function performConcordance(wordTokens, corpus, concordanceInfo) {
+function performConcordance(wordTokens, concordanceInfo) {
+    //console.log(wordTokens);
+    // wordTokens.forEach(element => {
+    //     console.log(corpus.slice(element[1], element[2]+1));
+    //     // console.log(element[1], element[2]+1);
+    // });
+    var word = "";
+    var token;
+    var concordanceLineTokens = [];
+    for (var iToken = 0; iToken < wordTokens.length; iToken++) {
+        token = wordTokens[iToken];
+        word = token[0];
+        if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
+            let left = [];
+            for (let j = -concordanceInfo.span[0]; j < 0; j++) {
+                if (iToken + j >= 0) {
+                    const tokenB = wordTokens[iToken + j];
+                    left.push(tokenB);
+                }
+            }
+            let right = [];
+            for (let j = 1; j <= concordanceInfo.span[1]; j++) {
+                if (iToken + j < wordTokens.length) {
+                    const tokenB = wordTokens[iToken + j];
+                    right.push(tokenB);
+                }
+            }
+            concordanceLineTokens.push({
+                left: left,
+                right: right,
+                wordToken: token,
+            });
+        }
+    }
+
+    return concordanceLineTokens;
+    //console.log(generateContext(wordTokens.indexOf(wordTokens.indexOf(concordanceLineTokens[5].left[0]), -5, wordTokens)));
+}
+
+function DEPRECATED_performConcordance(wordTokens, concordanceInfo) {
     //console.log(wordTokens);
     // wordTokens.forEach(element => {
     //     console.log(corpus.slice(element[1], element[2]+1));
@@ -53,10 +92,8 @@ function performConcordance(wordTokens, corpus, concordanceInfo) {
             //console.log(corpus.slice(concordTokenLine.left[0][1], concordTokenLine.right[concordTokenLine.right.length-1][2]+1));
         }
     }
-    concordanceLineTokens.forEach(element => {
-        var concordanceLine = stringifyConcordanceLine(element, corpus);
-        console.log(concordanceLine.left, " || ",  concordanceLine.word, " || ", concordanceLine.right);
-    });
+
+    return concordanceLineTokens;
     //console.log(generateContext(wordTokens.indexOf(wordTokens.indexOf(concordanceLineTokens[5].left[0]), -5, wordTokens)));
 }
 

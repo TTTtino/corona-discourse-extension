@@ -32,34 +32,69 @@ function load_options() {
             createWhitelistRow(websiteTable, websites[i], i);
         }
 
-        chrome.storage.local.get("collocationData", function (result) {
-            // console.log("Result:", result);
-            if (typeof result.collocationData === "undefined") {
-                // should create an empty table since there is no data
-                createCollocationStatTable(
-                    null,
-                    false,
-                    document.getElementById("general-stat-section")
-                );
-            } else {
-                chrome.storage.local.get(
-                    "collectionStats",
-                    function (collectionResult) {
-                        var statCollection = collectionResult.collectionStats;
-                        // console.log(result.collocationData);
-                        createCollocationStatTable(
-                            calculateFreqPMI(
-                                result.collocationData,
-                                statCollection.collocation.selfReference
-                            ),
-                            statCollection.collocation.selfReference,
-                            document.getElementById("general-stat-section")
-                        );
-                    }
-                );
-            }
-
+        loadCollocationData(()=>{
+            loadConcordanceData(()=>{});
         });
+
+        
+
+
+    });
+}
+
+function loadConcordanceData(callback){
+
+    chrome.storage.local.get("concordanceData", function (result) {
+        // console.log("Result:", result);
+        if (typeof result.concordanceData === "undefined") {
+            // should create an empty table since there is no data
+
+            
+            callback();
+        } else {
+            chrome.storage.local.get(
+                "collectionStats",
+                function (collectionResult) {
+                    var statCollection = collectionResult.collectionStats;
+                    console.log(result);
+                    console.log(statCollection);
+                    callback();
+                }
+            );
+        }
+    });
+}
+
+function loadCollocationData(callback){
+    chrome.storage.local.get("collocationData", function (result) {
+        // console.log("Result:", result);
+        if (typeof result.collocationData === "undefined") {
+            // should create an empty table since there is no data
+            createCollocationStatTable(
+                null,
+                false,
+                document.getElementById("general-stat-section")
+            );
+            callback();
+        } else {
+            chrome.storage.local.get(
+                "collectionStats",
+                function (collectionResult) {
+                    var statCollection = collectionResult.collectionStats;
+                    // console.log(result.collocationData);
+                    createCollocationStatTable(
+                        calculateFreqPMI(
+                            result.collocationData,
+                            statCollection.collocation.selfReference
+                        ),
+                        statCollection.collocation.selfReference,
+                        document.getElementById("general-stat-section")
+                    );
+                    
+            callback();
+                }
+            );
+        }
     });
 }
 
@@ -124,9 +159,44 @@ function onReaderLoad(event) {
     resetStoredData(() => {
         var jsonIn = JSON.parse(event.target.result);
         // console.log("input", jsonIn);
-        storeNewCollocateInstructions(jsonIn["collocate-groups"], ()=>{
-            storeNewConcordanceInstructions(jsonIn["concordance-lines"]);
+        storeNewResearchName(jsonIn["title"], () => {
+            storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
+                storeNewConcordanceInstructions(
+                    jsonIn["concordance-lines"],
+                    () => {}
+                );
+            });
         });
+    });
+}
+
+function storeNewResearchName(name, callback) {
+    chrome.storage.local.get("collectionStats", function (result) {
+        if (typeof result.collectionStats === "undefined") {
+            var defaultCollectionStats = new StatCollectionInfo();
+            defaultCollectionStats.researchName = name;
+            chrome.storage.local.set(
+                {
+                    collectionStats: defaultCollectionStats,
+                },
+                () => {
+                    // alert("Collocation Changed to ", defaultCollectionStats.collocation);
+                    callback();
+                }
+            );
+        } else {
+            result.collectionStats.researchName = name;
+
+            chrome.storage.local.set(
+                {
+                    collectionStats: result.collectionStats,
+                },
+                () => {
+                    // alert("Collocation Changed to ", result.collectionStats.collocation);
+                    callback();
+                }
+            );
+        }
     });
 }
 
@@ -147,7 +217,7 @@ function storeNewCollocateInstructions(collocateInst, callback) {
                     collectionStats: defaultCollectionStats,
                 },
                 () => {
-                    alert("Collocation Changed to ", defaultCollectionStats.collocation);
+                    // alert("Collocation Changed to ", defaultCollectionStats.collocation);
                     callback();
                 }
             );
@@ -166,7 +236,7 @@ function storeNewCollocateInstructions(collocateInst, callback) {
                     collectionStats: result.collectionStats,
                 },
                 () => {
-                    alert("Collocation Changed to ", result.collectionStats.collocation);
+                    // alert("Collocation Changed to ", result.collectionStats.collocation);
                     callback();
                 }
             );
@@ -180,41 +250,33 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
             var defaultCollectionStats = new StatCollectionInfo();
             defaultCollectionStats.concordance = new ConcordanceLines(
                 concordanceInst["pivot-tokens"], // pivots
-                concordanceInst["target-tokens"], // targets
-                concordanceInst["allow-self-reference"], // selfReference
                 concordanceInst["parse-as-regex"], // regex parsing
                 concordanceInst["span"][0], // left span
-                concordanceInst["span"][1], // right span
-                concordanceInst["context"][0], // left context
-                concordanceInst["context"][1] // right context
+                concordanceInst["span"][1] // right span
             );
             chrome.storage.local.set(
                 {
                     collectionStats: defaultCollectionStats,
                 },
                 () => {
-                    alert("Concordance Changed to ", defaultCollectionStats.concordance);
+                    alert(defaultCollectionStats.concordance);
                     callback();
                 }
             );
         } else {
             result.collectionStats.concordance = new ConcordanceLines(
                 concordanceInst["pivot-tokens"], // pivots
-                concordanceInst["target-tokens"], // targets
-                concordanceInst["allow-self-reference"], // selfReference
                 concordanceInst["parse-as-regex"], // regex parsing
                 concordanceInst["span"][0], // left span
-                concordanceInst["span"][1], // right span
-                concordanceInst["context"][0], // left context
-                concordanceInst["context"][1] // right context
+                concordanceInst["span"][1] // right span
             );
-
+            console.log(result.collectionStats.concordance);
             chrome.storage.local.set(
                 {
                     collectionStats: result.collectionStats,
                 },
                 () => {
-                    alert("Concordance Changed to ", result.collectionStats.concordance);
+                    alert(result.collectionStats.concordance);
                     callback();
                 }
             );
@@ -332,8 +394,9 @@ function resetStoredData(callback) {
         if (callback != null) {
             callback();
         }
-        chrome.storage.local.remove("collocationData");
-        location.reload();
+        chrome.storage.local.remove("collocationData", ()=>{
+            chrome.storage.local.remove("concordanceData", location.reload);
+        });
         return true;
     } else {
         return false;
@@ -411,20 +474,23 @@ function downloadCollectedStats() {
         textToCopy += JSON.stringify(collocationStats, null, "\t");
 
         var currentDate = new Date();
-        var fileName =
-            "ExtensionName-Collected-Stats-" +
-            currentDate.getDate() +
-            "/" +
-            currentDate.getMonth() +
-            "/" +
-            currentDate.getFullYear() +
-            "-" +
-            currentDate.getHours() +
-            ":" +
-            currentDate.getMinutes() +
-            ":" +
-            currentDate.getSeconds();
-        download(textToCopy, fileName, "application/json");
+        getStatsToCollect((result) => {
+            var fileName =
+                result.researchName +
+                "-Collected-Stats-" +
+                currentDate.getDate() +
+                "/" +
+                currentDate.getMonth() +
+                "/" +
+                currentDate.getFullYear() +
+                "-" +
+                currentDate.getHours() +
+                ":" +
+                currentDate.getMinutes() +
+                ":" +
+                currentDate.getSeconds();
+            download(textToCopy, fileName, "application/json");
+        });
     });
 }
 

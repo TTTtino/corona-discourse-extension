@@ -138,7 +138,6 @@ function findWordCount(corpus) {
 // returns: array of objects {word:string, left:[string], right:[string]}
 function generateNgrams(wordTokens, [l, r]) {
     var ngram = [];
-    console.log(l, r)
     // iterate through each token
     for (var i = 0; i < wordTokens.length; i++) {
         var left = [];
@@ -254,4 +253,26 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
 
 function removePositionsFromTokenList(tokenList){
     return tokenList.map(x => x[0]);
+}
+
+// gets the stat collection info and calls the callback parameter function with result as an argument
+function getStatsToCollect(callback) {
+    chrome.storage.local.get("collectionStats", function (result) {
+        // if no collection stats havfe been defined
+        if (typeof result.collectionStats === "undefined") {
+            var defaultCollectionStats = new StatCollectionInfo();
+            // create and set a "default collection stat"
+            chrome.storage.local.set(
+                { collectionStats: defaultCollectionStats },
+                function () {
+                    console.log("collectionStats not stored using defautlts");
+                    console.log(defaultCollectionStats);
+                    callback(defaultCollectionStats);
+                }
+            );
+        } else {
+            console.log("result found");
+            callback(result.collectionStats);
+        }
+    });
 }

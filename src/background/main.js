@@ -1,5 +1,21 @@
 // Listens for changes on any of the tabs
+
+const REQUIRED_SCRIPTS = [
+    "stat_storage/collocation_storage.js",
+    "stat_storage/concordance_storage.js",
+    "stat_functions/generic.js",
+    "stat_functions/collocation.js",
+    "stat_functions/concordance.js",
+];
+
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    chrome.action.setIcon({
+        path: {
+            16: "images/bw_logo16.png",
+            48: "images/bw_logo48.png",
+            128: "images/bw_logo128.png",
+        },
+    });
     // only continue if the tab has been loaded and the link starts with http
     if (changeInfo.status === "complete" && /^http/.test(tab.url)) {
         // Get the list of whitelisted websites from the chrome local storage
@@ -9,6 +25,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
             // compare the current pages url against the whitelist
             if (urlInList(url.hostname, whitelist)) {
+                chrome.action.setIcon({
+                    path: {
+                        16: "images/logo16.png",
+                        48: "images/logo48.png",
+                        128: "images/logo128.png",
+                    },
+                });
                 // get the information on how to parse the current url
                 fetch("./data/parser_info.json")
                     .then((response) => {
@@ -22,13 +45,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                                 url.hostname.includes(data.parsers[i].hostname)
                             ) {
                                 var scripts = [
-                                    "stat_storage.js",
-                                    "stat_functions/generic.js",
-                                    "stat_functions/collocation.js",
-                                    "stat_functions/concordance.js",
                                     data.parsers[i].parser,
                                     "./foreground.js",
                                 ];
+                                scripts = REQUIRED_SCRIPTS.concat(scripts);
                                 break;
                             }
                         }
@@ -36,13 +56,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                         // Use default parser if none were specified
                         if (!scripts) {
                             var scripts = [
-                                "stat_storage.js",
-                                "stat_functions/generic.js",
-                                "stat_functions/collocation.js",
-                                "stat_functions/concordance.js",
                                 "./basic_parser.js",
                                 "./foreground.js",
                             ];
+                            scripts = REQUIRED_SCRIPTS.concat(scripts);
                         }
 
                         // reset- ONLY FOR DEBUGGING
@@ -62,28 +79,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         });
     }
 });
-
-// gets the stat collection info and calls the callback parameter function with result as an argument
-function getStatsToCollect(callback) {
-    chrome.storage.local.get("collectionStats", function (result) {
-        // if no collection stats havfe been defined
-        if (typeof result.collectionStats === "undefined") {
-            var defaultCollectionStats = new StatCollectionInfo();
-            // create and set a "default collection stat"
-            chrome.storage.local.set(
-                { collectionStats: defaultCollectionStats },
-                function () {
-                    console.log("collectionStats not stored using defautlts");
-                    console.log(defaultCollectionStats);
-                    callback(defaultCollectionStats);
-                }
-            );
-        } else {
-            console.log("result found");
-            callback(result.collectionStats);
-        }
-    });
-}
 
 // recursively called until the list that is being passed through is empty, where each script in the filelist is executed
 function importScripts(fileList, tabId) {
