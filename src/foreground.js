@@ -63,7 +63,7 @@ chrome.storage.local.get("collectionStats", function (result) {
     if(statCollection.concordance){
         // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
         var calculatedConcordance = performConcordance(tokens.wordTokens, statCollection.concordance);
-
+        
         var concordanceLines = [];
         calculatedConcordance.forEach(element => {
             var line = stringifyConcordanceLine(element, pageText);

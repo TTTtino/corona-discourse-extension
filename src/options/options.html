@@ -42,16 +42,21 @@
                 <div id="general" class="active" data-tab-content>
                     <h1 class="title">General</h1>
                     <button type="button" class="collapsible-button active">
-                        Collected Statistics
+                        Collocation
                     </button>
                     <div
-                        id="general-stat-section"
+                        id="collocation-section"
                         class="stats section collapsible-content"
-                        style="display: block;"
-                    >
-                    
-                        <!-- <h2 class="sub-title">Collected Statistics</h2> -->
-                    </div>
+                        style="display: none;"
+                    ></div>
+                    <button type="button" class="collapsible-button active">
+                        Concordance
+                    </button>
+                    <div
+                        id="concordance-section"
+                        class="stats section collapsible-content"
+                        style="display: none;"
+                    ></div>
                     <button id="reset-stats-button" type="button" class="custom-file-upload">Reset Collected Data</button>
                 </div>
 
@@ -130,6 +135,7 @@
         <script src="../stat_functions/generic.js"></script>
         <script src="../stat_functions/collocation.js"></script>
         <script src="../stat_functions/concordance.js"></script>
+        <script src="../stat_storage/concordance_storage.js"></script>
         <script src="options.js"></script>
     </body>
 </html>

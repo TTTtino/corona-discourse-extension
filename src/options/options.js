@@ -43,24 +43,24 @@ function load_options() {
 }
 
 function loadConcordanceData(callback){
-
     chrome.storage.local.get("concordanceData", function (result) {
         // console.log("Result:", result);
         if (typeof result.concordanceData === "undefined") {
             // should create an empty table since there is no data
-
+            createConcordanceTable(
+                null,
+                document.getElementById("concordance-section")
+            );
             
             callback();
         } else {
-            chrome.storage.local.get(
-                "collectionStats",
-                function (collectionResult) {
-                    var statCollection = collectionResult.collectionStats;
-                    console.log(result);
-                    console.log(statCollection);
-                    callback();
-                }
-            );
+            console.log(result.concordanceData);
+            let concordLinesNoDuplicates = removeConcordanceDuplicates(result.concordanceData);
+            createConcordanceTable(concordLinesNoDuplicates, document.getElementById("concordance-section"));
+            
+            chrome.storage.local.set({ concordanceData: concordLinesNoDuplicates }, function () {
+                callback();
+            });
         }
     });
 }
@@ -73,7 +73,7 @@ function loadCollocationData(callback){
             createCollocationStatTable(
                 null,
                 false,
-                document.getElementById("general-stat-section")
+                document.getElementById("collocation-section")
             );
             callback();
         } else {
@@ -88,7 +88,7 @@ function loadCollocationData(callback){
                             statCollection.collocation.selfReference
                         ),
                         statCollection.collocation.selfReference,
-                        document.getElementById("general-stat-section")
+                        document.getElementById("collocation-section")
                     );
                     
             callback();
@@ -301,7 +301,7 @@ function createCollocationStatTable(
 
         for (let element of data) {
             let row = table.insertRow();
-            for (key in element) {
+            for (let key in element) {
                 let cell = row.insertCell();
                 if (!isNaN(element[key])) {
                     let text = document.createElement("span");
@@ -342,12 +342,94 @@ function createCollocationStatTable(
         parentElement.appendChild(table);
     } else {
         // Create an element saying no stats have been collected yet.
-        var noDataMessage = document.createElement("p");
+        let noDataMessage = document.createElement("p");
         noDataMessage.innerHTML =
-            "No data has been collected so far. Browse some whitelisted websites to collect data.";
+            "No Collocation data has been collected so far. Browse some whitelisted websites to collect data.";
         parentElement.appendChild(noDataMessage);
     }
 }
+
+function createConcordanceTable(
+    concordanceData,
+    parentElement
+) {
+    // console.log("CollcoationData to create:", collocationData)
+    if (concordanceData !== null) {
+        const lineLimit = 90;
+        const lineDisplayLength = 80;
+        var concordLines = concordanceData.concordanceLines;
+        concordLines.sort((firstEl, secondEl) => {
+            if(firstEl.word.toLowerCase() < secondEl.word.toLowerCase()){
+                return -1;
+            } else if(firstEl.word.toLowerCase() > secondEl.word.toLowerCase()){
+                return 1;
+            } else{
+                return 0;
+            }
+        })
+        // console.log("Formated CollocationData", data)
+        var table = document.createElement("table");
+        table.classList.add("stat-table");
+
+        for (let element of concordLines) {
+            let row = table.insertRow();
+            let leftCell = row.insertCell();
+            leftCell.style = "text-align: right;";
+            if(element.left.length > lineLimit){
+                let text = document.createElement("span");
+                text.innerHTML = "..." + element.left.slice(-lineDisplayLength);
+                text.setAttribute("title", element.left);
+                leftCell.appendChild(text);
+            } else{
+                let text = document.createElement("span");
+                text.innerHTML = element.left;
+                leftCell.appendChild(text);
+            }
+
+            let wordCell = row.insertCell();
+            wordCell.classList.add("centered-cell");
+            let text = document.createElement("span");
+            text.innerHTML = element.word;
+            wordCell.appendChild(text);
+
+            let rightCell = row.insertCell();
+            if(element.right.length > lineLimit){
+                let text = document.createElement("span");
+                text.innerHTML = element.right.slice(0, lineDisplayLength) + "...";
+                text.setAttribute("title", element.right);
+                rightCell.appendChild(text);
+            } else{
+                let text = document.createElement("span");
+                text.innerHTML = element.right;
+                rightCell.appendChild(text);
+            }
+        }
+        
+
+        var header = [
+            "Left Content",
+            "Pivot",
+            "Right Content"
+        ];
+        let thead = table.createTHead();
+        let row = thead.insertRow();
+        for (let value of header) {
+            let th = document.createElement("th");
+            let text = document.createTextNode(value);
+            th.appendChild(text);
+            row.appendChild(th);
+        }
+
+        parentElement.appendChild(table);
+    } else {
+        // Create an element saying no stats have been collected yet.
+        var noDataMessage = document.createElement("p");
+        noDataMessage.innerHTML =
+            "No Concordance data has been collected so far. Browse some whitelisted websites to collect data.";
+        parentElement.appendChild(noDataMessage);
+    }
+}
+
 
 function formatCollocationStatsForTable(collocationData, selfReference) {
     // pivot, target, pivotFreq, targetFreq, pivotTargetFreq, pivotProb, targetProb, pivotTargetProb, PMI(pivot, Target)
@@ -395,7 +477,9 @@ function resetStoredData(callback) {
             callback();
         }
         chrome.storage.local.remove("collocationData", ()=>{
-            chrome.storage.local.remove("concordanceData", location.reload);
+            chrome.storage.local.remove("concordanceData", ()=>{
+                location.reload();
+            });
         });
         return true;
     } else {
@@ -425,21 +509,62 @@ function getCalculatedCollocationData(callback) {
     });
 }
 
+function getConcordanceData(callback) {
+    chrome.storage.local.get("concordanceData", function (result) {
+        if (typeof result.concordanceData === "undefined") {
+            console.log("No concordance data found");
+            callback(null);
+        } else {
+            callback(result.concordanceData);
+        }
+    });
+}
+
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
 }
 
-function copyStatsToClipBoard() {
-    var textToCopy = "";
+function getCombinedStats(callback){
+    var statOutput = {collocation:null, concordance:null};
     getCalculatedCollocationData((collocationStats) => {
-        if (collocationStats === null) {
-            alert("No stats have been collected.");
-            return;
+        if (collocationStats !== null) {
+            statOutput.collocation = collocationStats;
         }
-        textToCopy += JSON.stringify(collocationStats, null, "\t");
-        copyToClipboard(textToCopy);
+
+        getConcordanceData((concordStats) =>{
+            if (concordStats !== null) {
+                statOutput.concordance = concordStats;
+            }
+            callback(statOutput);
+        })
     });
 }
+
+function copyStatsToClipBoard() {
+    var textToCopy = "";
+    getCombinedStats((statOutput)=>{
+        if(statOutput.collocation != null && 
+            statOutput.concordance != null){
+             textToCopy += JSON.stringify(statOutput, null, "\t");
+             copyToClipboard(textToCopy);
+         } else{
+             alert("No Stats have been collected");
+         }
+    });
+    
+}
+
+const readLocalStorage = async (key) => {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get([key], function (result) {
+        if (result[key] === undefined) {
+          reject();
+        } else {
+          resolve(result[key]);
+        }
+      });
+    });
+  };
 
 // Function to download data to a file
 // https://stackoverflow.com/questions/13405129/javascript-create-and-save-file
@@ -466,32 +591,33 @@ function download(data, filename, type) {
 function downloadCollectedStats() {
     var textToCopy = "";
 
-    getCalculatedCollocationData((collocationStats) => {
-        if (collocationStats === null) {
-            alert("No stats have been collected.");
-            return;
-        }
-        textToCopy += JSON.stringify(collocationStats, null, "\t");
-
-        var currentDate = new Date();
-        getStatsToCollect((result) => {
-            var fileName =
-                result.researchName +
-                "-Collected-Stats-" +
-                currentDate.getDate() +
-                "/" +
-                currentDate.getMonth() +
-                "/" +
-                currentDate.getFullYear() +
-                "-" +
-                currentDate.getHours() +
-                ":" +
-                currentDate.getMinutes() +
-                ":" +
-                currentDate.getSeconds();
-            download(textToCopy, fileName, "application/json");
-        });
-    });
+    getCombinedStats((statOutput) => {
+        if(statOutput.collocation != null && 
+            statOutput.concordance != null){
+             textToCopy += JSON.stringify(statOutput, null, "\t");
+             
+             var currentDate = new Date();
+                getStatsToCollect((result) => {
+                    var fileName =
+                        result.researchName +
+                        "-Collected-Stats-" +
+                        currentDate.getDate() +
+                        "/" +
+                        currentDate.getMonth() +
+                        "/" +
+                        currentDate.getFullYear() +
+                        "-" +
+                        currentDate.getHours() +
+                        ":" +
+                        currentDate.getMinutes() +
+                        ":" +
+                        currentDate.getSeconds();
+                    download(textToCopy, fileName, "application/json");
+                });
+         } else{
+             alert("No Stats have been collected");
+         }
+    })
 }
 
 function getDecimalPlaces(num) {
@@ -514,6 +640,7 @@ document
 document
     .getElementById("whitelist-input")
     .addEventListener("keyup", addWebsiteToWhitelist);
+
 document.getElementById("reset-stats-button").addEventListener("click", () => {
     resetStoredData();
 });
@@ -559,3 +686,4 @@ for (i = 0; i < coll.length; i++) {
         }
     });
 }
+

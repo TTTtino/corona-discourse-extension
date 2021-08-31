@@ -206,6 +206,7 @@ table {
     max-height: 70%;
     overflow-y: auto;
     margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 th {
