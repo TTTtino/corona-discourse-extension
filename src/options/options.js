@@ -259,7 +259,6 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
                     collectionStats: defaultCollectionStats,
                 },
                 () => {
-                    alert(defaultCollectionStats.concordance);
                     callback();
                 }
             );
@@ -276,7 +275,6 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
                     collectionStats: result.collectionStats,
                 },
                 () => {
-                    alert(result.collectionStats.concordance);
                     callback();
                 }
             );
@@ -554,18 +552,6 @@ function copyStatsToClipBoard() {
     
 }
 
-const readLocalStorage = async (key) => {
-    return new Promise((resolve, reject) => {
-      chrome.storage.local.get([key], function (result) {
-        if (result[key] === undefined) {
-          reject();
-        } else {
-          resolve(result[key]);
-        }
-      });
-    });
-  };
-
 // Function to download data to a file
 // https://stackoverflow.com/questions/13405129/javascript-create-and-save-file
 function download(data, filename, type) {
@@ -618,6 +604,52 @@ function downloadCollectedStats() {
              alert("No Stats have been collected");
          }
     })
+}
+
+function createTableFromObject(obj, headerList, parentElement){
+    var table = document.createElement("table");
+    for (const key in obj) {
+        let row = table.insertRow();
+        let titleCell = row.insertCell();
+        let titleText = document.createTextNode(key);
+        titleCell.appendChild(titleText);
+        
+        let valueCell = row.insertCell();
+
+        if(Array.isArray(obj[key])){
+            const formattedArr = obj[key].map((x) => {
+                switch(typeof x){
+                    case "string":
+                        return ('"' + x + '"');
+                    default:
+                        return x;
+                }   
+            })
+            let valueText = document.createTextNode(formattedArr.join(",  "));
+            valueCell.appendChild(valueText);
+        } else{
+            let valueText = document.createTextNode(obj[key]);
+            valueCell.appendChild(valueText);
+        }
+    }
+
+    let thead = table.createTHead();
+    let row = thead.insertRow();
+    for (let value of headerList) {
+        let th = document.createElement("th");
+        let text = document.createTextNode(value);
+        th.appendChild(text);
+        row.appendChild(th);
+    }
+    
+    parentElement.appendChild(table);
+}
+
+
+function showInputParameters(collectionStats, parentElement){
+    // Collocation Table
+    createTableFromObject(collectionStats.collocation, ["Collocation Parameters", "Value"], parentElement);
+    createTableFromObject(collectionStats.concordance, ["Concordance Parameter", "Value"], parentElement);
 }
 
 function getDecimalPlaces(num) {
@@ -687,3 +719,6 @@ for (i = 0; i < coll.length; i++) {
     });
 }
 
+chrome.storage.local.get("collectionStats", function (result) {
+    showInputParameters(result.collectionStats, document.getElementById("data-collection-info"));
+});

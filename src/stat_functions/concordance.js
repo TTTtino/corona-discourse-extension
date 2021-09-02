@@ -102,18 +102,21 @@ function stringifyConcordanceLine(concordLine, corpus = false) {
         return {
             left: stringifyTokenArray(concordLine.left, corpus),
             right: stringifyTokenArray(concordLine.right, corpus),
-            word: concordLine.wordToken[0],
+            word: concordLine.wordToken[0]
         };
     } else{
         return {
             left: removePositionsFromTokenList(concordLine.left),
             right: removePositionsFromTokenList(concordLine.right),
-            word: concordLine.wordToken[0],
+            word: concordLine.wordToken[0]
         };
     }
 }
 
 function stringifyTokenArray(array, corpus = false) {
+    if(array.length == 0){
+        return "";
+    }
     if (corpus === false) {
         return removePositionsFromTokenList(array).join(" ");
     } else {

@@ -99,7 +99,6 @@
                             Import
                         </label>
                         <input id="inst-file-input" type="file" />
-                        <br />
                         <h2 class="sub-title">Export Collected Statistics</h2>
                         <p1>Export all collected statistics as a *.txt file</p1>
                         <!-- <label for="inst-file-input" class="custom-file-upload">
@@ -120,6 +119,10 @@
                                 Download
                             </button>
                         </div>
+
+                        <h2 class="sub-title">Data Collection Information</h2>
+                        <p1>These are the parameters for data collection</p1>
+                        <div id="data-collection-info"></div>
                     </div>
                 </div>
 
@@ -131,6 +134,7 @@
                 </div>
             </div>
         </div>
+        <script src="../data_structures/heap.js"></script>
         <script src="../background/StatCollectionInfo.js"></script>
         <script src="../stat_functions/generic.js"></script>
         <script src="../stat_functions/collocation.js"></script>

@@ -1,6 +1,7 @@
 // Listens for changes on any of the tabs
 
 const REQUIRED_SCRIPTS = [
+    "data_structures/heap.js",
     "stat_storage/collocation_storage.js",
     "stat_storage/concordance_storage.js",
     "stat_functions/generic.js",

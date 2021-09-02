@@ -69,6 +69,7 @@ chrome.storage.local.get("collectionStats", function (result) {
             var line = stringifyConcordanceLine(element, pageText);
             console.log(line.left, " || ",  line.word, " || ", line.right);
             line.excluded = false;
+            line.count = 1;
             concordanceLines.push(line);
         });
         // chrome.storage.local.remove("concordanceData");
@@ -77,23 +78,33 @@ chrome.storage.local.get("collectionStats", function (result) {
             if (typeof result.concordanceData === "undefined") {
                 // creates an empty collocation data and combines it with result for current page
                 var defConcordanceData = new ConcordanceData();
-
-                defConcordanceData.concordanceLines = concordanceLines;
+                defConcordanceData.concordanceLines = concordanceLines.sort((firstEl, secondEl) => {
+                    console.log("test");
+                    if(firstEl.word.toLowerCase() < secondEl.word.toLowerCase()){
+                        return -1;
+                    } else if(firstEl.word.toLowerCase() > secondEl.word.toLowerCase()){
+                        return 1;
+                    } else{
+                        return 0;
+                    }
+                })
                 // console.log("Combined=", newCol);
                 // set the storage to the new data
                 chrome.storage.local.set(
                     { concordanceData: defConcordanceData },
                     function () {
                         console.log("concordanceData not stored, storing it now");
+                        console.log("Concordance Lines", defConcordanceData);
                     }
                 );
             } else {
+                console.log("Stored", result);
                 // combine the data for the current page with the existing stored data
-                console.log("stored=", result);
                 var newConcordance = combineConcordanceData(result.concordanceData, concordanceLines);
-                // console.log("Combined PMI Results: ", calculateFreqPMI(newCollocation, statCollection.collocation.selfReference));
                 // set the data to be the combined result
-                chrome.storage.local.set({ concordanceData: newConcordance }, function () {});
+                chrome.storage.local.set({ concordanceData: newConcordance }, function () {
+                    console.log("New concordance value set", newConcordance);
+                });
             }
         });
         // console.log("PMI Results for Current Page: ", calculateFreqPMI(calculatedCollocation, statCollection.collocation.selfReference));
