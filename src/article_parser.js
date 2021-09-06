@@ -1,5 +1,6 @@
 console.log("Loaded article_parser.js");
 
+// getPageContent function that extracts the page contents of the loaded webpage
 function getPageContent() {
     pageText = { value: "" };
     var articleTags = document.getElementsByTagName("article");

@@ -67,7 +67,7 @@ chrome.storage.local.get("collectionStats", function (result) {
         var concordanceLines = [];
         calculatedConcordance.forEach(element => {
             var line = stringifyConcordanceLine(element, pageText);
-            console.log(line.left, " || ",  line.word, " || ", line.right);
+            // console.log(line.left, " || ",  line.word, " || ", line.right);
             line.excluded = false;
             line.count = 1;
             concordanceLines.push(line);

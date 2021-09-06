@@ -251,6 +251,7 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
     return count;
 }
 
+// remove the positions from the token list and only include the token
 function removePositionsFromTokenList(tokenList){
     return tokenList.map(x => x[0]);
 }

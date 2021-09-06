@@ -1,50 +1,57 @@
-// Saves options to chrome.storage
-function addWebsiteToWhitelist() {
-    var inputField = document.getElementById("whitelist-input");
-    var input = inputField.value;
+// Adds the input to the whitelist if it follows the rules of and display it on the tbale.
+function addToWhitelistStorage(input, callback) {
+    // check if input matches URL regex
     if (
         /^(http(s)?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/.test(
             input
         )
     ) {
+        // get the whitelistWebsites
         chrome.storage.local.get({ whitelistWebsites: [] }, function (result) {
             var whitelist = result.whitelistWebsites;
-            // console.log(result);
+            // push to the whitelist websites list
             whitelist.push(input);
-            chrome.storage.local.set({ whitelistWebsites: whitelist });
-
-            var websiteTable = document.getElementById("whitelist-table");
-            createWhitelistRow(websiteTable, input, whitelist.length - 1);
-            inputField.value = "";
-            return true;
+            // rewrite the whitelistWebsites entry on the storage
+            chrome.storage.local.set({ whitelistWebsites: whitelist }, callback);
         });
     } else {
-        return false;
+        return;
     }
 }
 
+// add the value inside the whitelist input to the whitelist table and save to storage
+function addEntryToWhitelist(){
+    let inputField = document.getElementById("whitelist-input")
+    addToWhitelistStorage(inputField.value, () => {
+        // add the new website to the whitelist table
+        let websiteTable = document.getElementById("whitelist-table");
+        createWhitelistRow(websiteTable, inputField.value, websiteTable.rows.length-1);
+        inputField.value = "";
+    });
+
+}
+
+// load all the necessary things required in the options page
 function load_options() {
     chrome.storage.local.get({ whitelistWebsites: [] }, function (result) {
         var websites = result.whitelistWebsites;
-        // console.log(websites);
         var websiteTable = document.getElementById("whitelist-table");
+        // iterate through each entry in the whitelist and add to the whitelist table
         for (var i = 0; i < websites.length; i++) {
             createWhitelistRow(websiteTable, websites[i], i);
         }
 
+        // for each type of stat to collect, each one must be loaded using callbacks
         loadCollocationData(()=>{
             loadConcordanceData(()=>{});
         });
-
-        
-
-
     });
 }
 
+// load the concordance data in the concordance section and then perform the callback function
 function loadConcordanceData(callback){
     chrome.storage.local.get("concordanceData", function (result) {
-        // console.log("Result:", result);
+        // if concordance data does not exist
         if (typeof result.concordanceData === "undefined") {
             // should create an empty table since there is no data
             createConcordanceTable(
@@ -54,7 +61,7 @@ function loadConcordanceData(callback){
             
             callback();
         } else {
-            console.log(result.concordanceData);
+            // remove all duplicates in the concordance saved so far
             let concordLinesNoDuplicates = removeConcordanceDuplicates(result.concordanceData);
             createConcordanceTable(concordLinesNoDuplicates, document.getElementById("concordance-section"));
             
@@ -65,9 +72,10 @@ function loadConcordanceData(callback){
     });
 }
 
+// load the collocation data in the collocation section and then perform the callback function
 function loadCollocationData(callback){
     chrome.storage.local.get("collocationData", function (result) {
-        // console.log("Result:", result);
+        // if no collocation data is currently stored
         if (typeof result.collocationData === "undefined") {
             // should create an empty table since there is no data
             createCollocationStatTable(
@@ -77,9 +85,10 @@ function loadCollocationData(callback){
             );
             callback();
         } else {
+            // get the collection stats info to see if self-reference is allowed
             chrome.storage.local.get(
                 "collectionStats",
-                function (collectionResult) {
+                (collectionResult) => {
                     var statCollection = collectionResult.collectionStats;
                     // console.log(result.collocationData);
                     createCollocationStatTable(
@@ -98,6 +107,7 @@ function loadCollocationData(callback){
     });
 }
 
+// add a row to the whitelist table containing the input at rowI+1 
 function createWhitelistRow(websiteTable, input, rowI) {
     const row = websiteTable.insertRow(rowI + 1);
     var siteName = row.insertCell(0);
@@ -116,15 +126,19 @@ function createWhitelistRow(websiteTable, input, rowI) {
     delButtonCell.appendChild(delButton);
 }
 
+// deletes the row on click of the deleteButton on the whitelist table amd removes it from the whitelist
 function deleteButtonClicked(websiteURL, table, row) {
     table.deleteRow(row.rowIndex);
     deleteFromWhitelist(websiteURL);
 }
 
+// remove a specific website URL from the stored whitelist
 function deleteFromWhitelist(websiteURL) {
     chrome.storage.local.get({ whitelistWebsites: [] }, function (result) {
         var websites = result.whitelistWebsites;
+        // find the first occurence of the URL
         const index = websites.indexOf(websiteURL);
+        // if the URL exists then remove it from the location
         if (index > -1) {
             websites.splice(index, 1);
         }
@@ -132,33 +146,21 @@ function deleteFromWhitelist(websiteURL) {
     });
 }
 
-function openPage(tabLink, pageName) {
-    var i, tabcontent, tablinks;
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-    }
-    tablinks = document.getElementsByClassName("tablink");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].style.backgroundColor = "";
-        if (tablinks[i].classList.contains("active")) {
-            tablinks[i].classList.remove("active");
-        }
-    }
-    document.getElementById(tabLink).classList.add("active");
-    document.getElementById(pageName).style.display = "block";
-}
-
+// reads the input in an file input tag
 function onFileInputChange(event) {
     var reader = new FileReader();
     reader.onload = onReaderLoad;
     reader.readAsText(event.target.files[0]);
 }
 
+// takes in a json file from a reader and saves input parameters stored inside it and resets any previously stored data
 function onReaderLoad(event) {
+    // reset the stored data, but performs the parameter function first
     resetStoredData(() => {
+        // parse the inputted JSON
+        // TODO: ensure that the loaded file is a JSON file before parsing
         var jsonIn = JSON.parse(event.target.result);
-        // console.log("input", jsonIn);
+        // use callbacks to store each piece of input data that is necessary for the extension
         storeNewResearchName(jsonIn["title"], () => {
             storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
                 storeNewConcordanceInstructions(
@@ -170,8 +172,10 @@ function onReaderLoad(event) {
     });
 }
 
+// Takes in a string and saves it as a title for the data currently being collected and then performs a callback function
 function storeNewResearchName(name, callback) {
     chrome.storage.local.get("collectionStats", function (result) {
+        // create default data collection and assign value to it if none exists
         if (typeof result.collectionStats === "undefined") {
             var defaultCollectionStats = new StatCollectionInfo();
             defaultCollectionStats.researchName = name;
@@ -185,8 +189,10 @@ function storeNewResearchName(name, callback) {
                 }
             );
         } else {
+            // set the research name to the input string
             result.collectionStats.researchName = name;
 
+            // override the currently stored StatCollectionInfo object
             chrome.storage.local.set(
                 {
                     collectionStats: result.collectionStats,
@@ -200,8 +206,11 @@ function storeNewResearchName(name, callback) {
     });
 }
 
+// Takes in an object containing collocation parameters and saves it as a Collocation object 
+// and then performs a callback function
 function storeNewCollocateInstructions(collocateInst, callback) {
     chrome.storage.local.get("collectionStats", function (result) {
+        // create default data collection and assign value to it if none exists
         if (typeof result.collectionStats === "undefined") {
             var defaultCollectionStats = new StatCollectionInfo();
             defaultCollectionStats.collocation = new Collocation(
@@ -231,6 +240,7 @@ function storeNewCollocateInstructions(collocateInst, callback) {
                 collocateInst["span"][1]
             );
 
+            // override the currently stored StatCollectionInfo object
             chrome.storage.local.set(
                 {
                     collectionStats: result.collectionStats,
@@ -246,6 +256,7 @@ function storeNewCollocateInstructions(collocateInst, callback) {
 
 function storeNewConcordanceInstructions(concordanceInst, callback) {
     chrome.storage.local.get("collectionStats", function (result) {
+        // create default data collection and assign value to it if none exists
         if (typeof result.collectionStats === "undefined") {
             var defaultCollectionStats = new StatCollectionInfo();
             defaultCollectionStats.concordance = new ConcordanceLines(
@@ -269,7 +280,8 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
                 concordanceInst["span"][0], // left span
                 concordanceInst["span"][1] // right span
             );
-            console.log(result.collectionStats.concordance);
+            
+            // override the currently stored StatCollectionInfo object
             chrome.storage.local.set(
                 {
                     collectionStats: result.collectionStats,
@@ -282,21 +294,24 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
     });
 }
 
+// Create a stat table using collocationData as a child of some parentElement
 function createCollocationStatTable(
     collocationData,
     selfReference,
     parentElement
 ) {
-    // console.log("CollcoationData to create:", collocationData)
+    // if the input collocationData was not null
     if (collocationData !== null) {
+        // format the collocation data into a list representing each row to display
         var data = formatCollocationStatsForTable(
             collocationData,
             selfReference
         );
-        // console.log("Formated CollocationData", data)
+        // create a table element
         var table = document.createElement("table");
         table.classList.add("stat-table");
 
+        // iterate through formatted collocation data and add each row to the table
         for (let element of data) {
             let row = table.insertRow();
             for (let key in element) {
@@ -317,6 +332,7 @@ function createCollocationStatTable(
             }
         }
 
+        // header for the collocation stat table
         var header = [
             "Pivot",
             "Target",
@@ -330,6 +346,7 @@ function createCollocationStatTable(
         ];
         let thead = table.createTHead();
         let row = thead.insertRow();
+        // iterate through each header and add a cell to the thead
         for (let value of header) {
             let th = document.createElement("th");
             let text = document.createTextNode(value);
@@ -337,9 +354,10 @@ function createCollocationStatTable(
             row.appendChild(th);
         }
 
+        // append the table to the parentElement
         parentElement.appendChild(table);
     } else {
-        // Create an element saying no stats have been collected yet.
+        // Create an element saying no stats have been collected yet if collocationData is null
         let noDataMessage = document.createElement("p");
         noDataMessage.innerHTML =
             "No Collocation data has been collected so far. Browse some whitelisted websites to collect data.";
@@ -347,15 +365,20 @@ function createCollocationStatTable(
     }
 }
 
+// Create a stat table using concordanceData as a child of some parentElement
 function createConcordanceTable(
     concordanceData,
     parentElement
 ) {
-    // console.log("CollcoationData to create:", collocationData)
+    // if input concordanceData is not null
     if (concordanceData !== null) {
+        // the maximum characters of each side of a concordance line before it is cut off
         const lineLimit = 90;
+        // the number of characters that should be displayed if the left or right is past the lineLimit
         const lineDisplayLength = 80;
+
         var concordLines = concordanceData.concordanceLines;
+        // sort the concordance lines by the word
         concordLines.sort((firstEl, secondEl) => {
             if(firstEl.word.toLowerCase() < secondEl.word.toLowerCase()){
                 return -1;
@@ -365,14 +388,18 @@ function createConcordanceTable(
                 return 0;
             }
         })
-        // console.log("Formated CollocationData", data)
+        
+        
+        // create a table
         var table = document.createElement("table");
         table.classList.add("stat-table");
 
+        // iterate through each concordance line and add rows of concordance lines to the table
         for (let element of concordLines) {
             let row = table.insertRow();
             let leftCell = row.insertCell();
             leftCell.style = "text-align: right;";
+            // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
             if(element.left.length > lineLimit){
                 let text = document.createElement("span");
                 text.innerHTML = "..." + element.left.slice(-lineDisplayLength);
@@ -391,6 +418,7 @@ function createConcordanceTable(
             wordCell.appendChild(text);
 
             let rightCell = row.insertCell();
+            // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
             if(element.right.length > lineLimit){
                 let text = document.createElement("span");
                 text.innerHTML = element.right.slice(0, lineDisplayLength) + "...";
@@ -403,7 +431,7 @@ function createConcordanceTable(
             }
         }
         
-
+        // header for the concordance table
         var header = [
             "Left Content",
             "Pivot",
@@ -411,6 +439,7 @@ function createConcordanceTable(
         ];
         let thead = table.createTHead();
         let row = thead.insertRow();
+        // create each cell of the header and append to the table
         for (let value of header) {
             let th = document.createElement("th");
             let text = document.createTextNode(value);
@@ -418,6 +447,7 @@ function createConcordanceTable(
             row.appendChild(th);
         }
 
+        // append the concordance table to the parentElement
         parentElement.appendChild(table);
     } else {
         // Create an element saying no stats have been collected yet.
@@ -428,7 +458,7 @@ function createConcordanceTable(
     }
 }
 
-
+// formats the collocationData to a list of target-pivot pairs and its relevant values easier adding to a table
 function formatCollocationStatsForTable(collocationData, selfReference) {
     // pivot, target, pivotFreq, targetFreq, pivotTargetFreq, pivotProb, targetProb, pivotTargetProb, PMI(pivot, Target)
     var tableLines = [];
@@ -466,14 +496,18 @@ function formatCollocationStatsForTable(collocationData, selfReference) {
     return tableLines;
 }
 
-// if the user confirms the alert, then "callback" function is performed before resetting the stored data
-function resetStoredData(callback) {
+// if the user confirms an alert, then "callback" function is performed before resetting the stored data
+function resetStoredData(preResetFunction) {
+    // warning message to display in the confirm box when data is going to be reset
     var deleteWarningMessage = `This will reset all collected data. Would you like to delete all collected data? \nYou can download the collected data first, by going to the "import/export" section on the left.`;
+    // if the user presses "OK" on the confirm box
     if (confirm(deleteWarningMessage)) {
-        // console.log(callback);
-        if (callback != null) {
-            callback();
+        // perform the preResetFunction if not null
+        if (preResetFunction != null) {
+            preResetFunction();
         }
+        // remove the stored collocationData and concordanceData
+        // add more callbacks for each stat that is added
         chrome.storage.local.remove("collocationData", ()=>{
             chrome.storage.local.remove("concordanceData", ()=>{
                 location.reload();
@@ -485,6 +519,8 @@ function resetStoredData(callback) {
     }
 }
 
+// Calculates the PMI using the stored collocationData (frequencies and tokenSums)
+// then performs the callback function with the resulting object as an argument
 function getCalculatedCollocationData(callback) {
     chrome.storage.local.get("collocationData", function (result) {
         if (typeof result.collocationData === "undefined") {
@@ -507,6 +543,7 @@ function getCalculatedCollocationData(callback) {
     });
 }
 
+// Gets the stored concordance data then performs the callback function with the resulting object as an argument
 function getConcordanceData(callback) {
     chrome.storage.local.get("concordanceData", function (result) {
         if (typeof result.concordanceData === "undefined") {
@@ -518,10 +555,13 @@ function getConcordanceData(callback) {
     });
 }
 
+// copy some input text to the clipboard
+// TODO: add support for older browsers (e.g. < Chrome 66)
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
 }
 
+// Combine all the collected stats into one object and perform the callback function with it as an argument
 function getCombinedStats(callback){
     var statOutput = {collocation:null, concordance:null};
     getCalculatedCollocationData((collocationStats) => {
@@ -538,6 +578,7 @@ function getCombinedStats(callback){
     });
 }
 
+// Copy all the stats that have been collected so far and copy it to clipboard as a string
 function copyStatsToClipBoard() {
     var textToCopy = "";
     getCombinedStats((statOutput)=>{
@@ -574,6 +615,7 @@ function download(data, filename, type) {
     }
 }
 
+// Download all hte collected data as a json file
 function downloadCollectedStats() {
     var textToCopy = "";
 
@@ -584,6 +626,7 @@ function downloadCollectedStats() {
              
              var currentDate = new Date();
                 getStatsToCollect((result) => {
+                    // create a file name using the name of the research and the data and time that it is downloaded
                     var fileName =
                         result.researchName +
                         "-Collected-Stats-" +
@@ -606,25 +649,31 @@ function downloadCollectedStats() {
     })
 }
 
+// create a HTML table using any js object with the header made usign headerList, as a child of parentElement
 function createTableFromObject(obj, headerList, parentElement){
     var table = document.createElement("table");
+    // iterate through each key of the obj
     for (const key in obj) {
         let row = table.insertRow();
         let titleCell = row.insertCell();
+        // set the first column of the row to be the key
         let titleText = document.createTextNode(key);
         titleCell.appendChild(titleText);
         
         let valueCell = row.insertCell();
 
+        // if the value of the key is an array, format it neater
         if(Array.isArray(obj[key])){
             const formattedArr = obj[key].map((x) => {
                 switch(typeof x){
+                    // add quotation marks to strings
                     case "string":
                         return ('"' + x + '"');
                     default:
                         return x;
                 }   
             })
+            // set the second column of the row to be the formatted value of the key
             let valueText = document.createTextNode(formattedArr.join(",  "));
             valueCell.appendChild(valueText);
         } else{
@@ -633,6 +682,7 @@ function createTableFromObject(obj, headerList, parentElement){
         }
     }
 
+    // create the header for the table using headerList
     let thead = table.createTHead();
     let row = thead.insertRow();
     for (let value of headerList) {
@@ -642,62 +692,75 @@ function createTableFromObject(obj, headerList, parentElement){
         row.appendChild(th);
     }
     
+    // append the table to the parentElement
     parentElement.appendChild(table);
 }
 
-
+// show the collection Stats as a child of parentElement
 function showInputParameters(collectionStats, parentElement){
+    // TODO: also show the research title 
     // Collocation Table
     createTableFromObject(collectionStats.collocation, ["Collocation Parameters", "Value"], parentElement);
+    // Concordance Table
     createTableFromObject(collectionStats.concordance, ["Concordance Parameter", "Value"], parentElement);
 }
 
-function getDecimalPlaces(num) {
-    if (Math.floor(num) === num) return 0;
-
-    var str = num.toString();
-    if (str.indexOf(".") !== -1 && str.indexOf("-") !== -1) {
-        return str.split("-")[1] || 0;
-    } else if (str.indexOf(".") !== -1) {
-        return str.split(".")[1].length || 0;
-    }
-    return str.split("-")[1] || 0;
-}
-
+// load the necessary data for the options page once the DOM content is loaded
 document.addEventListener("DOMContentLoaded", load_options);
+
+// add a row to the whitelist table and store the value in the entry field 
+// when the whitelist-add-button is clicked
 document
     .getElementById("whitelist-add-button")
-    .addEventListener("click", addWebsiteToWhitelist);
+    .addEventListener("click", addEntryToWhitelist);
 
+// add a row to the whitelist table and store the value in the entry field 
+// when the enter key is pressed inside the whitelist-input field
 document
     .getElementById("whitelist-input")
-    .addEventListener("keyup", addWebsiteToWhitelist);
+    .addEventListener("keyup", (e) => {
+        if(e.key === "Enter"){
+            addEntryToWhitelist();
+        }
+    });
 
+// reset the stored data when the reset-stats-button is clicked
 document.getElementById("reset-stats-button").addEventListener("click", () => {
     resetStoredData();
 });
+
+// copy all collected stats to the clipboard when the copy-clipboard button is pressed
 document
     .getElementById("copy-clipboard")
     .addEventListener("click", copyStatsToClipBoard);
 
+// download all collected stats as a json file when the download-stats button is pressed
 document
     .getElementById("download-stats")
     .addEventListener("click", downloadCollectedStats);
+
+// change the parameters for stat collection when the input inst-file-input is changed
 document
     .getElementById("inst-file-input")
     .addEventListener("change", onFileInputChange);
 
 const tabs = document.querySelectorAll("[data-tab-target]");
 const tabContents = document.querySelectorAll("[data-tab-content]");
+// iterate through each tag with "data-tab-target" selector
 tabs.forEach((tab) => {
+    // add an event listener for clicks to each tab-target element, (essentially becomes a button)
     tab.addEventListener("click", () => {
+        // get the tag with query selector of the value of the [tab]'s data target value
         const target = document.querySelector(tab.dataset.tabTarget);
+        // iterate through each of the tab-contents and remove "active" from the classList
         tabContents.forEach((tabContent) => {
             tabContent.classList.remove("active");
         });
+        // iterate through each of the tab-targets and remove "active" from the classList
         tabs.forEach((tab) => {
             tab.classList.remove("active");
         });
+        // add the active class to the classList of the tab and the target
         tab.classList.add("active");
         target.classList.add("active");
     });
@@ -705,12 +768,15 @@ tabs.forEach((tab) => {
 
 var coll = document.getElementsByClassName("collapsible-button");
 var i;
-
+// iterate through every collapsible-button tags in the page
 for (i = 0; i < coll.length; i++) {
+    // when the tag is clicked
     coll[i].addEventListener("click", function () {
+        // toggle the "active" class
         this.classList.toggle("active");
+        // get the next next element sibling (should be the content of the tab)
         var content = this.nextElementSibling;
-        // console.log(content);
+        // if it is displayed, then stop, else display it as a block
         if (content.style.display === "block") {
             content.style.display = "none";
         } else {
@@ -719,6 +785,7 @@ for (i = 0; i < coll.length; i++) {
     });
 }
 
+// get the input parameters for stat collection and display it on the page
 chrome.storage.local.get("collectionStats", function (result) {
     showInputParameters(result.collectionStats, document.getElementById("data-collection-info"));
 });

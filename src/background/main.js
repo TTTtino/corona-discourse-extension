@@ -1,5 +1,6 @@
 // Listens for changes on any of the tabs
 
+// Scripts that are required by the foreground script to run on the page
 const REQUIRED_SCRIPTS = [
     "data_structures/heap.js",
     "stat_storage/collocation_storage.js",
@@ -9,7 +10,9 @@ const REQUIRED_SCRIPTS = [
     "stat_functions/concordance.js",
 ];
 
+// listener for changes on all tabs
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    // sets the icon to black and white by default
     chrome.action.setIcon({
         path: {
             16: "images/bw_logo16.png",
@@ -26,6 +29,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
             // compare the current pages url against the whitelist
             if (urlInList(url.hostname, whitelist)) {
+                // if the foreground script is to be executed then the icon becomes coloured
                 chrome.action.setIcon({
                     path: {
                         16: "images/logo16.png",
@@ -39,7 +43,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                         return response.json();
                     })
                     .then((data) => {
-                        // loop through the json to see if there were any parsers specified
+                        // loop through the parser json to see if there were any parsers specified
                         var scripts = false;
                         for (var i = 0; i < data.parsers.length; i++) {
                             if (
@@ -63,18 +67,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                             scripts = REQUIRED_SCRIPTS.concat(scripts);
                         }
 
-                        // reset- ONLY FOR DEBUGGING
-                        // chrome.storage.local.remove("collectionStats");
-
-                        getStatsToCollect((result) => {
-                            // console.log("Stats to collect function completed");
-                            // fetch("./test.txt")
-                            //     .then((response) => response.text())
-                            //     .then((textString) => {
-                            //         console.log(tokenize(textString));
-                            //     });
-                            importScripts(scripts, tabId);
-                        });
+                        importScripts(scripts, tabId);
                     });
             }
         });
