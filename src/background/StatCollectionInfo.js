@@ -3,12 +3,8 @@
 class StatCollectionInfo {
     constructor() {
         this.researchName = "Default Input Parameters";
-        this.wordCount = true;
-        this.charCount = true;
-        this.collocation = new Collocation(["sunflower"], ["field", "seed", "oil"], false, true, 0, 1);
-        this.concordance = new ConcordanceLines(["sunflower", "field", "seed", "oil"], true, 5, 5);
-        // for testing purposes
-        // this.tokenOccurence = new TokenOccurence("covid");
+        this.collocation = null;
+        this.concordance = null;
     }
 }
 

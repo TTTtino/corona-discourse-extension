@@ -1,4 +1,3 @@
-
 // reads the input in an file input tag
 function onFileInputChange(event) {
     var reader = new FileReader();
@@ -18,13 +17,19 @@ function onReaderLoad(event) {
             storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
                 storeNewConcordanceInstructions(
                     jsonIn["concordance-lines"],
-                    () => {}
+                    () => {
+                        getStatsToCollect((result) => {
+                            console.log(result.researchName);
+                            console.log(result.concordance);
+                            console.log(result.collocation);
+                            console.log(result);
+                        });
+                    }
                 );
             });
         });
     });
 }
-
 
 // copy some input text to the clipboard
 // TODO: add support for older browsers (e.g. < Chrome 66)
@@ -33,37 +38,34 @@ function copyToClipboard(text) {
 }
 
 // Combine all the collected stats into one object and perform the callback function with it as an argument
-function getCombinedStats(callback){
-    var statOutput = {collocation:null, concordance:null};
+function getCombinedStats(callback) {
+    var statOutput = { collocation: null, concordance: null };
     getCalculatedCollocationData((collocationStats) => {
         if (collocationStats !== null) {
             statOutput.collocation = collocationStats;
         }
 
-        getConcordanceData((concordStats) =>{
+        getConcordanceData((concordStats) => {
             if (concordStats !== null) {
                 statOutput.concordance = concordStats;
             }
             callback(statOutput);
-        })
+        });
     });
 }
 
 // Copy all the stats that have been collected so far and copy it to clipboard as a string
 function copyStatsToClipBoard() {
     var textToCopy = "";
-    getCombinedStats((statOutput)=>{
-        if(statOutput.collocation != null && 
-            statOutput.concordance != null){
-             textToCopy += JSON.stringify(statOutput, null, "\t");
-             copyToClipboard(textToCopy);
-         } else{
-             alert("No Stats have been collected");
-         }
+    getCombinedStats((statOutput) => {
+        if (statOutput.collocation != null && statOutput.concordance != null) {
+            textToCopy += JSON.stringify(statOutput, null, "\t");
+            copyToClipboard(textToCopy);
+        } else {
+            alert("No Stats have been collected");
+        }
     });
-    
 }
-
 
 // Function to download data to a file
 // https://stackoverflow.com/questions/13405129/javascript-create-and-save-file
@@ -92,13 +94,14 @@ function downloadCollectedStats() {
     var textToCopy = "";
 
     getCombinedStats((statOutput) => {
-        if(statOutput.collocation != null && 
-            statOutput.concordance != null){
-             textToCopy += JSON.stringify(statOutput, null, "\t");
-             
-             var currentDate = new Date();
-                getStatsToCollect((result) => {
-                    // create a file name using the name of the research and the data and time that it is downloaded
+        if (statOutput.collocation != null && statOutput.concordance != null) {
+            textToCopy += JSON.stringify(statOutput, null, "\t");
+
+            var currentDate = new Date();
+            getStatsToCollect((result) => {
+                // create a file name using the name of the research and the data and time that it is downloaded
+                var fileName = "";
+                if (result != null) {
                     var fileName =
                         result.researchName +
                         "-Collected-Stats-" +
@@ -113,17 +116,32 @@ function downloadCollectedStats() {
                         currentDate.getMinutes() +
                         ":" +
                         currentDate.getSeconds();
-                    download(textToCopy, fileName, "application/json");
-                });
-         } else{
-             alert("No Stats have been collected");
-         }
-    })
+                } else{
+                    var fileName =
+                    "UnknownParameters" +
+                    "-Collected-Stats-" +
+                    currentDate.getDate() +
+                    "/" +
+                    currentDate.getMonth() +
+                    "/" +
+                    currentDate.getFullYear() +
+                    "-" +
+                    currentDate.getHours() +
+                    ":" +
+                    currentDate.getMinutes() +
+                    ":" +
+                    currentDate.getSeconds();
+                }
+                download(textToCopy, fileName, "application/json");
+            });
+        } else {
+            alert("No Stats have been collected");
+        }
+    });
 }
 
-
 // create a HTML table using any js object with the header made usign headerList, as a child of parentElement
-function createTableFromObject(obj, headerList, parentElement){
+function createTableFromObject(obj, headerList, parentElement) {
     var table = document.createElement("table");
     // iterate through each key of the obj
     for (const key in obj) {
@@ -132,24 +150,24 @@ function createTableFromObject(obj, headerList, parentElement){
         // set the first column of the row to be the key
         let titleText = document.createTextNode(key);
         titleCell.appendChild(titleText);
-        
+
         let valueCell = row.insertCell();
 
         // if the value of the key is an array, format it neater
-        if(Array.isArray(obj[key])){
+        if (Array.isArray(obj[key])) {
             const formattedArr = obj[key].map((x) => {
-                switch(typeof x){
+                switch (typeof x) {
                     // add quotation marks to strings
                     case "string":
-                        return ('"' + x + '"');
+                        return '"' + x + '"';
                     default:
                         return x;
-                }   
-            })
+                }
+            });
             // set the second column of the row to be the formatted value of the key
             let valueText = document.createTextNode(formattedArr.join(",  "));
             valueCell.appendChild(valueText);
-        } else{
+        } else {
             let valueText = document.createTextNode(obj[key]);
             valueCell.appendChild(valueText);
         }
@@ -164,17 +182,32 @@ function createTableFromObject(obj, headerList, parentElement){
         th.appendChild(text);
         row.appendChild(th);
     }
-    
+
     // append the table to the parentElement
     parentElement.appendChild(table);
 }
 
 // show the collection Stats as a child of parentElement
-function showInputParameters(collectionStats, parentElement){
-    // TODO: also show the research title 
+function showInputParameters(collectionStats, parentElement) {
+    // TODO: also show the research title
     // Collocation Table
-    createTableFromObject(collectionStats.collocation, ["Collocation Parameters", "Value"], parentElement);
+    if (collectionStats == null) {
+        parentElement.appendChild(document.createElement("br"));
+        let noStatParametersText = document.createTextNode(
+            "There are no data collection parameters loaded, import by clicking the import button above."
+        );
+        parentElement.appendChild(noStatParametersText);
+        return;
+    }
+    createTableFromObject(
+        collectionStats.collocation,
+        ["Collocation Parameters", "Value"],
+        parentElement
+    );
     // Concordance Table
-    createTableFromObject(collectionStats.concordance, ["Concordance Parameter", "Value"], parentElement);
+    createTableFromObject(
+        collectionStats.concordance,
+        ["Concordance Parameter", "Value"],
+        parentElement
+    );
 }
-

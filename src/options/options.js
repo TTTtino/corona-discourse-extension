@@ -12,7 +12,11 @@ function load_options() {
 
         // for each type of stat to collect, each one must be loaded using callbacks
         loadCollocationData(()=>{
-            loadConcordanceData(()=>{});
+            loadConcordanceData(()=>{
+                getStatsToCollect((result=>{
+                    console.log(result);
+                }))
+            });
         });
     });
 }
@@ -23,13 +27,15 @@ function storeNewResearchName(name, callback) {
         // create default data collection and assign value to it if none exists
         if (typeof result.collectionStats === "undefined") {
             var defaultCollectionStats = new StatCollectionInfo();
+            if(name == null){
+                name = "NoNameProvidedInJSON";
+            }
             defaultCollectionStats.researchName = name;
             chrome.storage.local.set(
                 {
                     collectionStats: defaultCollectionStats,
                 },
                 () => {
-                    // alert("Collocation Changed to ", defaultCollectionStats.collocation);
                     callback();
                 }
             );
@@ -43,7 +49,6 @@ function storeNewResearchName(name, callback) {
                     collectionStats: result.collectionStats,
                 },
                 () => {
-                    // alert("Collocation Changed to ", result.collectionStats.collocation);
                     callback();
                 }
             );
@@ -156,5 +161,9 @@ for (i = 0; i < coll.length; i++) {
 
 // get the input parameters for stat collection and display it on the page
 chrome.storage.local.get("collectionStats", function (result) {
-    showInputParameters(result.collectionStats, document.getElementById("data-collection-info"));
+    if (typeof result.collectionStats !== "undefined") {
+        showInputParameters(result.collectionStats, document.getElementById("data-collection-info"));
+    } else{
+        showInputParameters(null, document.getElementById("data-collection-info"));
+    }
 });

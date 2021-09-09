@@ -261,16 +261,7 @@ function getStatsToCollect(callback) {
     chrome.storage.local.get("collectionStats", function (result) {
         // if no collection stats havfe been defined
         if (typeof result.collectionStats === "undefined") {
-            var defaultCollectionStats = new StatCollectionInfo();
-            // create and set a "default collection stat"
-            chrome.storage.local.set(
-                { collectionStats: defaultCollectionStats },
-                function () {
-                    console.log("collectionStats not stored using defautlts");
-                    console.log(defaultCollectionStats);
-                    callback(defaultCollectionStats);
-                }
-            );
+            callback(null);
         } else {
             console.log("result found");
             callback(result.collectionStats);

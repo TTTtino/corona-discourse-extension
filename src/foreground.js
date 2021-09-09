@@ -3,8 +3,10 @@ console.log("EXECUTING foreground.js");
 
 // get the stats to collect from chrome local storage
 chrome.storage.local.get("collectionStats", function (result) {
-    
     var statCollection = result.collectionStats;
+    if(statCollection == null){
+        return;
+    }
     // check which stats to collect and find them them
     console.log("Stats to collect: ", statCollection);
     var pageText = getPageContent();
@@ -25,9 +27,7 @@ chrome.storage.local.get("collectionStats", function (result) {
     // if(statCollection.tokenOccurence){
     //     console.log("The word " + statCollection.tokenOccurence.searchToken + " appeared " + findTokenOccurence(statCollection.tokenOccurence.searchToken, pageText) + " time(s)");
     // }
-
     if(statCollection.collocation){
-
         // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
         const positionsRemoved = removePositionsFromTokenList(tokens.wordTokens)
         var calculatedCollocation = performCollocation(positionsRemoved, statCollection.collocation);
