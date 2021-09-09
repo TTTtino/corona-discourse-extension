@@ -1,12 +1,12 @@
 {
     "parsers": [{
         "hostname": "sky.com",
-        "parser": "basic_parser.js"
+        "parser": "/parsers/basic_parser.js"
     }, {
         "hostname": "bbc.co.uk",
-        "parser": "article_parser.js"
+        "parser": "/parsers/article_parser.js"
     }, {
         "hostname": "telegraph.co.uk",
-        "parser": "article_parser.js"
+        "parser": "/parsers/article_parser.js"
     }]
 }

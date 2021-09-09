@@ -14,8 +14,8 @@
         "storage",
         "unlimitedStorage"
     ],
-    "host_permissions": ["http://*/*", "https://*/"],
     "action": {
+        "default_popup":"/popup/popup.html",
         "default_icon": {
             "16": "images/logo16.png",
             "48": "images/logo48.png",

@@ -1,6 +1,5 @@
-
 // load the concordance data in the concordance section and then perform the callback function
-function loadConcordanceData(callback){
+function loadConcordanceData(callback) {
     chrome.storage.local.get("concordanceData", function (result) {
         // if concordance data does not exist
         if (typeof result.concordanceData === "undefined") {
@@ -9,20 +8,27 @@ function loadConcordanceData(callback){
                 null,
                 document.getElementById("concordance-section")
             );
-            
+
             callback();
         } else {
             // remove all duplicates in the concordance saved so far
-            let concordLinesNoDuplicates = removeConcordanceDuplicates(result.concordanceData);
-            createConcordanceTable(concordLinesNoDuplicates, document.getElementById("concordance-section"));
-            
-            chrome.storage.local.set({ concordanceData: concordLinesNoDuplicates }, function () {
-                callback();
-            });
+            let concordLinesNoDuplicates = removeConcordanceDuplicates(
+                result.concordanceData
+            );
+            createConcordanceTable(
+                concordLinesNoDuplicates,
+                document.getElementById("concordance-section")
+            );
+
+            chrome.storage.local.set(
+                { concordanceData: concordLinesNoDuplicates },
+                function () {
+                    callback();
+                }
+            );
         }
     });
 }
-
 
 function storeNewConcordanceInstructions(concordanceInst, callback) {
     chrome.storage.local.get("collectionStats", function (result) {
@@ -50,7 +56,7 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
                 concordanceInst["span"][0], // left span
                 concordanceInst["span"][1] // right span
             );
-            
+
             // override the currently stored StatCollectionInfo object
             chrome.storage.local.set(
                 {
@@ -64,12 +70,8 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
     });
 }
 
-
 // Create a stat table using concordanceData as a child of some parentElement
-function createConcordanceTable(
-    concordanceData,
-    parentElement
-) {
+function createConcordanceTable(concordanceData, parentElement) {
     // if input concordanceData is not null
     if (concordanceData !== null) {
         // the maximum characters of each side of a concordance line before it is cut off
@@ -80,16 +82,17 @@ function createConcordanceTable(
         var concordLines = concordanceData.concordanceLines;
         // sort the concordance lines by the word
         concordLines.sort((firstEl, secondEl) => {
-            if(firstEl.word.toLowerCase() < secondEl.word.toLowerCase()){
+            if (firstEl.word.toLowerCase() < secondEl.word.toLowerCase()) {
                 return -1;
-            } else if(firstEl.word.toLowerCase() > secondEl.word.toLowerCase()){
+            } else if (
+                firstEl.word.toLowerCase() > secondEl.word.toLowerCase()
+            ) {
                 return 1;
-            } else{
+            } else {
                 return 0;
             }
-        })
-        
-        
+        });
+
         // create a table
         var table = document.createElement("table");
         table.classList.add("stat-table");
@@ -100,12 +103,12 @@ function createConcordanceTable(
             let leftCell = row.insertCell();
             leftCell.style = "text-align: right;";
             // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
-            if(element.left.length > lineLimit){
+            if (element.left.length > lineLimit) {
                 let text = document.createElement("span");
                 text.innerHTML = "..." + element.left.slice(-lineDisplayLength);
                 text.setAttribute("title", element.left);
                 leftCell.appendChild(text);
-            } else{
+            } else {
                 let text = document.createElement("span");
                 text.innerHTML = element.left;
                 leftCell.appendChild(text);
@@ -119,23 +122,41 @@ function createConcordanceTable(
 
             let rightCell = row.insertCell();
             // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
-            if(element.right.length > lineLimit){
+            if (element.right.length > lineLimit) {
                 let text = document.createElement("span");
-                text.innerHTML = element.right.slice(0, lineDisplayLength) + "...";
+                text.innerHTML =
+                    element.right.slice(0, lineDisplayLength) + "...";
                 text.setAttribute("title", element.right);
                 rightCell.appendChild(text);
-            } else{
+            } else {
                 let text = document.createElement("span");
                 text.innerHTML = element.right;
                 rightCell.appendChild(text);
             }
+
+            let countCell = row.insertCell();
+            let countText = document.createTextNode(element.count);
+            countCell.style = "text-align: center;";
+            countCell.appendChild(countText);
+
+            let excludedCell = row.insertCell();
+            let checkBox = document.createElement("INPUT");
+            checkBox.setAttribute("type", "checkbox");
+            checkBox.checked = element.excluded;
+            checkBox.addEventListener("click", () => {
+                toggleConcordanceLineExclusion(element, checkBox);
+            });
+            excludedCell.style = "text-align: center;";
+            excludedCell.appendChild(checkBox);
         }
-        
+
         // header for the concordance table
         var header = [
             "Left Content",
             "Pivot",
-            "Right Content"
+            "Right Content",
+            "Count",
+            "Exclude?",
         ];
         let thead = table.createTHead();
         let row = thead.insertRow();
@@ -158,6 +179,40 @@ function createConcordanceTable(
     }
 }
 
+function toggleConcordanceLineExclusion(concordLine, checkBoxElement) {
+    // make concord line excluded
+    chrome.storage.local.get("concordanceData", function (result) {
+        let concordanceDataResult = result.concordanceData;
+        // function that returns true if some concordLine is equivalent to the insConcord
+        const containsConcordLine = (concordLineB) => {
+            return (
+                concordLineB.word === concordLine.word &&
+                concordLineB.left === concordLine.left &&
+                concordLineB.right === concordLine.right
+            );
+        };
+        // finds the index of the concordance line where they are equivalent
+        const loc =
+            concordanceDataResult.concordanceLines.findIndex(
+                containsConcordLine
+            );
+        if (checkBoxElement.checked == true) {
+            concordanceDataResult.concordanceLines[loc].excluded = true;
+        } else {
+            concordanceDataResult.concordanceLines[loc].excluded = false;
+        }
+        chrome.storage.local.set(
+            { concordanceData: concordanceDataResult },
+            () => {}
+        );
+    });
+}
+
+function removeExcluded(concordanceData){
+    concordanceData.concordanceLines = concordanceData.concordanceLines.filter(line => !line.excluded);
+    return concordanceData;
+}
+
 // Gets the stored concordance data then performs the callback function with the resulting object as an argument
 function getConcordanceData(callback) {
     chrome.storage.local.get("concordanceData", function (result) {
@@ -165,8 +220,12 @@ function getConcordanceData(callback) {
             console.log("No concordance data found");
             callback(null);
         } else {
-            callback(result.concordanceData);
+            let exclRemoved = removeExcluded(result.concordanceData);
+            if(exclRemoved.concordanceLines.length > 0){
+                callback(exclRemoved);
+            } else{
+                callback(null); 
+            }
         }
     });
 }
-
