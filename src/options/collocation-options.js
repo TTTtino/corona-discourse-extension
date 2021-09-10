@@ -42,14 +42,18 @@ function storeNewCollocateInstructions(collocateInst, callback) {
         // create default data collection and assign value to it if none exists
         if (typeof result.collectionStats === "undefined") {
             var defaultCollectionStats = new StatCollectionInfo();
-            defaultCollectionStats.collocation = new Collocation(
-                collocateInst["pivot-tokens"],
-                collocateInst["target-tokens"],
-                collocateInst["allow-self-reference"],
-                collocateInst["parse-as-regex"],
-                collocateInst["span"][0],
-                collocateInst["span"][1]
-            );
+            if(collocateInst == null){
+                result.collectionStats.collocation = null;
+            } else{
+                result.collectionStats.collocation = new Collocation(
+                    collocateInst["pivot-tokens"],
+                    collocateInst["target-tokens"],
+                    collocateInst["allow-self-reference"],
+                    collocateInst["parse-as-regex"],
+                    collocateInst["span"][0],
+                    collocateInst["span"][1]
+                );
+            }
             chrome.storage.local.set(
                 {
                     collectionStats: defaultCollectionStats,
@@ -60,14 +64,19 @@ function storeNewCollocateInstructions(collocateInst, callback) {
                 }
             );
         } else {
-            result.collectionStats.collocation = new Collocation(
-                collocateInst["pivot-tokens"],
-                collocateInst["target-tokens"],
-                collocateInst["allow-self-reference"],
-                collocateInst["parse-as-regex"],
-                collocateInst["span"][0],
-                collocateInst["span"][1]
-            );
+            if(collocateInst == null){
+                result.collectionStats.collocation = null;
+            } else{
+                result.collectionStats.collocation = new Collocation(
+                    collocateInst["pivot-tokens"],
+                    collocateInst["target-tokens"],
+                    collocateInst["allow-self-reference"],
+                    collocateInst["parse-as-regex"],
+                    collocateInst["span"][0],
+                    collocateInst["span"][1]
+                );
+            }
+
 
             // override the currently stored StatCollectionInfo object
             chrome.storage.local.set(

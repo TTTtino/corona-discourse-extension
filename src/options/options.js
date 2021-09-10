@@ -12,10 +12,8 @@ function load_options() {
 
         // for each type of stat to collect, each one must be loaded using callbacks
         loadCollocationData(()=>{
+            console.log("Loading Concordance Data");
             loadConcordanceData(()=>{
-                getStatsToCollect((result=>{
-                    console.log(result);
-                }))
             });
         });
     });
@@ -41,6 +39,10 @@ function storeNewResearchName(name, callback) {
             );
         } else {
             // set the research name to the input string
+            if(name == null){
+                name = "NoNameProvidedInJSON";
+            } 
+            
             result.collectionStats.researchName = name;
 
             // override the currently stored StatCollectionInfo object

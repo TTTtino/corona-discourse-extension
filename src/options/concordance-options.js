@@ -2,6 +2,7 @@
 function loadConcordanceData(callback) {
     chrome.storage.local.get("concordanceData", function (result) {
         // if concordance data does not exist
+        console.log(result.concordanceData);
         if (typeof result.concordanceData === "undefined") {
             // should create an empty table since there is no data
             createConcordanceTable(
@@ -35,12 +36,16 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
         // create default data collection and assign value to it if none exists
         if (typeof result.collectionStats === "undefined") {
             var defaultCollectionStats = new StatCollectionInfo();
-            defaultCollectionStats.concordance = new ConcordanceLines(
-                concordanceInst["pivot-tokens"], // pivots
-                concordanceInst["parse-as-regex"], // regex parsing
-                concordanceInst["span"][0], // left span
-                concordanceInst["span"][1] // right span
-            );
+            if(concordanceInst == null){
+                defaultCollectionStats.concordance = null;
+            } else{
+                defaultCollectionStats.concordance = new ConcordanceLines(
+                    concordanceInst["pivot-tokens"], // pivots
+                    concordanceInst["parse-as-regex"], // regex parsing
+                    concordanceInst["span"][0], // left span
+                    concordanceInst["span"][1] // right span
+                );
+            }
             chrome.storage.local.set(
                 {
                     collectionStats: defaultCollectionStats,
@@ -50,12 +55,16 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
                 }
             );
         } else {
-            result.collectionStats.concordance = new ConcordanceLines(
-                concordanceInst["pivot-tokens"], // pivots
-                concordanceInst["parse-as-regex"], // regex parsing
-                concordanceInst["span"][0], // left span
-                concordanceInst["span"][1] // right span
-            );
+            if(concordanceInst == null){
+                result.collectionStats.concordance = null;
+            } else{
+                result.collectionStats.concordance = new ConcordanceLines(
+                    concordanceInst["pivot-tokens"], // pivots
+                    concordanceInst["parse-as-regex"], // regex parsing
+                    concordanceInst["span"][0], // left span
+                    concordanceInst["span"][1] // right span
+                );
+            }
 
             // override the currently stored StatCollectionInfo object
             chrome.storage.local.set(

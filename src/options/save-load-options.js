@@ -18,12 +18,6 @@ function onReaderLoad(event) {
                 storeNewConcordanceInstructions(
                     jsonIn["concordance-lines"],
                     () => {
-                        getStatsToCollect((result) => {
-                            console.log(result.researchName);
-                            console.log(result.concordance);
-                            console.log(result.collocation);
-                            console.log(result);
-                        });
                     }
                 );
             });
@@ -39,26 +33,33 @@ function copyToClipboard(text) {
 
 // Combine all the collected stats into one object and perform the callback function with it as an argument
 function getCombinedStats(callback) {
-    var statOutput = { collocation: null, concordance: null };
-    getCalculatedCollocationData((collocationStats) => {
-        if (collocationStats !== null) {
-            statOutput.collocation = collocationStats;
+    var statOutput = {researchName:null, collocation: null, concordance: null };
+    getStatsToCollect((result)=>{
+        if(result != null){
+            statOutput.researchName = result.researchName;
         }
-
-        getConcordanceData((concordStats) => {
-            if (concordStats !== null) {
-                statOutput.concordance = concordStats;
+        
+        getCalculatedCollocationData((collocationStats) => {
+            if (collocationStats !== null) {
+                statOutput.collocation = collocationStats;
             }
-            callback(statOutput);
+    
+            getConcordanceData((concordStats) => {
+                if (concordStats !== null) {
+                    statOutput.concordance = concordStats;
+                }
+                callback(statOutput);
+            });
         });
     });
+
 }
 
 // Copy all the stats that have been collected so far and copy it to clipboard as a string
 function copyStatsToClipBoard() {
     var textToCopy = "";
     getCombinedStats((statOutput) => {
-        if (statOutput.collocation != null && statOutput.concordance != null) {
+        if (statOutput.collocation != null || statOutput.concordance != null) {
             textToCopy += JSON.stringify(statOutput, null, "\t");
             copyToClipboard(textToCopy);
         } else {
@@ -94,7 +95,7 @@ function downloadCollectedStats() {
     var textToCopy = "";
 
     getCombinedStats((statOutput) => {
-        if (statOutput.collocation != null && statOutput.concordance != null) {
+        if (statOutput.collocation != null || statOutput.concordance != null) {
             textToCopy += JSON.stringify(statOutput, null, "\t");
 
             var currentDate = new Date();
@@ -190,7 +191,6 @@ function createTableFromObject(obj, headerList, parentElement) {
 // show the collection Stats as a child of parentElement
 function showInputParameters(collectionStats, parentElement) {
     // TODO: also show the research title
-    // Collocation Table
     if (collectionStats == null) {
         parentElement.appendChild(document.createElement("br"));
         let noStatParametersText = document.createTextNode(
@@ -199,15 +199,22 @@ function showInputParameters(collectionStats, parentElement) {
         parentElement.appendChild(noStatParametersText);
         return;
     }
-    createTableFromObject(
-        collectionStats.collocation,
-        ["Collocation Parameters", "Value"],
-        parentElement
-    );
+    // Collocation Table
+    if(collectionStats.collocation != null){
+        createTableFromObject(
+            collectionStats.collocation,
+            ["Collocation Parameters", "Value"],
+            parentElement
+        );
+
+    }
     // Concordance Table
-    createTableFromObject(
-        collectionStats.concordance,
-        ["Concordance Parameter", "Value"],
-        parentElement
-    );
+    if(collectionStats.concordance != null){
+        createTableFromObject(
+            collectionStats.concordance,
+            ["Concordance Parameter", "Value"],
+            parentElement
+        );
+    }
+   
 }
