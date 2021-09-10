@@ -21,7 +21,7 @@ body {
 
     grid-template-columns: minmax(250px, 15%) 1fr;
 
-    grid-template-rows: minmax(250px, 15vh) 10fr;
+    grid-template-rows: minmax(150px, 15vh) 10fr;
     gap: 20px;
     padding: 10px;
     box-sizing: border-box;
@@ -52,8 +52,8 @@ body {
     display: inline-block;
     overflow: hidden;
     object-fit: cover;
-    height: 100%;
     vertical-align: bottom;
+    border-radius: 5px;
 }
 
 .tabs {
@@ -302,7 +302,7 @@ input[type="file"] {
     display: none;
 }
 
-.custom-file-upload {
+.default-button {
     display: inline-block;
     cursor: pointer;
     background-color: #2a9d8f;
@@ -317,7 +317,7 @@ input[type="file"] {
     box-sizing: border-box;
 }
 
-label.custom-file-upload {
+label.default-button {
     display: block;
     width: 100px;
     display: flex;
