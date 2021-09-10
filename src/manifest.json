@@ -1,7 +1,8 @@
 {
     "name": "Web Statistics Collector",
-    "description": "Build an Extension!",
-    "version": "1.0",
+    "description": "Reads content from a list of whitelisted websites, and provides you with statistics regarding the read content.",
+    "version": "0.0.0.1",
+    "version_name": "internal 1.0",
     "manifest_version": 3,
     "background": {
         "service_worker": "worker_wrapper.js"
