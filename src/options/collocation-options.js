@@ -17,7 +17,7 @@ function loadCollocationData(callback){
                 "collectionStats",
                 (collectionResult) => {
                     var statCollection = collectionResult.collectionStats;
-                    // console.log(result.collocationData);
+                    console.log(result.collocationData);
                     createCollocationStatTable(
                         calculateFreqPMI(
                             result.collocationData,
@@ -105,6 +105,14 @@ function createCollocationStatTable(
             collocationData,
             selfReference
         );
+        if(data.length == 0){
+            // Create an element saying no stats have been collected yet if collocationData is null
+            let noDataMessage = document.createElement("p");
+            noDataMessage.innerHTML =
+                "Collected data shows that all PMI results are 0";
+            parentElement.appendChild(noDataMessage);
+            return;
+        }
         // create a table element
         var table = document.createElement("table");
         table.classList.add("stat-table");

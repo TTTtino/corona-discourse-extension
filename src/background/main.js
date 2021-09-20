@@ -66,7 +66,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                                 scripts = REQUIRED_SCRIPTS.concat(scripts);
                             }
     
-                            importScripts(scripts, tabId);
+                            executeMultipleScripts(scripts, tabId);
                         });
                 }
             });
@@ -76,7 +76,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 // recursively called until the list that is being passed through is empty, where each script in the filelist is executed
-function importScripts(fileList, tabId) {
+function executeMultipleScripts(fileList, tabId) {
     if (fileList.length > 0) {
         chrome.scripting.executeScript(
             {
@@ -84,7 +84,7 @@ function importScripts(fileList, tabId) {
                 files: [fileList[0]],
             },
             () => {
-                importScripts(fileList.slice(1, fileList.length), tabId);
+                executeMultipleScripts(fileList.slice(1, fileList.length), tabId);
             }
         );
     } else {

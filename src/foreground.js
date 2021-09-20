@@ -11,22 +11,8 @@ chrome.storage.local.get("collectionStats", function (result) {
     console.log("Stats to collect: ", statCollection);
     var pageText = getPageContent();
     var tokens = tokenize(pageText, true);;
-    // console.log("Extracted Text", pageText);
+    console.log("Extracted Text", pageText);
 
-    // // Not important stat, so just being logged
-    // if (statCollection.charCount) {
-    //     console.log("Char Count: " + findCharacterCount(pageText));
-    // }
-
-    // // Not important stat, so just being logged
-    // if(statCollection.wordCount){
-    //     console.log("Word Count: " + findWordCount(pageText));
-    // }
-
-    // // Not important stat, so just being logged
-    // if(statCollection.tokenOccurence){
-    //     console.log("The word " + statCollection.tokenOccurence.searchToken + " appeared " + findTokenOccurence(statCollection.tokenOccurence.searchToken, pageText) + " time(s)");
-    // }
     if(statCollection.collocation){
         // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
         const positionsRemoved = removePositionsFromTokenList(tokens.wordTokens)
@@ -63,7 +49,7 @@ chrome.storage.local.get("collectionStats", function (result) {
     if(statCollection.concordance){
         // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
         var calculatedConcordance = performConcordance(tokens.wordTokens, statCollection.concordance);
-        
+        //console.log(calculatedConcordance);
         var concordanceLines = [];
         calculatedConcordance.forEach(element => {
             var line = stringifyConcordanceLine(element, pageText);

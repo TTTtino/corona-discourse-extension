@@ -105,35 +105,6 @@ function tokenize(corpus, storeLocation=false) {
     return { sentenceTokens: sentenceTokens, wordTokens: wordTokens };
 }
 
-// find the occurences of a particular token in a corpus
-function findTokenOccurence(token, corpus) {
-    var newString = corpus.replace(/[-]/g, " ").toLowerCase();
-    newString = newString.replace(/[^\w\s!?]/g, "").toLowerCase();
-    var wordArr = newString.split(" ");
-    var count = 0;
-    for (let i = 0; i < wordArr.length; i++) {
-        if (wordArr[i] == token) {
-            count++;
-        }
-    }
-    return count;
-}
-
-// find the number of characters in a corpus
-function findCharacterCount(corpus) {
-    var newString = corpus.replace(/[^a-zA-Z]/g, "");
-    return newString.length;
-}
-
-// find the number of words in a corpus
-function findWordCount(corpus) {
-    var newString = corpus.split(" ");
-    newString = newString.filter(function (el) {
-        return el != "" && el != null;
-    });
-    return newString.length;
-}
-
 // generate n-grams based on left and right span
 // returns: array of objects {word:string, left:[string], right:[string]}
 function generateNgrams(wordTokens, [l, r]) {

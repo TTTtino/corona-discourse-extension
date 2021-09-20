@@ -3,7 +3,7 @@ function loadConcordanceData(callback) {
     chrome.storage.local.get("concordanceData", function (result) {
         // if concordance data does not exist
         console.log(result.concordanceData);
-        if (typeof result.concordanceData === "undefined") {
+        if (typeof result.concordanceData === "undefined" || result.concordanceData.concordanceLines.length == 0) {
             // should create an empty table since there is no data
             createConcordanceTable(
                 null,
@@ -12,17 +12,13 @@ function loadConcordanceData(callback) {
 
             callback();
         } else {
-            // remove all duplicates in the concordance saved so far
-            let concordLinesNoDuplicates = removeConcordanceDuplicates(
-                result.concordanceData
-            );
             createConcordanceTable(
-                concordLinesNoDuplicates,
+                result.concordanceData,
                 document.getElementById("concordance-section")
             );
 
             chrome.storage.local.set(
-                { concordanceData: concordLinesNoDuplicates },
+                { concordanceData: result.concordanceData },
                 function () {
                     callback();
                 }

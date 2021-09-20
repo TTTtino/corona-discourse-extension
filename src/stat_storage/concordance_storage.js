@@ -82,6 +82,7 @@ function formatConcordanceData(concordanceData){
     return out;
 }
 
+// DEPRECATED
 // remove duplicates in a concordanceLine object
 function removeConcordanceDuplicates(concordanceData){
     if (typeof concordanceData === "undefined") {

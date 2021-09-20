@@ -34,7 +34,6 @@ function performConcordance(wordTokens, concordanceInfo) {
     }
 
     return concordanceLineTokens;
-    //console.log(generateContext(wordTokens.indexOf(wordTokens.indexOf(concordanceLineTokens[5].left[0]), -5, wordTokens)));
 }
 
 function DEPRECATED_performConcordance(wordTokens, concordanceInfo) {
@@ -106,8 +105,8 @@ function stringifyConcordanceLine(concordLine, corpus = false) {
         };
     } else{
         return {
-            left: removePositionsFromTokenList(concordLine.left),
-            right: removePositionsFromTokenList(concordLine.right),
+            left: removePositionsFromTokenList(concordLine.left).join(" "),
+            right: removePositionsFromTokenList(concordLine.right).join(" "),
             word: concordLine.wordToken[0]
         };
     }
@@ -127,7 +126,7 @@ function stringifyTokenArray(array, corpus = false) {
     }
 }
 
-function generateContext(index, span, wordTokens) {
+function DEPRECATED_generateContext(index, span, wordTokens) {
     var context = [];
     if (span < 0) {
         for (let i = index + span; i < index; i++) {
