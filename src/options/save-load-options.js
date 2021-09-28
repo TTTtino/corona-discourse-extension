@@ -105,32 +105,32 @@ function downloadCollectedStats() {
                 if (result != null) {
                     var fileName =
                         result.researchName +
-                        "-Collected-Stats-" +
+                        "_Collected_Stats_" +
                         currentDate.getDate() +
-                        "/" +
-                        currentDate.getMonth() +
-                        "/" +
-                        currentDate.getFullYear() +
                         "-" +
+                        currentDate.getMonth() +
+                        "-" +
+                        currentDate.getFullYear() +
+                        "_" +
                         currentDate.getHours() +
-                        ":" +
+                        "-" +
                         currentDate.getMinutes() +
-                        ":" +
+                        "-" +
                         currentDate.getSeconds();
                 } else{
                     var fileName =
-                    "UnknownParameters" +
-                    "-Collected-Stats-" +
+                    "UnknownParameters_Collected_Stats_" +
                     currentDate.getDate() +
-                    "/" +
-                    currentDate.getMonth() +
-                    "/" +
-                    currentDate.getFullYear() +
                     "-" +
+                    currentDate.getMonth() +
+                    "-" +
+                    currentDate.getFullYear() +
+                    "_" +
                     currentDate.getHours() +
-                    ":" +
+                    "-" +
                     currentDate.getMinutes() +
-                    ":" +
+                    "-" +
+                    currentDate.getSeconds();
                     currentDate.getSeconds();
                 }
                 download(textToCopy, fileName, "application/json");

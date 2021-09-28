@@ -183,7 +183,7 @@ function createConcordanceTable(concordanceData, parentElement) {
         parentElement.appendChild(noDataMessage);
     }
 }
-
+// Toggles the specific concordLine's exlcusion attribute, depending on the value of checkBoxElement
 function toggleConcordanceLineExclusion(concordLine, checkBoxElement) {
     // make concord line excluded
     chrome.storage.local.get("concordanceData", function (result) {
@@ -213,6 +213,8 @@ function toggleConcordanceLineExclusion(concordLine, checkBoxElement) {
     });
 }
 
+// Removes any lines in concordanceData if the line has been marked for exclusion
+// returns the new concordanceData.
 function removeExcluded(concordanceData){
     concordanceData.concordanceLines = concordanceData.concordanceLines.filter(line => !line.excluded);
     return concordanceData;
