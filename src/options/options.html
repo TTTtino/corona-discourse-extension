@@ -1,5 +1,7 @@
-<html>
+<html xmlns="http://www.w3.org/1999/html">
     <head>
+        <link rel="stylesheet" href="../general/bootstrap/css/bootstrap.min.css" >
+        <script src="../general/bootstrap/js/bootstrap.bundle.min.js"></script>
         <link rel="icon" type="image/png" href="../images/logo.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -26,7 +28,10 @@
             <div class="sidenav">
                 <ul class="tabs">
                     <li data-tab-target="#general" class="tab active">
-                        General
+                        Analysis Overview / Results
+                    </li>
+                     <li data-tab-target="#selectAnalysis" class="tab">
+                        Select analysis
                     </li>
                     <li data-tab-target="#whitelist" class="tab">
                         Whitelisted Websites
@@ -40,7 +45,12 @@
 
             <div class="tab-content">
                 <div id="general" class="active" data-tab-content>
-                    <h1 class="title">General</h1>
+
+                        <h1 class="title">Analysis Result</h1>
+
+                     <h3 class="sub-title">Collocation groups</h3>
+                     <p>In corpus linguistics, a collocation is a series of words or terms that co-occur more often than would be expected by chance.</p>
+
                     <button type="button" class="collapsible-button active">
                         Collocation
                     </button>
@@ -49,6 +59,11 @@
                         class="stats section collapsible-content"
                         style="display: none;"
                     ></div>
+
+                    </br>
+                          </br>
+                    <h3 class="sub-title">Concordance lines</h3>
+                    <p>Concordance lines show the context of collocation groups in a text. In corpus linguistics, a collocation is a series of words or terms that co-occur more often than would be expected by chance.</p>
                     <button type="button" class="collapsible-button active">
                         Concordance
                     </button>
@@ -57,8 +72,81 @@
                         class="stats section collapsible-content"
                         style="display: none;"
                     ></div>
-                    <button id="reset-stats-button" type="button" class="default-button">Reset Collected Data</button>
+
+                     <h2 class="sub-title">Send results to analysts</h2>
+                     <p>By clicking 'Yes, submit results', you agree to storing the results externally for research purposes only.
+                    </br><b>If you do not agree</b> with that please press 'No, don't submit results and delete results'. </p>
+                    <div>
+                            <button
+                                id="reset-stats-button"
+                                class="default-button"
+                            >
+                                No, don't submit results and delete results
+                            </button>
+
+                            <button
+                                id="submit-results"
+                                class="default-button"
+                            >
+                                Yes, submit results
+                            </button>
+                        </div>
+
+                    </br>
+                     <input id="inst-file-input" type="file" />
+                        <h3 class="sub-title">Export Collected Statistics</h3>
+                        <p1>Export all collected statistics as a *.txt file</p1>
+                        <!-- <label for="inst-file-input" class="default-button">
+                            Copy To Clipboard
+                        </label> -->
+                        <div>
+                            <button
+                                id="copy-clipboard"
+                                class="default-button"
+                            >
+                                Copy To Clipboard
+                            </button>
+
+                            <button
+                                id="download-stats"
+                                class="default-button"
+                            >
+                                Download
+                            </button>
+                        </div>
+                    </br>
+                    <h1 class="title">Analysis Query Overview</h1>
+
+                        <h2 class="sub-title">Data Collection Information</h2>
+                        <p1>These are the parameters for data collection</p1>
+                        <div id="data-collection-info"></div>
+
                 </div>
+                <div id="selectAnalysis" data-tab-content>
+                                    <h1 class="title">Available projects</h1>
+                                        <div id="analysis-form-div">
+                                            <p>In the dropdown box below all available projects are listed. By selecting a project a description will be shown. If you decide to participate in the project, please press the "Choose project" button which will be shown when selecting a project.</p>
+                                         <form
+                                                 method="post"
+                                                 onsubmit="return confirm('Are you sure you want to participate in this analysis?');">
+
+                                            <div>
+                                                <select id="availableAnalysis" class="form-select" ></select>
+
+                                            </div>
+                                             <div id="projectDetails">
+                                                </br>
+                                                <h4 id="projectTitle"> Project title </h4>
+                                            <p id="projectDescription"> Project description</p>
+                                                  <input type="button"
+                                                      id="select-analysis"
+                                                      class="default-button"
+                                                  value="Choose project">
+                                            </div>
+
+                                         </form>
+                                        </div>
+                                    </div>
 
                 <div id="whitelist" data-tab-content>
                     <h1 class="title">Whitelist</h1>
@@ -89,41 +177,41 @@
 
                 <div id="import-export" data-tab-content>
                     <h1 class="title">Import/Export</h1>
-                    <div>
-                        <h2 class="sub-title">Import Researcher Parameters</h2>
-                        <p1
-                            >Import the file provided by the researcher to set
-                            the relevant parameters for data collection</p1
-                        >
-                        <label for="inst-file-input" class="default-button">
-                            Import
-                        </label>
-                        <input id="inst-file-input" type="file" />
-                        <h2 class="sub-title">Export Collected Statistics</h2>
-                        <p1>Export all collected statistics as a *.txt file</p1>
-                        <!-- <label for="inst-file-input" class="default-button">
-                            Copy To Clipboard
-                        </label> -->
-                        <div>
-                            <button
-                                id="copy-clipboard"
-                                class="default-button"
-                            >
-                                Copy To Clipboard
-                            </button>
+<!--                    <div>-->
+<!--                        <h2 class="sub-title">Import Researcher Parameters</h2>-->
+<!--                        <p1-->
+<!--                            >Import the file provided by the researcher to set-->
+<!--                            the relevant parameters for data collection</p1-->
+<!--                        >-->
+<!--                        <label for="inst-file-input" class="default-button">-->
+<!--                            Import-->
+<!--                        </label>-->
+<!--                        <input id="inst-file-input" type="file" />-->
+<!--                        <h2 class="sub-title">Export Collected Statistics</h2>-->
+<!--                        <p1>Export all collected statistics as a *.txt file</p1>-->
+<!--                        &lt;!&ndash; <label for="inst-file-input" class="default-button">-->
+<!--                            Copy To Clipboard-->
+<!--                        </label> &ndash;&gt;-->
+<!--                        <div>-->
+<!--                            <button-->
+<!--                                id="copy-clipboard"-->
+<!--                                class="default-button"-->
+<!--                            >-->
+<!--                                Copy To Clipboard-->
+<!--                            </button>-->
 
-                            <button
-                                id="download-stats"
-                                class="default-button"
-                            >
-                                Download
-                            </button>
-                        </div>
+<!--                            <button-->
+<!--                                id="download-stats"-->
+<!--                                class="default-button"-->
+<!--                            >-->
+<!--                                Download-->
+<!--                            </button>-->
+<!--                        </div>-->
 
-                        <h2 class="sub-title">Data Collection Information</h2>
-                        <p1>These are the parameters for data collection</p1>
-                        <div id="data-collection-info"></div>
-                    </div>
+<!--                        <h2 class="sub-title">Data Collection Information</h2>-->
+<!--                        <p1>These are the parameters for data collection</p1>-->
+<!--                        <div id="data-collection-info"></div>-->
+<!--                    </div>-->
                 </div>
 
                 <div id="help" data-tab-content>

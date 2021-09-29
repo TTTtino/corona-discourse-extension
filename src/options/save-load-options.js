@@ -89,6 +89,23 @@ function download(data, filename, type) {
         }, 0);
     }
 }
+// Download all the collected data as a json file
+function getResultsAsJSON(callback) {
+    var textToCopy = "";
+
+    getCombinedStats((statOutput) => {
+        if (statOutput.collocation != null || statOutput.concordance != null) {
+            textToCopy += JSON.stringify(statOutput, null, "\t");
+            callback(textToCopy);
+        } else {
+            alert("No data has been collected");
+        }
+
+
+    });
+
+
+}
 
 // Download all hte collected data as a json file
 function downloadCollectedStats() {

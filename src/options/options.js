@@ -1,7 +1,45 @@
 // requires: whitelist-options.js, concordance-options, collocation-options, save-load-options.js
 
+var SERVER_URL = 'http://localhost:8000';
+console.log("OPTIONS.js");
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    if (request.action === "test"){
+    alert("JA");
+}
+});
+//chrome.runtime.onMessage.addListener(
+//  function(request, sender, sendResponse) {
+//   if (request.from == "script1After"){
+//   console.log("FSGVMKLSFHJ:IDBJS:FFGSGKSOGGK");
+//
+//       console.log(request.message);
+//    }
+//
+//    });
+
 // load all the necessary things required in the options page
 function load_options() {
+
+fetch(SERVER_URL+'/get-available-projects/').then(r => r.text()).then(result => {
+    var list = document.getElementById('availableAnalysis');
+
+    jsonResult = JSON.parse(result)
+
+     var option = document.createElement('option');
+       option.value = -1
+       option.innerHTML = 'Please select a project'
+       list.appendChild(option);
+
+    for (let i = 0; i < jsonResult.length; i++) {
+       var option = document.createElement('option');
+       option.value = jsonResult[i]["id"];
+       option.innerHTML = jsonResult[i]["projectName"];
+       list.appendChild(option);
+    }
+})
+document.getElementById("projectDetails").style.visibility='hidden';
     chrome.storage.local.get({ whitelistWebsites: [] }, function (result) {
         var websites = result.whitelistWebsites;
         var websiteTable = document.getElementById("whitelist-table");
@@ -90,6 +128,48 @@ document
     .getElementById("whitelist-add-button")
     .addEventListener("click", addEntryToWhitelist);
 
+// ask user for permission to submit results and send results to backend
+document
+    .getElementById("submit-results")
+    .addEventListener("click", () => {
+
+        if(confirm("Are you sure you want to submit you results? If you press 'OK' the results will be send to the researchers.")){
+         getResultsAsJSON((textToCopy) =>{
+
+         chrome.storage.local.get("projectId", function (result) {
+
+        if (typeof result.projectId !== "undefined") {
+           data={
+         'project_id' :result.projectId,
+         'result' : textToCopy
+         }
+        fetch(SERVER_URL+'/submit-results/', {
+        method: 'POST',
+        body: JSON
+    }).then(function(response) {
+        console.log(response)
+    });
+    }else{
+        alert("Results couldn't be submitted");
+
+    }
+
+
+         });
+
+
+         });
+
+
+
+        }
+
+
+    });
+
+
+
+
 // add a row to the whitelist table and store the value in the entry field 
 // when the enter key is pressed inside the whitelist-input field
 document
@@ -169,3 +249,58 @@ chrome.storage.local.get("collectionStats", function (result) {
         showInputParameters(null, document.getElementById("data-collection-info"));
     }
 });
+
+document.getElementById("availableAnalysis").addEventListener("change", () => {
+
+      list = document.getElementById("availableAnalysis");
+      var projectId = list.options[list.selectedIndex].value;
+      if ( projectId != '-1'){
+            fetch(SERVER_URL+'/get-project/?id='+projectId).then(r => r.text()).then(result => {
+
+                jsonResult = JSON.parse(result)
+                document.getElementById("projectTitle").innerText = jsonResult['projectName']
+                document.getElementById("projectDescription").innerText = jsonResult['projectDescription']
+                document.getElementById("projectDetails").style.visibility='visible';
+            })
+
+      }
+      else{
+      document.getElementById("projectDetails").style.visibility='hidden';
+      }
+});
+
+document.getElementById("select-analysis").addEventListener("click", () => {
+    if (confirm('Are you sure you want to participate in this project? By confirming the selected project will be saved and you currently participating project. NOTE: No data will be collected until you activate the extension. You can change the project at any time. ')) {
+
+       list = document.getElementById("availableAnalysis");
+       var projectId = list.options[list.selectedIndex].value;
+       var projectName = list.options[list.selectedIndex].text;
+
+       fetch(SERVER_URL+'/get-query/?id='+projectId).then(r => r.text()).then(result => {
+
+       var jsonIn = JSON.parse(result)
+
+       storeNewResearchName(jsonIn["title"], () => {
+            storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
+                storeNewConcordanceInstructions(
+                    jsonIn["concordance-lines"],
+                    () => {
+                    }
+                );
+            });
+        });
+
+
+        chrome.storage.local.set({query: result},()=> {
+
+        });
+        chrome.storage.local.set({projectName: projectName},()=> {
+        });
+        chrome.storage.local.set({projectId: projectId},()=> {
+        });
+
+
+    })
+}
+});
+
