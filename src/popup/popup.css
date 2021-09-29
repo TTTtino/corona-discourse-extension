@@ -54,3 +54,7 @@ label.default-button {
 [data-active="false"].default-button {
     background-color: #ABC9C5;
 }
+
+#selected-project-text{
+font-size: 16px;
+}
