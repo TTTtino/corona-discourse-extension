@@ -9,6 +9,16 @@ const REQUIRED_SCRIPTS = [
     "stat_functions/concordance.js",
 ];
 
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+   if (request.from == "script1"){
+        chrome.runtime.openOptionsPage();
+    }
+
+    });
+
+
+
 // listener for changes on all tabs
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // sets the icon to black and white by default
@@ -23,6 +33,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         if (result.extensionActive && changeInfo.status === "complete" && /^http/.test(tab.url)) {
             // Get the list of whitelisted websites from the chrome local storage
             chrome.storage.local.get({ whitelistWebsites: [] }, function (result) {
+            console.log('3');
                 var whitelist = result.whitelistWebsites;
                 var url = new URL(tab.url);
     
