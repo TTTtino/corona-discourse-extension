@@ -11,10 +11,9 @@ const REQUIRED_SCRIPTS = [
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-   if (request.from == "script1"){
+   if (request.action  == "openOptions"){
         chrome.runtime.openOptionsPage();
     }
-
     });
 
 
