@@ -2,6 +2,7 @@
 try {
     importScripts(
         "StatCollectionInfo.js",
+        "ProjectInfo.js",
         "stat_functions/generic.js",
         "stat_functions/collocation.js",
         "stat_functions/concordance.js",
