@@ -6,13 +6,11 @@ console.log("OPTIONS.js");
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.action === "test"){
-    alert("JA");
 }
 });
 //chrome.runtime.onMessage.addListener(
 //  function(request, sender, sendResponse) {
 //   if (request.from == "script1After"){
-//   console.log("FSGVMKLSFHJ:IDBJS:FFGSGKSOGGK");
 //
 //       console.log(request.message);
 //    }
@@ -99,7 +97,7 @@ function storeNewResearchName(name, callback) {
 // if the user confirms an alert, then "callback" function is performed before resetting the stored data
 function resetStoredData(preResetFunction) {
     // warning message to display in the confirm box when data is going to be reset
-    var deleteWarningMessage = `This will reset all collected data. Would you like to delete all collected data? \nYou can download the collected data first, by going to the "import/export" section on the left.`;
+    var deleteWarningMessage = `This will reset all collected data. Would you like to delete all collected data? \nYou can download the collected data first, by going to the section 'Export Collected Statistics' above.`;
     // if the user presses "OK" on the confirm box
     if (confirm(deleteWarningMessage)) {
         // perform the preResetFunction if not null
@@ -111,6 +109,28 @@ function resetStoredData(preResetFunction) {
         chrome.storage.local.remove("collocationData", ()=>{
             chrome.storage.local.remove("concordanceData", ()=>{
                 location.reload();
+            });
+        });
+        return true;
+    } else {
+        return false;
+    }
+}
+// if the user confirms an alert, then "callback" function is performed before resetting the selected Project
+function resetStoredProject(preResetFunction) {
+    // warning message to display in the confirm box when data is going to be reset
+    var deleteWarningMessage = `This will reset the selected project. Do you want to reset the selected project? This will not delete the collected data.`;
+    // if the user presses "OK" on the confirm box
+    if (confirm(deleteWarningMessage)) {
+        // perform the preResetFunction if not null
+        if (preResetFunction != null) {
+            preResetFunction();
+        }
+        // remove the stored collocationData and concordanceData
+        // add more callbacks for each stat that is added
+        chrome.storage.local.remove("collectionStats", ()=>{
+            chrome.storage.local.remove("project", ()=>{
+             location.reload();
             });
         });
         return true;
@@ -136,39 +156,37 @@ document
         if(confirm("Are you sure you want to submit you results? If you press 'OK' the results will be send to the researchers.")){
          getResultsAsJSON((textToCopy) =>{
 
-         chrome.storage.local.get("projectId", function (result) {
+         chrome.storage.local.get("project", function (result) {
 
-        if (typeof result.projectId !== "undefined") {
+        if (typeof result.project !== "undefined") {
            data={
-         'project_id' :result.projectId,
-         'result' : textToCopy
+         project_id :result.project.id,
+         result : JSON.parse(textToCopy)
          }
+
         fetch(SERVER_URL+'/submit-results/', {
+
         method: 'POST',
-        body: JSON
+        body: JSON.stringify(data),
+         headers: {
+                'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+        }
     }).then(function(response) {
-        console.log(response)
+        if(response.status === 200){
+            alert("Results were successfully submitted. Thank you for your help!")
+        }else{
+            alert("Unfortunately  a problem occurred and your results couldn't be submitted.")
+        }
     });
     }else{
         alert("Results couldn't be submitted");
 
     }
-
-
          });
-
-
          });
-
-
-
         }
-
-
     });
-
-
-
 
 // add a row to the whitelist table and store the value in the entry field 
 // when the enter key is pressed inside the whitelist-input field
@@ -183,6 +201,10 @@ document
 // reset the stored data when the reset-stats-button is clicked
 document.getElementById("reset-stats-button").addEventListener("click", () => {
     resetStoredData();
+});
+// reset the selected project when the reset-selected-project is clicked
+document.getElementById("reset-selected-project").addEventListener("click", () => {
+    resetStoredProject();
 });
 
 // copy all collected stats to the clipboard when the copy-clipboard button is pressed
@@ -250,17 +272,36 @@ chrome.storage.local.get("collectionStats", function (result) {
     }
 });
 
+// get the input parameters for the currently selected project
+chrome.storage.local.get("project", function (result) {
+    if (typeof result.project !== "undefined") {
+         document.getElementById("selected-project-title").innerHTML = result.project.name;
+         document.getElementById("selected-project-description").innerHTML = result.project.description;
+         document.getElementById("selected-project-details").style.display = 'block';
+    } else{
+        document.getElementById("selected-project-title").innerHTML = "No Project Selected";
+        document.getElementById("selected-project-details").style.display = 'none';
+    }
+});
+
 document.getElementById("availableAnalysis").addEventListener("change", () => {
 
       list = document.getElementById("availableAnalysis");
       var projectId = list.options[list.selectedIndex].value;
       if ( projectId != '-1'){
             fetch(SERVER_URL+'/get-project/?id='+projectId).then(r => r.text()).then(result => {
-
+                try{
                 jsonResult = JSON.parse(result)
                 document.getElementById("projectTitle").innerText = jsonResult['projectName']
                 document.getElementById("projectDescription").innerText = jsonResult['projectDescription']
                 document.getElementById("projectDetails").style.visibility='visible';
+
+                }
+                catch(err){
+                alert("We are sorry, something went wrong while fetching the project. Please try again later.")
+                document.getElementById("projectTitle").innerText = "No Project Selected";
+                }
+
             })
 
       }
@@ -275,29 +316,41 @@ document.getElementById("select-analysis").addEventListener("click", () => {
        list = document.getElementById("availableAnalysis");
        var projectId = list.options[list.selectedIndex].value;
        var projectName = list.options[list.selectedIndex].text;
+       var projectDescription = document.getElementById("projectDescription").innerHTML;
 
        fetch(SERVER_URL+'/get-query/?id='+projectId).then(r => r.text()).then(result => {
+        if(typeof result !== 'undefined'){
+            try{
+                var jsonIn = JSON.parse(result)
+            }catch(err) {
+                alert("We are sorry, something went wrong and the project couldn't be set as the current project. Please try again later.")
+                return null;
+            }
 
-       var jsonIn = JSON.parse(result)
+             storeNewResearchName(jsonIn["title"], () => {
+                storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
+                     storeNewConcordanceInstructions(
+                        jsonIn["concordance-lines"],
+                        () => {
+                        var project = new ProjectInfo(projectId,projectName,projectDescription);
 
-       storeNewResearchName(jsonIn["title"], () => {
-            storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
-                storeNewConcordanceInstructions(
-                    jsonIn["concordance-lines"],
-                    () => {
-                    }
-                );
-            });
-        });
+                         console.log(project);
+
+                         chrome.storage.local.set({collectionStats: result},()=> {
+                         });
+
+                         chrome.storage.local.set({project: project},()=> {
+                         });
+                            location.reload();
+                            }
+                        );
+                    });
+                });
 
 
-        chrome.storage.local.set({query: result},()=> {
 
-        });
-        chrome.storage.local.set({projectName: projectName},()=> {
-        });
-        chrome.storage.local.set({projectId: projectId},()=> {
-        });
+        }
+
 
 
     })

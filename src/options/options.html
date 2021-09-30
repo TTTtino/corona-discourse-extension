@@ -31,13 +31,10 @@
                         Analysis Overview / Results
                     </li>
                      <li data-tab-target="#selectAnalysis" class="tab">
-                        Select analysis
+                        Select Project
                     </li>
                     <li data-tab-target="#whitelist" class="tab">
                         Whitelisted Websites
-                    </li>
-                    <li data-tab-target="#import-export" class="tab">
-                        Import/Export
                     </li>
                     <li data-tab-target="#help" class="tab">Help</li>
                 </ul>
@@ -60,7 +57,6 @@
                         style="display: none;"
                     ></div>
 
-                    </br>
                           </br>
                     <h3 class="sub-title">Concordance lines</h3>
                     <p>Concordance lines show the context of collocation groups in a text. In corpus linguistics, a collocation is a series of words or terms that co-occur more often than would be expected by chance.</p>
@@ -73,7 +69,7 @@
                         style="display: none;"
                     ></div>
 
-                     <h2 class="sub-title">Send results to analysts</h2>
+                     <h2 class="sub-title">Submit results</h2>
                      <p>By clicking 'Yes, submit results', you agree to storing the results externally for research purposes only.
                     </br><b>If you do not agree</b> with that please press 'No, don't submit results and delete results'. </p>
                     <div>
@@ -115,11 +111,26 @@
                             </button>
                         </div>
                     </br>
-                    <h1 class="title">Analysis Query Overview</h1>
+                    <h1 class="title">Project Overview</h1>
 
-                        <h2 class="sub-title">Data Collection Information</h2>
-                        <p1>These are the parameters for data collection</p1>
-                        <div id="data-collection-info"></div>
+                    <p1>You can change the selected project in the tab "Select Project" on the left-hand navigation.</p1>
+                    <p1>The currently selected project is:</p1>
+                    <h2 class="sub-title" id="selected-project-title">No Project Selected</h2>
+                       <div id ="selected-project-details">
+                    </br>
+
+                        <p id="selected-project-description"> Project description</p>
+                    </br>
+                          <button id="reset-selected-project"
+                                  class="default-button">
+                                Reset Selected Project
+                            </button>
+                       </div>
+
+
+                    <h2 class="sub-title">Data Collection Information</h2>
+                    <p1>These are the parameters for data collection</p1>
+                    <div id="data-collection-info"></div>
 
                 </div>
                 <div id="selectAnalysis" data-tab-content>
@@ -137,12 +148,14 @@
                                              <div id="projectDetails">
                                                 </br>
                                                 <h4 id="projectTitle"> Project title </h4>
+
                                             <p id="projectDescription"> Project description</p>
                                                   <input type="button"
                                                       id="select-analysis"
                                                       class="default-button"
                                                   value="Choose project">
                                             </div>
+
 
                                          </form>
                                         </div>
@@ -175,45 +188,6 @@
                     </div>
                 </div>
 
-                <div id="import-export" data-tab-content>
-                    <h1 class="title">Import/Export</h1>
-<!--                    <div>-->
-<!--                        <h2 class="sub-title">Import Researcher Parameters</h2>-->
-<!--                        <p1-->
-<!--                            >Import the file provided by the researcher to set-->
-<!--                            the relevant parameters for data collection</p1-->
-<!--                        >-->
-<!--                        <label for="inst-file-input" class="default-button">-->
-<!--                            Import-->
-<!--                        </label>-->
-<!--                        <input id="inst-file-input" type="file" />-->
-<!--                        <h2 class="sub-title">Export Collected Statistics</h2>-->
-<!--                        <p1>Export all collected statistics as a *.txt file</p1>-->
-<!--                        &lt;!&ndash; <label for="inst-file-input" class="default-button">-->
-<!--                            Copy To Clipboard-->
-<!--                        </label> &ndash;&gt;-->
-<!--                        <div>-->
-<!--                            <button-->
-<!--                                id="copy-clipboard"-->
-<!--                                class="default-button"-->
-<!--                            >-->
-<!--                                Copy To Clipboard-->
-<!--                            </button>-->
-
-<!--                            <button-->
-<!--                                id="download-stats"-->
-<!--                                class="default-button"-->
-<!--                            >-->
-<!--                                Download-->
-<!--                            </button>-->
-<!--                        </div>-->
-
-<!--                        <h2 class="sub-title">Data Collection Information</h2>-->
-<!--                        <p1>These are the parameters for data collection</p1>-->
-<!--                        <div id="data-collection-info"></div>-->
-<!--                    </div>-->
-                </div>
-
                 <div id="help" data-tab-content>
                     <h1 class="title">Help</h1>
                     <div>
@@ -223,6 +197,7 @@
             </div>
         </div>
         <script src="/StatCollectionInfo.js"></script>
+        <script src="/ProjectInfo.js"></script>
         <script src="../stat_functions/generic.js"></script>
         <script src="../stat_functions/collocation.js"></script>
         <script src="../stat_functions/concordance.js"></script>

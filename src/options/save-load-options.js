@@ -211,7 +211,7 @@ function showInputParameters(collectionStats, parentElement) {
     if (collectionStats == null) {
         parentElement.appendChild(document.createElement("br"));
         let noStatParametersText = document.createTextNode(
-            "There are no data collection parameters loaded, import by clicking the import button above."
+            "There are no data collection parameters loaded."
         );
         parentElement.appendChild(noStatParametersText);
         return;
