@@ -166,7 +166,7 @@ function createCollocationStatTable(
         // Create an element saying no stats have been collected yet if collocationData is null
         let noDataMessage = document.createElement("p");
         noDataMessage.innerHTML =
-            "No Collocation data has been collected so far. Browse some whitelisted websites to collect data.";
+            "No Collocation data has been collected so far. Browse some of the allowed websites to collect data.";
         parentElement.appendChild(noDataMessage);
     }
 }

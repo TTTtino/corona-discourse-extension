@@ -1,6 +1,6 @@
 {
     "name": "Web Statistics Collector",
-    "description": "Reads content from a list of whitelisted websites, and provides you with statistics regarding the read content.",
+    "description": "Reads content from a list of allowed websites, and provides you with statistics regarding the read content.",
     "version": "0.0.0.1",
     "version_name": "internal 1.0",
     "manifest_version": 3,

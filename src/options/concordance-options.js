@@ -179,7 +179,7 @@ function createConcordanceTable(concordanceData, parentElement) {
         // Create an element saying no stats have been collected yet.
         var noDataMessage = document.createElement("p");
         noDataMessage.innerHTML =
-            "No Concordance data has been collected so far. Browse some whitelisted websites to collect data.";
+            "No Concordance data has been collected so far. Browse some of the allowed websites to collect data.";
         parentElement.appendChild(noDataMessage);
     }
 }

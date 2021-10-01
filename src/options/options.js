@@ -1,13 +1,13 @@
-// requires: whitelist-options.js, concordance-options, collocation-options, save-load-options.js
+// requires: allowList-options.js, concordance-options, collocation-options, save-load-options.js
 
 // load all the necessary things required in the options page
 function load_options() {
-    chrome.storage.local.get({ whitelistWebsites: [] }, function (result) {
-        var websites = result.whitelistWebsites;
-        var websiteTable = document.getElementById("whitelist-table");
-        // iterate through each entry in the whitelist and add to the whitelist table
+    chrome.storage.local.get({ allowedWebsites: [] }, function (result) {
+        var websites = result.allowedWebsites;
+        var websiteTable = document.getElementById("allowlist-table");
+        // iterate through each entry in the allowlist and add to the allowlist table
         for (var i = 0; i < websites.length; i++) {
-            createWhitelistRow(websiteTable, websites[i], i);
+            createAllowListRow(websiteTable, websites[i], i);
         }
 
         // for each type of stat to collect, each one must be loaded using callbacks
@@ -84,19 +84,19 @@ function resetStoredData(preResetFunction) {
 // load the necessary data for the options page once the DOM content is loaded
 document.addEventListener("DOMContentLoaded", load_options);
 
-// add a row to the whitelist table and store the value in the entry field 
-// when the whitelist-add-button is clicked
+// add a row to the allowList table and store the value in the entry field 
+// when the allowlist-add-button is clicked
 document
-    .getElementById("whitelist-add-button")
-    .addEventListener("click", addEntryToWhitelist);
+    .getElementById("allowlist-add-button")
+    .addEventListener("click", addEntryToAllowList);
 
-// add a row to the whitelist table and store the value in the entry field 
-// when the enter key is pressed inside the whitelist-input field
+// add a row to the allowList table and store the value in the entry field 
+// when the enter key is pressed inside the allowlist-input field
 document
-    .getElementById("whitelist-input")
+    .getElementById("allowlist-input")
     .addEventListener("keyup", (e) => {
         if(e.key === "Enter"){
-            addEntryToWhitelist();
+            addEntryToAllowList();
         }
     });
 

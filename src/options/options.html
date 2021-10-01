@@ -28,8 +28,8 @@
                     <li data-tab-target="#general" class="tab active">
                         General
                     </li>
-                    <li data-tab-target="#whitelist" class="tab">
-                        Whitelisted Websites
+                    <li data-tab-target="#allow-list" class="tab">
+                        Allow List
                     </li>
                     <li data-tab-target="#import-export" class="tab">
                         Import/Export
@@ -60,24 +60,24 @@
                     <button id="reset-stats-button" type="button" class="default-button">Reset Collected Data</button>
                 </div>
 
-                <div id="whitelist" data-tab-content>
-                    <h1 class="title">Whitelist</h1>
+                <div id="allow-list" data-tab-content>
+                    <h1 class="title">Allow List</h1>
                     <div class="section">
-                        <div id="whitelist-form-div">
+                        <div id="allowlist-form-div">
                             <input
-                                id="whitelist-input"
+                                id="allowlist-input"
                                 type="text"
                                 pattern="(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
                                 placeholder="e.g. www.example.com"
                                 required
                                 aria-required="true"
                             />
-                            <button id="whitelist-add-button" type="button">
+                            <button id="allowlist-add-button" type="button">
                                 ADD
                             </button>
                         </div>
                         <div>
-                            <table id="whitelist-table">
+                            <table id="allowlist-table">
                                 <thead>
                                     <th>Website</th>
                                     <th></th>
@@ -139,7 +139,7 @@
         <script src="../stat_functions/collocation.js"></script>
         <script src="../stat_functions/concordance.js"></script>
         <script src="../stat_storage/concordance_storage.js"></script>
-        <script src="whitelist-options.js"></script>
+        <script src="allowlist-options.js"></script>
         <script src="concordance-options.js"></script>
         <script src="collocation-options.js"></script>
         <script src="save-load-options.js"></script>
