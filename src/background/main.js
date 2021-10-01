@@ -1,5 +1,6 @@
 // Listens for changes on any of the tabs
 
+console.log("backend file.js");
 // Scripts that are required by the foreground script to run on the page
 const REQUIRED_SCRIPTS = [
     "stat_storage/collocation_storage.js",
@@ -101,6 +102,19 @@ function executeMultipleScripts(fileList, tabId) {
         return;
     }
 }
+//
+//function getCookies(domain, name, callback) {
+//    chrome.cookies.get({"url": domain, "name": name}, function(cookie) {
+//        if(callback) {
+//            callback(cookie.value);
+//        }
+//    });
+//}
+//
+////usage:
+//getCookies("http://127.0.0.1", "CSRF-TOKEN", function(id) {
+//    alert(id);
+//});
 
 // compares a url with every element in a list of urls; returns true if present
 function urlInList(url, urlList) {

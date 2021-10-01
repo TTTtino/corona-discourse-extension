@@ -1,3 +1,5 @@
+// get's the extension status. If not stored then it defaults to false
+
 
 chrome.storage.local.get(['project'], function(result) {
   if (typeof result.project !== 'undefined'){
@@ -7,7 +9,7 @@ chrome.storage.local.get(['project'], function(result) {
   document.getElementById("selected-project-text").innerHTML =
   'There is no project selected. You can select a project in the options of the extension. Please follow these steps:'+
   '<ol>'+
-  '<li>Click on the extension icon in your navigation bar.</li>'+
+  '<li>Click on the extension icon (jigsaw puzzle piece) in your navigation bar.</li>'+
   '<li>Find Corona Discourse Extension and click on the three dots next to it.</li>'+
   '<li>Select "Options".</li>'+
   '<li>Select "Select project" from the menu on the left.</li>'+
@@ -20,17 +22,10 @@ chrome.storage.local.get(['project'], function(result) {
 });
 
 
-
-
-
 // if the toggle button is pressed
 document.getElementById("toggle-button").addEventListener("click", () => {
+console.log("Run analysis button pressed");
     // get the extension's active status
-    chrome.storage.local.get({extensionActive: false}, (result)=>{
-        // toggle the status
-        let status = !result.extensionActive;
-        // if new status is active
-        if(status){
          if(confirm("Are you sure you want to activate this extension? By activating it, it will read the content of the website you see before you."+
         "The collected data will not be saved anywhere until we don't specifically got your permission to do so. If you close this tab, all the collected data will be permanently deleted")){
 
@@ -40,12 +35,9 @@ document.getElementById("toggle-button").addEventListener("click", () => {
             });
             }
 
-        } else{
-
-        }
-        // alter the storage to reflect the new status
-        chrome.storage.local.set({extensionActive: status}, ()=>{
-        });
+//        // alter the storage to reflect the new status
+//        chrome.storage.local.set({extensionActive: status}, ()=>{
+//        });
     });
-});
+
 

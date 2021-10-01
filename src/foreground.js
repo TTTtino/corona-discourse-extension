@@ -17,8 +17,8 @@ chrome.storage.local.get("collectionStats", function (result) {
     var pageText = getPageContent();
     var tokens = tokenize(pageText, true);;
     console.log("Extracted Text", pageText);
-
     if(statCollection.collocation){
+
         // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
         const positionsRemoved = removePositionsFromTokenList(tokens.wordTokens)
         var calculatedCollocation = performCollocation(positionsRemoved, statCollection.collocation);

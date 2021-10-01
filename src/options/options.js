@@ -1,6 +1,6 @@
 // requires: whitelist-options.js, concordance-options, collocation-options, save-load-options.js
 
-var SERVER_URL = 'http://localhost:8000';
+var SERVER_URL = 'http://127.0.0.1:8000';
 console.log("OPTIONS.js");
 
 chrome.runtime.onMessage.addListener(
@@ -165,13 +165,13 @@ document
          }
 
         fetch(SERVER_URL+'/submit-results/', {
-
         method: 'POST',
         body: JSON.stringify(data),
          headers: {
                 'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
                 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-        }
+        },
+         credentials: 'include'
     }).then(function(response) {
         if(response.status === 200){
             alert("Results were successfully submitted. Thank you for your help!")
@@ -187,6 +187,9 @@ document
          });
         }
     });
+
+
+
 
 // add a row to the whitelist table and store the value in the entry field 
 // when the enter key is pressed inside the whitelist-input field
@@ -327,25 +330,26 @@ document.getElementById("select-analysis").addEventListener("click", () => {
                 return null;
             }
 
+
+
              storeNewResearchName(jsonIn["title"], () => {
                 storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
                      storeNewConcordanceInstructions(
                         jsonIn["concordance-lines"],
                         () => {
-                        var project = new ProjectInfo(projectId,projectName,projectDescription);
-
-                         console.log(project);
-
-                         chrome.storage.local.set({collectionStats: result},()=> {
-                         });
-
-                         chrome.storage.local.set({project: project},()=> {
-                         });
-                            location.reload();
                             }
                         );
                     });
                 });
+
+                 var project = new ProjectInfo(projectId,projectName,projectDescription);
+
+                 chrome.storage.local.set({collectionStats: jsonIn},()=> {
+                 });
+
+                 chrome.storage.local.set({project: project},()=> {
+                 });
+                    location.reload();
 
 
 
