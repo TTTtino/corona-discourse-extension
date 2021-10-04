@@ -349,6 +349,8 @@ document.getElementById("select-analysis").addEventListener("click", () => {
 
                  chrome.storage.local.set({project: project},()=> {
                  });
+
+                  alert("The project "+projectName+" was successfully set as the project you are participating in. You will now be redirected to the overview.")
                     location.reload();
 
 
