@@ -10,12 +10,6 @@ const REQUIRED_SCRIPTS = [
     "stat_functions/concordance.js",
 ];
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-   if (request.action  == "openOptions"){
-        chrome.runtime.openOptionsPage();
-    }
-    });
 
 
 
@@ -36,9 +30,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
                 var whitelist = result.whitelistWebsites;
                 var url = new URL(tab.url);
+
     
                 // compare the current pages url against the whitelist
-                if (urlInList(url.hostname, whitelist)) {
+                if (urlInList(url.href, whitelist)) {
                     // if the foreground script is to be executed then the icon becomes coloured
                     chrome.action.setIcon({
                         path: {
@@ -106,7 +101,8 @@ function executeMultipleScripts(fileList, tabId) {
 // compares a url with every element in a list of urls; returns true if present
 function urlInList(url, urlList) {
     for (var i = 0; i < urlList.length; i++) {
-        // console.log(urlList[i] + ", " + url);
+
+
         if (url.includes(urlList[i])) {
             return true;
         }
