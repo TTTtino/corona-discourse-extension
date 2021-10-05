@@ -23,9 +23,8 @@ chrome.storage.local.get(['project'], function(result) {
 });
 
 
-// if the toggle button is pressed
+// if the run analysis button is pressed
 document.getElementById("toggle-button").addEventListener("click", () => {
-console.log("Run analysis button pressed");
     // get the extension's active status
          if(confirm("Are you sure you want to activate this extension? By activating it, it will read the content of the website you see before you."+
         "The collected data will not be saved anywhere until we don't specifically got your permission to do so. If you close this tab, all the collected data will be permanently deleted")){
@@ -37,6 +36,11 @@ console.log("Run analysis button pressed");
             }
 
     });
+
+// if the to extension options button is pressed
+document.getElementById("option-button").addEventListener("click", () => {
+chrome.runtime.openOptionsPage();
+});
 
 
 // get's the extension status. If not stored then it defaults to false

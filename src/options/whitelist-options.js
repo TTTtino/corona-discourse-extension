@@ -22,6 +22,7 @@ function addToWhitelistStorage(input, callback) {
 
 // add the value inside the whitelist input to the whitelist table and save to storage
 function addEntryToWhitelist(){
+
     let inputField = document.getElementById("whitelist-input")
     addToWhitelistStorage(inputField.value, () => {
         // add the new website to the whitelist table

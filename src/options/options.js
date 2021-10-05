@@ -21,23 +21,52 @@ chrome.runtime.onMessage.addListener(
 // load all the necessary things required in the options page
 function load_options() {
 
-fetch(SERVER_URL+'/get-available-projects/').then(r => r.text()).then(result => {
-    var list = document.getElementById('availableAnalysis');
+// get the input parameters for the currently selected project
+chrome.storage.local.get("project", function (result) {
+    // check if there is a currently selected project
+    // if so, show project and description
+    if (typeof result.project !== "undefined") {
+        // show project on overview page
+         document.getElementById("selected-project-title").innerHTML = result.project.name;
+         document.getElementById("selected-project-description").innerHTML = result.project.description;
+         document.getElementById("selected-project-details").style.display = 'block';
 
-    jsonResult = JSON.parse(result)
+                 chrome.storage.local.set({extensionActive: true}, ()=>{
+        });
 
-     var option = document.createElement('option');
-       option.value = -1
-       option.innerHTML = 'Please select a project'
-       list.appendChild(option);
 
-    for (let i = 0; i < jsonResult.length; i++) {
-       var option = document.createElement('option');
-       option.value = jsonResult[i]["id"];
-       option.innerHTML = jsonResult[i]["projectName"];
-       list.appendChild(option);
+    } else{
+        document.getElementById("selected-project-title").innerHTML = "No Project Selected";
+        document.getElementById("selected-project-details").style.display = 'none';
+
+                chrome.storage.local.set({extensionActive: false}, ()=>{
+        });
     }
-})
+
+
+
+        });
+
+
+     // get all project from server that have status PUBLISHED
+    fetch(SERVER_URL+'/get-available-projects/').then(r => r.text()).then(result => {
+        var list = document.getElementById('availableAnalysis');
+
+        jsonResult = JSON.parse(result)
+
+         var option = document.createElement('option');
+           option.value = -1
+           option.innerHTML = 'Please select a project'
+           list.appendChild(option);
+
+        for (let i = 0; i < jsonResult.length; i++) {
+           var option = document.createElement('option');
+           option.value = jsonResult[i]["id"];
+           option.innerHTML = jsonResult[i]["projectName"];
+           list.appendChild(option);
+        }
+
+         });
 
 document.getElementById("projectDetails").style.visibility='hidden';
 
@@ -278,26 +307,7 @@ chrome.storage.local.get("collectionStats", function (result) {
     }
 });
 
-// get the input parameters for the currently selected project
-chrome.storage.local.get("project", function (result) {
-    if (typeof result.project !== "undefined") {
-         document.getElementById("selected-project-title").innerHTML = result.project.name;
-         document.getElementById("selected-project-description").innerHTML = result.project.description;
-         document.getElementById("selected-project-details").style.display = 'block';
 
-                 chrome.storage.local.set({extensionActive: true}, ()=>{
-        });
-
-
-
-    } else{
-        document.getElementById("selected-project-title").innerHTML = "No Project Selected";
-        document.getElementById("selected-project-details").style.display = 'none';
-
-                chrome.storage.local.set({extensionActive: false}, ()=>{
-        });
-    }
-});
 
 document.getElementById("availableAnalysis").addEventListener("change", () => {
 
