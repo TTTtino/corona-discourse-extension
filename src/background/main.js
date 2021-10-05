@@ -33,7 +33,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         if (result.extensionActive && changeInfo.status === "complete" && /^http/.test(tab.url)) {
             // Get the list of whitelisted websites from the chrome local storage
             chrome.storage.local.get({ whitelistWebsites: [] }, function (result) {
-            console.log('3');
+
                 var whitelist = result.whitelistWebsites;
                 var url = new URL(tab.url);
     
@@ -102,19 +102,6 @@ function executeMultipleScripts(fileList, tabId) {
         return;
     }
 }
-//
-//function getCookies(domain, name, callback) {
-//    chrome.cookies.get({"url": domain, "name": name}, function(cookie) {
-//        if(callback) {
-//            callback(cookie.value);
-//        }
-//    });
-//}
-//
-////usage:
-//getCookies("http://127.0.0.1", "CSRF-TOKEN", function(id) {
-//    alert(id);
-//});
 
 // compares a url with every element in a list of urls; returns true if present
 function urlInList(url, urlList) {

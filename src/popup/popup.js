@@ -5,6 +5,7 @@ chrome.storage.local.get(['project'], function(result) {
   if (typeof result.project !== 'undefined'){
      document.getElementById("selected-project-text").innerHTML = 'The current selected project is <b>'+result.project.name+'</b>.';
      document.getElementById("toggle-button").style.visibility = "visible";
+          // alter the storage to reflect the new status
   }else{
   document.getElementById("selected-project-text").innerHTML =
   'There is no project selected. You can select a project in the options of the extension. Please follow these steps:'+
@@ -35,9 +36,20 @@ console.log("Run analysis button pressed");
             });
             }
 
-//        // alter the storage to reflect the new status
-//        chrome.storage.local.set({extensionActive: status}, ()=>{
-//        });
     });
 
+
+// get's the extension status. If not stored then it defaults to false
+chrome.storage.local.get({extensionActive: false}, (result)=>{
+    // if the extension is active
+    if(!result.extensionActive){
+        chrome.action.setIcon({
+            path: {
+                16: "/images/bw_logo16.png",
+                48: "/images/bw_logo48.png",
+                128: "/images/bw_logo128.png",
+            },
+        });
+        }
+});
 

@@ -1,6 +1,7 @@
 // requires: whitelist-options.js, concordance-options, collocation-options, save-load-options.js
 
-var SERVER_URL = 'http://127.0.0.1:8000';
+var SERVER_URL = 'https://pripa.azurewebsites.net';
+//var SERVER_URL = 'http://127.0.0.1:8000';
 console.log("OPTIONS.js");
 
 chrome.runtime.onMessage.addListener(
@@ -37,7 +38,9 @@ fetch(SERVER_URL+'/get-available-projects/').then(r => r.text()).then(result => 
        list.appendChild(option);
     }
 })
+
 document.getElementById("projectDetails").style.visibility='hidden';
+
     chrome.storage.local.get({ whitelistWebsites: [] }, function (result) {
         var websites = result.whitelistWebsites;
         var websiteTable = document.getElementById("whitelist-table");
@@ -281,9 +284,18 @@ chrome.storage.local.get("project", function (result) {
          document.getElementById("selected-project-title").innerHTML = result.project.name;
          document.getElementById("selected-project-description").innerHTML = result.project.description;
          document.getElementById("selected-project-details").style.display = 'block';
+
+                 chrome.storage.local.set({extensionActive: true}, ()=>{
+        });
+
+
+
     } else{
         document.getElementById("selected-project-title").innerHTML = "No Project Selected";
         document.getElementById("selected-project-details").style.display = 'none';
+
+                chrome.storage.local.set({extensionActive: false}, ()=>{
+        });
     }
 });
 
