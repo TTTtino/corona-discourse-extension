@@ -21,34 +21,7 @@ chrome.runtime.onMessage.addListener(
 // load all the necessary things required in the options page
 function load_options() {
 
-// get the input parameters for the currently selected project
-chrome.storage.local.get("project", function (result) {
-    // check if there is a currently selected project
-    // if so, show project and description
-    if (typeof result.project !== "undefined") {
-        // show project on overview page
-         document.getElementById("selected-project-title").innerHTML = result.project.name;
-         document.getElementById("selected-project-description").innerHTML = result.project.description;
-         document.getElementById("selected-project-details").style.display = 'block';
-
-                 chrome.storage.local.set({extensionActive: true}, ()=>{
-        });
-
-
-    } else{
-        document.getElementById("selected-project-title").innerHTML = "No Project Selected";
-        document.getElementById("selected-project-details").style.display = 'none';
-
-                chrome.storage.local.set({extensionActive: false}, ()=>{
-        });
-    }
-
-
-
-        });
-
-
-     // get all project from server that have status PUBLISHED
+// get all project from server that have status PUBLISHED
     fetch(SERVER_URL+'/get-available-projects/').then(r => r.text()).then(result => {
         var list = document.getElementById('availableAnalysis');
 
@@ -65,6 +38,8 @@ chrome.storage.local.get("project", function (result) {
            option.innerHTML = jsonResult[i]["projectName"];
            list.appendChild(option);
         }
+
+        loadProject();
 
          });
 
@@ -87,6 +62,66 @@ document.getElementById("projectDetails").style.visibility='hidden';
     });
 }
 
+function loadProject(){
+
+
+// get the input parameters for the currently selected project
+chrome.storage.local.get("project", function (result) {
+
+    // check if there is a currently selected project
+    // if so, show project and description
+    if (typeof result.project !== "undefined") {
+        // display project on overview page
+         document.getElementById("selected-project-title").innerHTML = result.project.name;
+         document.getElementById("selected-project-description").innerHTML = result.project.description;
+         document.getElementById("selected-project-details").style.display = 'block';
+
+         // display project on select project page
+          var list = document.getElementById('availableAnalysis');
+
+          var optionIndex = -1;
+           // loop through select project dropdown to get index of currently selected project
+          for(var i = 0; i < list.length; i++){
+            if(list.options[i].innerHTML === result.project.name){
+                optionIndex = i;
+                break;
+            }
+          }
+
+          // fill in data of selected project if project was found within dropdown options
+          if(optionIndex > -1){
+            list.options.selectedIndex = optionIndex;
+
+            document.getElementById("projectTitle").innerText = result.project.name;
+            document.getElementById("projectDescription").innerText = result.project.description;
+            document.getElementById("select-analysis").style.visibility = 'hidden';
+            document.getElementById("projectDetails").style.visibility='visible';
+
+          }
+
+                 chrome.storage.local.set({extensionActive: true}, ()=>{
+        });
+
+
+    } else{
+
+        // overview tab
+        document.getElementById("selected-project-title").innerHTML = "No Project Selected";
+        document.getElementById("selected-project-details").style.display = 'none';
+
+                chrome.storage.local.set({extensionActive: false}, ()=>{
+        });
+
+        // select project tab
+        document.getElementById("projectDetails").style.visibility='none';
+    }
+
+
+
+        });
+
+
+}
 // Takes in a string and saves it as a title for the data currently being collected and then performs a callback function
 function storeNewResearchName(name, callback) {
     chrome.storage.local.get("collectionStats", function (result) {
@@ -319,6 +354,7 @@ document.getElementById("availableAnalysis").addEventListener("change", () => {
                 jsonResult = JSON.parse(result)
                 document.getElementById("projectTitle").innerText = jsonResult['projectName']
                 document.getElementById("projectDescription").innerText = jsonResult['projectDescription']
+                document.getElementById("select-analysis").style.visibility = 'visible';
                 document.getElementById("projectDetails").style.visibility='visible';
 
                 }

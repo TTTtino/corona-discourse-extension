@@ -3,11 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="163e6773-d441-4411-9818-d3ec1bd4638b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/background/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/background/main.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/options/options.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/options/options.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/options/whitelist-options.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/options/whitelist-options.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/popup/popup.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/popup/popup.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/popup/popup.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/popup/popup.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,5 +51,6 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>
