@@ -1,7 +1,7 @@
 // requires: whitelist-options.js, concordance-options, collocation-options, save-load-options.js
 
-var SERVER_URL = 'https://pripa.azurewebsites.net';
-//var SERVER_URL = 'http://127.0.0.1:8000';
+//var SERVER_URL = 'https://pripa.azurewebsites.net';
+var SERVER_URL = 'http://127.0.0.1:8000';
 console.log("OPTIONS.js");
 
 chrome.runtime.onMessage.addListener(
@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener(
 function load_options() {
 
 // get all project from server that have status PUBLISHED
-    fetch(SERVER_URL+'/get-available-projects/').then(r => r.text()).then(result => {
+    fetch(SERVER_URL+'/api/available-projects/').then(r => r.text()).then(result => {
         var list = document.getElementById('availableAnalysis');
 
         jsonResult = JSON.parse(result)
@@ -231,7 +231,7 @@ document
          result : JSON.parse(textToCopy)
          }
 
-        fetch(SERVER_URL+'/submit-results/', {
+        fetch(SERVER_URL+'/api/results/', {
         method: 'POST',
         body: JSON.stringify(data),
          headers: {
@@ -349,7 +349,7 @@ document.getElementById("availableAnalysis").addEventListener("change", () => {
       list = document.getElementById("availableAnalysis");
       var projectId = list.options[list.selectedIndex].value;
       if ( projectId != '-1'){
-            fetch(SERVER_URL+'/get-project/?id='+projectId).then(r => r.text()).then(result => {
+            fetch(SERVER_URL+'/api/project/?id='+projectId).then(r => r.text()).then(result => {
                 try{
                 jsonResult = JSON.parse(result)
                 document.getElementById("projectTitle").innerText = jsonResult['projectName']
@@ -379,7 +379,7 @@ document.getElementById("select-analysis").addEventListener("click", () => {
        var projectName = list.options[list.selectedIndex].text;
        var projectDescription = document.getElementById("projectDescription").innerHTML;
 
-       fetch(SERVER_URL+'/get-query/?id='+projectId).then(r => r.text()).then(result => {
+       fetch(SERVER_URL+'/api/query/?id='+projectId).then(r => r.text()).then(result => {
         if(typeof result !== 'undefined'){
             try{
                 var jsonIn = JSON.parse(result)
