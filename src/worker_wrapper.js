@@ -6,6 +6,7 @@ try {
         "stat_functions/generic.js",
         "stat_functions/collocation.js",
         "stat_functions/concordance.js",
+        "background/settings.js",
         "background/main.js"
     );
 } catch (e) {
