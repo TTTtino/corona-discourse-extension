@@ -20,9 +20,19 @@ chrome.runtime.onMessage.addListener(
 
 // load all the necessary things required in the options page
 function load_options() {
-
+// get the API Key
+ chrome.storage.local.get('apiKey' , function (key) {
 // get all project from server that have status PUBLISHED
-    fetch(SERVER_URL+'/api/available-projects/').then(r => r.text()).then(result => {
+
+    fetch(SERVER_URL+'/api/available-projects/',{
+        method: 'GET',
+        headers: {
+                'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                'Authorization': 'Api-Key '+key.apiKey
+        },
+         credentials: 'include'
+    }).then(r => r.text()).then(result => {
         var list = document.getElementById('availableAnalysis');
 
         jsonResult = JSON.parse(result)
@@ -42,6 +52,7 @@ function load_options() {
         loadProject();
 
          });
+});
 
 document.getElementById("projectDetails").style.visibility='hidden';
 
@@ -231,12 +242,15 @@ document
          result : JSON.parse(textToCopy)
          }
 
+          chrome.storage.local.get('apiKey' , function (key) {
+
         fetch(SERVER_URL+'/api/results/', {
         method: 'POST',
         body: JSON.stringify(data),
          headers: {
                 'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                'Authorization': 'Api-Key '+key.apiKey
         },
          credentials: 'include'
     }).then(function(response) {
@@ -246,7 +260,7 @@ document
             alert("Unfortunately  a problem occurred and your results couldn't be submitted.")
         }
     });
-    }else{
+    }); }else{
         alert("Results couldn't be submitted");
 
     }
@@ -349,7 +363,15 @@ document.getElementById("availableAnalysis").addEventListener("change", () => {
       list = document.getElementById("availableAnalysis");
       var projectId = list.options[list.selectedIndex].value;
       if ( projectId != '-1'){
-            fetch(SERVER_URL+'/api/project/?id='+projectId).then(r => r.text()).then(result => {
+       chrome.storage.local.get('apiKey' , function (key) {
+            fetch(SERVER_URL+'/api/project/?id='+projectId, {
+            method: 'GET',
+            headers: {
+            'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+            'Authorization': 'Api-Key '+key.apiKey
+            },
+}).then(r => r.text()).then(result => {
                 try{
                 jsonResult = JSON.parse(result)
                 document.getElementById("projectTitle").innerText = jsonResult['projectName']
@@ -365,8 +387,9 @@ document.getElementById("availableAnalysis").addEventListener("change", () => {
 
             })
 
-      }
-      else{
+            });
+
+      }else{
       document.getElementById("projectDetails").style.visibility='hidden';
       }
 });
@@ -379,7 +402,15 @@ document.getElementById("select-analysis").addEventListener("click", () => {
        var projectName = list.options[list.selectedIndex].text;
        var projectDescription = document.getElementById("projectDescription").innerHTML;
 
-       fetch(SERVER_URL+'/api/query/?id='+projectId).then(r => r.text()).then(result => {
+       chrome.storage.local.get('apiKey' , function (key) {
+       fetch(SERVER_URL+'/api/query/?id='+projectId,{
+        method: 'GET',
+        headers: {
+                'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                'Authorization': 'Api-Key '+key.apiKey
+        }
+    }).then(r => r.text()).then(result => {
         if(typeof result !== 'undefined'){
             try{
                 var jsonIn = JSON.parse(result)
@@ -387,9 +418,6 @@ document.getElementById("select-analysis").addEventListener("click", () => {
                 alert("We are sorry, something went wrong and the project couldn't be set as the current project. Please try again later.")
                 return null;
             }
-
-
-
              storeNewResearchName(jsonIn["title"], () => {
                 storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
                      storeNewConcordanceInstructions(
@@ -418,6 +446,8 @@ document.getElementById("select-analysis").addEventListener("click", () => {
 
 
     })
+
+    });
 }
 });
 
