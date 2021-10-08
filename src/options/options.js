@@ -176,6 +176,7 @@ function resetStoredData(preResetFunction) {
         // add more callbacks for each stat that is added
         chrome.storage.local.remove("collocationData", ()=>{
             chrome.storage.local.remove("concordanceData", ()=>{
+                alert("All collected data was successfully deleted.")
                 location.reload();
             });
         });
