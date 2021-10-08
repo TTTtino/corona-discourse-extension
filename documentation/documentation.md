@@ -12,7 +12,7 @@ Imports all the scripts that are required to run the actual background process f
 #### Listener: OnTabUpdate
 When a tab is updated the background process will call the function. 
 * Sets icon's to black and white, to indicate that no calculation has been done on the updated page.
-* If the extension is active and the URL is part of the whitelist then it will:
+* If the extension is active and the URL is part of the allowList then it will:
     * Colour the extension icon to indicate stat collection will begin 
     * check for which parser is required (uses the basic_parser by default)
     * Execute all the scripts that are required for that webpage, on the updated tab's webpage
@@ -320,30 +320,30 @@ Creates a HTML table using any js object *obj* with the header made using *heade
 #### function: showInputParameters(collectionStats, parentElement)
 Creates a table for each piece of data that is to be collected (e.g. Collocation and Concordance) using the *createTableFromObject* function as a child of the *parentElement*.
 
-### whitelist-options.js
+### allowList-options.js
 
-#### function: addToWhitelistStorage(input, callback)
-Adds *input* to a whitelist in the chrome local storage, representing site's that the extension will run on, if the *input* is a valid url.
+#### function: addToAllowListStorage(input, callback)
+Adds *input* to an allowList in the chrome local storage, representing site's that the extension will run on, if the *input* is a valid url.
 
 If adding was successful then the *callback* function is called.
 
-#### function: addEntryToWhitelist()
-Add the value inside an input filed with the ID "whitelist-input" to the whitelist using the *addTOWhitelistStorage* function. If successful it then adds the url to the table with ID "whitelist-table" and resets the input field.
+#### function: addEntryToAllowList()
+Add the value inside an input filed with the ID "allowlist-input" to the allowList using the *addToAllowListStorage* function. If successful it then adds the url to the table with ID "allowlist-table" and resets the input field.
 
-#### function: createWhitelistRow(websiteTable, input, rowI)
-Adds the *input* to the end of a *websiteTable*, and also creates a delete button which can delete the row and url from the local storage whitelist when clicked. *rowI* is the index of the last row after which you want the site placed (will replace the item at rowI+1)
+#### function: createAllowListRow(websiteTable, input, rowI)
+Adds the *input* to the end of a *websiteTable*, and also creates a delete button which can delete the row and url from the local storage allowList when clicked. *rowI* is the index of the last row after which you want the site placed (will replace the item at rowI+1)
 
 #### function: deleteButtonClicked(websiteURL, table, row)
-Function that should be called when a whitelist url delete button is clicked. When clicked the *websiteURL* will be removed from the chrome local storage whitelist and from the table showing the whitelist graphically to the user.
+Function that should be called when a allowList url delete button is clicked. When clicked the *websiteURL* will be removed from the chrome local storage allowList and from the table showing the allowList graphically to the user.
 
-#### function: deleteFromWhitelist(websiteURL)
-Find's and deletes an occurence of the *websiteURL* from the whitelistWebsites stored in the chrome local storage.
+#### function: deleteFromAllowList(websiteURL)
+Find's and deletes an occurence of the *websiteURL* from the allowedWebsites stored in the chrome local storage.
 
 ### options.js
 
 #### function: load_options()
 Load's all the data necessary for the options html page and add's the data to the html page. 
-* create's the whitelist table
+* create's the allowList table
 * loads the concordance and collocation data and displays them as tables
 
 #### function: storeNewResearchName(name, callback)

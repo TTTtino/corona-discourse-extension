@@ -1,4 +1,5 @@
 {
+
     "name": "PriPA Extension",
     "description": "Performs analytics on personal data in a privacy preserving manner. Reads content from a list of whitelisted websites, and provides you with statistics regarding the read content.",
     "version": "0.0.0.1",
