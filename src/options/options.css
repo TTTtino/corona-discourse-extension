@@ -9,7 +9,7 @@ html {
 }
 
 body {
-    background-color: #f3f3f3;
+    background-color: #edeae5;
     margin: 0;
 }
 
@@ -86,12 +86,12 @@ body {
 }
 
 .tab:hover {
-    background-color: #2a9c8e;
+    background-color: #038591;
     color: white;
 }
 
 .tab.active {
-    background-color: #26887c;
+    background-color: #026670;
     color: white;
 }
 
@@ -144,7 +144,7 @@ body {
 
 
 td:hover .allowlist-delete-button {
-    background-color: #e12323;
+    background-color: #FF5151;
     height: 15px;
     width: 15px;
 }
@@ -154,20 +154,15 @@ td:hover .allowlist-delete-button[type="image" i] {
 }
 
 #allowlist-add-button {
-    background-color: #2a9d8f;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
+
     display: inline-block;
-    font-size: 10px;
-    border-radius: 3px;
+    font-size: 15px;
+
 }
 
 #allowlist-input {
     flex-grow: 1;
-    border: 1px solid #2a9d8f;
+    border: 1px solid #026670;
     margin-right: 5px;
     border-radius: 3px;
     padding: 0px 10px;
@@ -175,7 +170,7 @@ td:hover .allowlist-delete-button[type="image" i] {
 
 #allowlist-input:focus {
     outline: none;
-    border: 2px solid #2a9d8f;
+    border: 2px solid #037e89;
 }
 
 #allowlist-form-div {
@@ -199,7 +194,7 @@ table {
     border-radius: 3px;
     min-width: 200;
     width: 100%;
-    border: 1px solid #2a9d8f;
+    border: 1px solid #026670;
     border-spacing: 0;
     max-height: 70%;
     overflow-y: auto;
@@ -226,7 +221,7 @@ tr {
 }
 
 tbody > tr:hover {
-    background-color: #2a9c8e;
+    background-color: #026670;
     color: white;
 }
 
@@ -265,13 +260,13 @@ tbody > tr:hover {
 
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
 .collapsible-button:hover {
-    background-color: #2a9c8e;
+    background-color: #05818c;
     color: white;
 }
 
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
 .collapsible-button:hover {
-    background-color: #2a9c8e;
+    background-color: #038793;
     color: white;
 }
 
@@ -303,7 +298,7 @@ input[type="file"] {
 .default-button {
     display: inline-block;
     cursor: pointer;
-    background-color: #2a9d8f;
+    background-color: #026670;
     border: none;
     color: white;
     padding: 6px 12px;
