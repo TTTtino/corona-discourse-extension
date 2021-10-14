@@ -128,10 +128,10 @@ body {
 }
 
 .allowlist-delete-button {
-    background-color: #2a9d8f7f;
+    background-color: #FF5151;
     border: none;
     color: white;
-    padding: 10px 10px;
+    padding: 1px 1px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -141,12 +141,10 @@ body {
     border-radius: 3px;
 }
 
-.allowlist-delete-button[type="image" i] {
-    opacity: 0.5;
-}
+
 
 td:hover .allowlist-delete-button {
-    background-color: #2a9d8f;
+    background-color: #e12323;
     height: 15px;
     width: 15px;
 }

@@ -49,7 +49,7 @@ function createAllowListRow(websiteTable, input, rowI) {
     siteName.innerHTML = input;
     let delButton = document.createElement("input");
     delButton.type = "image";
-    delButton.src = "../images/trash-can.png";
+    delButton.src = "../images/remove-cross.png";
     delButton.classList.add("allowlist-delete-button");
     delButton.innerHTML = "Del";
     const website = input;
