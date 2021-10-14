@@ -117,11 +117,19 @@ function createCollocationStatTable(
         var table = document.createElement("table");
         table.classList.add("stat-table");
 
+        var rowNum = 1;
+
         // iterate through formatted collocation data and add each row to the table
         for (let element of data) {
             let row = table.insertRow();
+
+            //create cell for current row number
+            let cell = row.insertCell();
+            cell.append(rowNum)
+
             for (let key in element) {
                 let cell = row.insertCell();
+             
                 if (!isNaN(element[key])) {
                     let text = document.createElement("span");
                     var roundedNum = Number(element[key].toFixed(4));
@@ -136,10 +144,13 @@ function createCollocationStatTable(
                     cell.appendChild(text);
                 }
             }
+
+            rowNum+=1;
         }
 
         // header for the collocation stat table
         var header = [
+            "#",
             "Pivot",
             "Target",
             "Pivot Frequency",

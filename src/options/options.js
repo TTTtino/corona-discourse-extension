@@ -39,6 +39,7 @@ fetch(SERVER_URL + '/api/available-projects/', {
 
 document.getElementById("projectDetails").style.visibility='hidden';
 
+// ---------------------- ALLOWED LIST TAB ----------------------
 
     chrome.storage.local.get({ allowedWebsites: [] }, function (result) {
         var websites = result.allowedWebsites;
@@ -58,9 +59,8 @@ document.getElementById("projectDetails").style.visibility='hidden';
     });
 }
 
+// Get available projects from database and load them into select project tab
 function loadProject(){
-
-
 // get the input parameters for the currently selected project
 chrome.storage.local.get("project", function (result) {
 
