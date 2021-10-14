@@ -33,7 +33,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 
                 // compare the current pages url against the allowList
-                if (urlInList(url.hostname, allowList)) {
+                if (urlInList(url.href, allowList)) {
 
                     // if the foreground script is to be executed then the icon becomes coloured
                     chrome.action.setIcon({

@@ -1,27 +1,22 @@
 // requires: allowList-options.js, concordance-options, collocation-options, save-load-options.js
 
-var SERVER_URL = 'https://pripa-devel.azurewebsites.net/api';
-//var SERVER_URL = 'http://127.0.0.1:8000';
+var SERVER_URL = 'https://pripa-devel.azurewebsites.net';
+
 console.log("OPTIONS.js");
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.action === "test"){
-}
-});
-//chrome.runtime.onMessage.addListener(
-//  function(request, sender, sendResponse) {
-//   if (request.from == "script1After"){
-//
-//       console.log(request.message);
-//    }
-//
-//    });
 
 // load all the necessary things required in the options page
 function load_options() {
 // get all project from server that have status PUBLISHED
-    fetch(SERVER_URL+'/get-available-projects/').then(r => r.text()).then(result => {
+fetch(SERVER_URL + '/api/available-projects/', {
+    method: 'GET',
+    headers: {
+        'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+
+    },
+    credentials: 'include'
+}).then(r => r.text()).then(result => {
         var list = document.getElementById('availableAnalysis');
 
         jsonResult = JSON.parse(result)
@@ -234,22 +229,23 @@ document
          result : JSON.parse(textToCopy)
          }
 
-        fetch(SERVER_URL+'/submit-results/', {
-        method: 'POST',
-        body: JSON.stringify(data),
-         headers: {
+         fetch(SERVER_URL + '/api/results/', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
                 'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
                 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-        },
-         credentials: 'include'
-    }).then(function(response) {
-        if(response.status === 200){
-            alert("Results were successfully submitted. Thank you for your help!")
-        }else{
-            alert("Unfortunately  a problem occurred and your results couldn't be submitted.")
-        }
-    });
-    }else{
+
+            },
+            credentials: 'include'
+        }).then(function (response) {
+            if (response.status === 200) {
+                alert("Results were successfully submitted. Thank you for your help!")
+            } else {
+                alert("Unfortunately  a problem occurred and your results couldn't be submitted.")
+            }
+        });
+    } else {
         alert("Results couldn't be submitted");
 
     }
@@ -351,7 +347,15 @@ document.getElementById("availableAnalysis").addEventListener("change", () => {
       list = document.getElementById("availableAnalysis");
       var projectId = list.options[list.selectedIndex].value;
       if ( projectId != '-1'){
-            fetch(SERVER_URL+'/get-project/?id='+projectId).then(r => r.text()).then(result => {
+        fetch(SERVER_URL + '/api/project/?id=' + projectId, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+            },
+
+            credentials: 'include'
+        }).then(r => r.text()).then(result => {
                 try{
                 jsonResult = JSON.parse(result)
                 document.getElementById("projectTitle").innerText = jsonResult['projectName']
@@ -381,7 +385,14 @@ document.getElementById("select-analysis").addEventListener("click", () => {
        var projectName = list.options[list.selectedIndex].text;
        var projectDescription = document.getElementById("projectDescription").innerHTML;
 
-       fetch(SERVER_URL+'/get-query/?id='+projectId).then(r => r.text()).then(result => {
+       fetch(SERVER_URL + '/api/query/?id=' + projectId, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+        },
+        credentials: 'include'
+    }).then(r => r.text()).then(result => {
         if(typeof result !== 'undefined'){
             try{
                 var jsonIn = JSON.parse(result)
