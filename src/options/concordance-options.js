@@ -185,12 +185,14 @@ function createConcordanceTable(concordanceData, parentElement) {
 
         // append the concordance table to the parentElement
         parentElement.appendChild(table);
+        parentElement.classList.add("scrollable-div");
     } else {
         // Create an element saying no stats have been collected yet.
         var noDataMessage = document.createElement("p");
         noDataMessage.innerHTML =
             "No Concordance data has been collected so far. Browse some of the allowed websites to collect data.";
         parentElement.appendChild(noDataMessage);
+        parentElement.classList.remove("scrollable-div");
     }
 }
 // Toggles the specific concordLine's exlcusion attribute, depending on the value of checkBoxElement

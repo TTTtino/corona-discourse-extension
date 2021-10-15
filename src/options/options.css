@@ -189,6 +189,13 @@ td:hover .allowlist-delete-button[type="image" i] {
     width: 1%;
 }
 
+.scrollable-div{
+    display: none; 
+    overflow:scroll; 
+    height:400px;
+
+}
+
 table {
     border-collapse: collapse;
     border-radius: 3px;
