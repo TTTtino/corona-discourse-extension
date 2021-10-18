@@ -97,14 +97,7 @@ function download(data, filename, type) {
     }
 }
 
-function downloadResultsAsCSV(data, filename, collocationData, collocationSelfFef) {
 
-    json = JSON.parse(data);
-
-    exportConcordanceToCSV(filename, json);
-    exportCollocationToCSV(filename, collocationData, collocationSelfFef);
-
-}
 // Download all the collected data as a json file
 function getResultsAsJSON(callback) {
     var textToCopy = "";
@@ -168,27 +161,43 @@ function downloadCollectedStats() {
                     currentDate.getSeconds();
                 }
 
+                
 
+                msg = "";
+
+                try{
+                    json = JSON.parse(textToCopy);
+
+                    exportConcordanceToCSV(fileName, json['concordance']);
+                    
+                } catch(error){
+                    console.log(error)
+                    msg += "No concordance data to download."
+                }
+            
+                success = "Download was successful. The files can be found in your browser's download folder or in the folder you specified.";
+            
+                if(msg != ''){
+                    success+=" Note: "+msg;
+                }
+                alert(success);
+
+                try {
                 getCalculatedCollocationData((collocationStats) => {
 
                     chrome.storage.local.get(
                         "collectionStats",
                         function (collectionResult) {
                             var statCollection = collectionResult.collectionStats;
-
-                            if (collocationStats !== null) {
-                                downloadResultsAsCSV(textToCopy, fileName, collocationStats, statCollection.collocation.selfReference);
-                            }
-                 
+                            exportCollocationToCSV(fileName, collocationStats, statCollection.collocation.selfReference);
+                            
                         }
                     );
-                  
-                    
-                
+
                 });
-        
-                
-                // download(textToCopy, fileName, "application/json");
+            } catch (error) {
+                msg += "No collocation data to download. "
+            }
 
             });
         } else {
@@ -327,10 +336,6 @@ function exportCSVFile(headers, items, fileTitle) {
     }
 }
 
-
-
-
-
 //Export collocation lines JSON data into CSV file
 function exportCollocationToCSV(title, collocationData, selfReference) {
 
@@ -365,16 +370,16 @@ function exportCollocationToCSV(title, collocationData, selfReference) {
 
         index += 1;
         itemsFormatted.push({
-        index: index,
-        pivot: '"'+item['pivot']+'"',
-        target: '"'+item['target']+'"',
-        pivotFreq: '"'+item['pivotFreq']+'"',
-        targetFreq: '"'+item['targetFreq']+'"',
-        pivotTargetFreq: '"'+item['pivotTargetFreq']+'"',
-        pivotProb: '"'+item['pivotProb']+'"',
-        targetProb: '"'+item['targetProb']+'"',
-        pivotTargetProb: '"'+item['pivotTargetProb']+'"',
-        pmi: '"'+item['pmi']+'"',
+            index: index,
+            pivot: '"' + item['pivot'] + '"',
+            target: '"' + item['target'] + '"',
+            pivotFreq: '"' + item['pivotFreq'] + '"',
+            targetFreq: '"' + item['targetFreq'] + '"',
+            pivotTargetFreq: '"' + item['pivotTargetFreq'] + '"',
+            pivotProb: '"' + item['pivotProb'] + '"',
+            targetProb: '"' + item['targetProb'] + '"',
+            pivotTargetProb: '"' + item['pivotTargetProb'] + '"',
+            pmi: '"' + item['pmi'] + '"',
 
         });
     });
@@ -383,7 +388,7 @@ function exportCollocationToCSV(title, collocationData, selfReference) {
 
     fileTitle = title + "_Collocations";
 
-     exportCSVFile(headers, itemsFormatted, fileTitle);
+    exportCSVFile(headers, itemsFormatted, fileTitle);
 
 }
 
@@ -395,23 +400,24 @@ function exportConcordanceToCSV(title, concordanceJsonData) {
         index: '#'.replace(/,/g, ''), // remove commas to avoid errors
         count: "Frequency",
         left: "Left Span",
-        right: "Right Span",
         word: "Target Token",
-
+        right: "Right Span",
+       
     };
 
     var itemsFormatted = []
 
     var index = 0;
     // format the data for concordance lines
-    concordanceJsonData["concordance"]["concordanceLines"].forEach((item) => {
+    concordanceJsonData["concordanceLines"].forEach((item) => {
         index += 1;
         itemsFormatted.push({
             index: index,
             count: item['count'], // remove commas to avoid errors,
             left: '"' + item['left'] + '"',
-            right: '"' + item['right'] + '"',
-            word: '"' + item['word'] + '"'
+            word: '"' + item['word'] + '"',
+            right: '"' + item['right'] + '"'
+           
         });
     });
 
