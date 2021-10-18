@@ -175,7 +175,7 @@ function createCollocationStatTable(
         parentElement.appendChild(table);
         parentElement.classList.add("scrollable-div");
     } else {
-        console.log("DSAJDJASDJASJDJASDJAS");
+
         // Create an element saying no stats have been collected yet if collocationData is null
         let noDataMessage = document.createElement("p");
         noDataMessage.innerHTML =
@@ -227,6 +227,7 @@ function formatCollocationStatsForTable(collocationData, selfReference) {
 // Calculates the PMI using the stored collocationData (frequencies and tokenSums)
 // then performs the callback function with the resulting object as an argument
 function getCalculatedCollocationData(callback) {
+
     chrome.storage.local.get("collocationData", function (result) {
         if (typeof result.collocationData === "undefined") {
             console.log("No collocation data found");
@@ -235,7 +236,7 @@ function getCalculatedCollocationData(callback) {
             chrome.storage.local.get(
                 "collectionStats",
                 function (collectionResult) {
-                    if (typeof collectionStats != "undefined") {
+                   
                         // console.log("Collocation data found");
                         var statCollection = collectionResult.collectionStats;
                         var finalCollocationData = calculateFreqPMI(
@@ -243,7 +244,7 @@ function getCalculatedCollocationData(callback) {
                             statCollection.collocation.selfReference
                         );
                         callback(finalCollocationData);
-                    }
+                    
                 }
             );
         }
