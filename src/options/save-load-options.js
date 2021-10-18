@@ -414,9 +414,9 @@ function exportConcordanceToCSV(title, concordanceJsonData) {
         itemsFormatted.push({
             index: index,
             count: item['count'], // remove commas to avoid errors,
-            left: '"' + item['left'] + '"',
-            word: '"' + item['word'] + '"',
-            right: '"' + item['right'] + '"'
+            left: '"' + getCleanedCSVContent(item['left']) + '"',
+            word: '"' + getCleanedCSVContent(item['word']) + '"',
+            right: '"' + getCleanedCSVContent(item['right']) + '"'
            
         });
     });
@@ -427,4 +427,8 @@ function exportConcordanceToCSV(title, concordanceJsonData) {
 
     exportCSVFile(headers, itemsFormatted, fileTitle); // call the exportCSVFile() function to process the JSON and trigger the download
 
+}
+
+function getCleanedCSVContent(variable){
+    return variable.replace(/"/g,'""');
 }
