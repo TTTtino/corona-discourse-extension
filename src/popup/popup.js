@@ -8,13 +8,10 @@ chrome.storage.local.get(['project'], function(result) {
           // alter the storage to reflect the new status
   }else{
   document.getElementById("selected-project-text").innerHTML =
-  'There is no project selected. You can select a project in the options of the extension. Please follow these steps:'+
-  '<ol>'+
-  '<li>Click on the extension icon (jigsaw puzzle piece) in your navigation bar.</li>'+
-  '<li>Find Corona Discourse Extension and click on the three dots next to it.</li>'+
-  '<li>Select "Options".</li>'+
-  '<li>Select "Select project" from the menu on the left.</li>'+
-  '<li>Select "Choose a project from the dropbox and confirm your choice.</li>'+
+  'There is no project selected. You can select a project in the options of the extension.</br> To open the options page please press  the button <b>Open Extension Options</b>'+
+'<ol>'+
+  '<li>Within the option page, please select <b>Select project</b> from the menu on the left.</li>'+
+ ' <li>Select <b>Choose a project</b> from the dropbox and confirm your choice.</li>'+
 '</ol>'+
 'After you finished the steps above the selected project will be displayed here and you can start to run the analysis.'
   document.getElementById("toggle-button").style.visibility = "hidden";

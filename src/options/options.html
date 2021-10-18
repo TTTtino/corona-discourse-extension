@@ -33,8 +33,8 @@
                      <li data-tab-target="#selectAnalysis" class="tab">
                         Select Project
                     </li>
-                    <li data-tab-target="#whitelist" class="tab">
-                        Whitelisted Websites
+                    <li data-tab-target="#allow-list" class="tab">
+                        Allow List
                     </li>
                     <li data-tab-target="#help" class="tab">Help</li>
                 </ul>
@@ -163,24 +163,28 @@
                                         </div>
                                     </div>
 
-                <div id="whitelist" data-tab-content>
-                    <h1 class="title">Whitelist</h1>
+                <div id="allow-list" data-tab-content>
+                    <h1 class="title">Allow List</h1>
+                    <p> The allow list is a list of websites where analysis can be performed on. If a website is not listed here, the extension won't be able to read the content.</p>
+                    <p> <b>Note</b>: Please remove the http:// or https:// at the beginning of the URL or it won't be recognized.</p>
                     <div class="section">
-                        <div id="whitelist-form-div">
+
+                        <div id="allowlist-form-div">
+
                             <input
-                                id="whitelist-input"
+                                id="allowlist-input"
                                 type="text"
                                 pattern="(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
                                 placeholder="e.g. www.example.com"
                                 required
                                 aria-required="true"
                             />
-                            <button id="whitelist-add-button" type="button">
+                            <button id="allowlist-add-button" type="button">
                                 ADD
                             </button>
                         </div>
                         <div>
-                            <table id="whitelist-table">
+                            <table id="allowlist-table">
                                 <thead>
                                     <th>Website</th>
                                     <th></th>
@@ -193,7 +197,7 @@
                 <div id="help" data-tab-content>
                     <h1 class="title">Help</h1>
                     <div>
-                        <p>Heard you needed help!</p>
+                        <p>For information about the PriPA extension and explanations how to use it please visit our <a href="https://pripa.azurewebsites.net/extension/">website</a>.</p>
                     </div>
                 </div>
             </div>
@@ -204,7 +208,7 @@
         <script src="../stat_functions/collocation.js"></script>
         <script src="../stat_functions/concordance.js"></script>
         <script src="../stat_storage/concordance_storage.js"></script>
-        <script src="whitelist-options.js"></script>
+        <script src="allowlist-options.js"></script>
         <script src="concordance-options.js"></script>
         <script src="collocation-options.js"></script>
         <script src="save-load-options.js"></script>

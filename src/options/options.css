@@ -127,7 +127,7 @@ body {
     margin-bottom: 3px;
 }
 
-.whitelist-delete-button {
+.allowlist-delete-button {
     background-color: #2a9d8f7f;
     border: none;
     color: white;
@@ -141,21 +141,21 @@ body {
     border-radius: 3px;
 }
 
-.whitelist-delete-button[type="image" i] {
+.allowlist-delete-button[type="image" i] {
     opacity: 0.5;
 }
 
-td:hover .whitelist-delete-button {
+td:hover .allowlist-delete-button {
     background-color: #2a9d8f;
     height: 15px;
     width: 15px;
 }
 
-td:hover .whitelist-delete-button[type="image" i] {
+td:hover .allowlist-delete-button[type="image" i] {
     opacity: 1;
 }
 
-#whitelist-add-button {
+#allowlist-add-button {
     background-color: #2a9d8f;
     border: none;
     color: white;
@@ -167,7 +167,7 @@ td:hover .whitelist-delete-button[type="image" i] {
     border-radius: 3px;
 }
 
-#whitelist-input {
+#allowlist-input {
     flex-grow: 1;
     border: 1px solid #2a9d8f;
     margin-right: 5px;
@@ -175,18 +175,18 @@ td:hover .whitelist-delete-button[type="image" i] {
     padding: 0px 10px;
 }
 
-#whitelist-input:focus {
+#allowlist-input:focus {
     outline: none;
     border: 2px solid #2a9d8f;
 }
 
-#whitelist-form-div {
+#allowlist-form-div {
     width: 100%;
     display: flex;
     margin-bottom: 0px;
 }
 
-#whitelist-table {
+#allowlist-table {
     min-width: 200;
     width: 100%;
 }

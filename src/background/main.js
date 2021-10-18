@@ -26,15 +26,16 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     });
     chrome.storage.local.get({extensionActive: false}, (result)=>{
         if (result.extensionActive && changeInfo.status === "complete" && /^http/.test(tab.url)) {
-            // Get the list of whitelisted websites from the chrome local storage
-            chrome.storage.local.get({ whitelistWebsites: [] }, function (result) {
 
-                var whitelist = result.whitelistWebsites;
+           // Get the list of allowed list of websites from the chrome local storage
+            chrome.storage.local.get({ allowedWebsites: [] }, function (result) {
+                var allowList = result.allowedWebsites;
                 var url = new URL(tab.url);
 
-    
-                // compare the current pages url against the whitelist
-                if (urlInList(url.href, whitelist)) {
+
+                // compare the current pages url against the allowList
+                if (urlInList(url.hostname, allowList)) {
+
                     // if the foreground script is to be executed then the icon becomes coloured
                     chrome.action.setIcon({
                         path: {
