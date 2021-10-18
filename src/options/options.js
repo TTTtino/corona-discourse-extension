@@ -1,13 +1,18 @@
 // requires: allowList-options.js, concordance-options, collocation-options, save-load-options.js
-
 var SERVER_URL = 'https://pripa-devel.azurewebsites.net';
 
 console.log("OPTIONS.js");
 
+chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+        if (request.action === "test") {}
+    });
 
 // load all the necessary things required in the options page
 function load_options() {
+
     // get all project from server that have status PUBLISHED
+
     fetch(SERVER_URL + '/api/available-projects/', {
         method: 'GET',
         headers: {
@@ -17,6 +22,7 @@ function load_options() {
         },
         credentials: 'include'
     }).then(r => r.text()).then(result => {
+
         var list = document.getElementById('availableAnalysis');
 
         jsonResult = JSON.parse(result)
@@ -38,6 +44,7 @@ function load_options() {
     });
 
     document.getElementById("projectDetails").style.visibility = 'hidden';
+
 
     // ---------------------- ALLOWED LIST TAB ----------------------
 
@@ -67,6 +74,7 @@ function load_options() {
 function loadProject() {
     // get the input parameters for the currently selected project
     chrome.storage.local.get("project", function (result) {
+
 
         // check if there is a currently selected project
         // if so, show project and description
@@ -175,6 +183,7 @@ function resetStoredData(preResetFunction) {
         // add more callbacks for each stat that is added
         chrome.storage.local.remove("collocationData", () => {
             chrome.storage.local.remove("concordanceData", () => {
+
                 alert("All collected data was successfully deleted.")
                 location.reload();
             });
@@ -223,17 +232,17 @@ document
     .addEventListener("click", () => {
 
         if (confirm("Are you sure you want to submit your results? If you press 'OK' the results will be sent to the researchers.")) {
+
             getResultsAsJSON((textToCopy) => {
 
                 chrome.storage.local.get("project", function (result) {
 
                     if (typeof result.project !== "undefined") {
-
-
                         data = {
                             project_id: result.project.id,
                             result: JSON.parse(textToCopy)
                         }
+
 
                         fetch(SERVER_URL + '/api/results/', {
                             method: 'POST',
@@ -268,6 +277,7 @@ document
     .getElementById("allowlist-input")
     .addEventListener("keyup", (e) => {
         if (e.key === "Enter") {
+
             addEntryToAllowList();
         }
     });
@@ -389,6 +399,7 @@ document.getElementById("select-analysis").addEventListener("click", () => {
         var projectName = list.options[list.selectedIndex].text;
         var projectDescription = document.getElementById("projectDescription").innerHTML;
 
+
         fetch(SERVER_URL + '/api/query/?id=' + projectId, {
             method: 'GET',
             headers: {
@@ -404,9 +415,6 @@ document.getElementById("select-analysis").addEventListener("click", () => {
                     alert("We are sorry, something went wrong and the project couldn't be set as the current project. Please try again later.")
                     return null;
                 }
-
-
-
                 storeNewResearchName(jsonIn["title"], () => {
                     storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
                         storeNewConcordanceInstructions(
@@ -418,6 +426,7 @@ document.getElementById("select-analysis").addEventListener("click", () => {
 
                 var project = new ProjectInfo(projectId, projectName, projectDescription);
 
+
                 chrome.storage.local.set({
                     collectionStats: jsonIn
                 }, () => {});
@@ -426,6 +435,7 @@ document.getElementById("select-analysis").addEventListener("click", () => {
                     project: project
                 }, () => {});
 
+
                 alert("The project " + projectName + " was successfully set as the project you are participating in. You will now be redirected to the overview.")
                 location.reload();
 
@@ -433,8 +443,7 @@ document.getElementById("select-analysis").addEventListener("click", () => {
 
             }
 
-
-
         })
+
     }
 });

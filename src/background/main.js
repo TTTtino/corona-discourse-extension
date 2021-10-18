@@ -1,5 +1,6 @@
 // Listens for changes on any of the tabs
 
+
 console.log("backend file.js");
 // Scripts that are required by the foreground script to run on the page
 const REQUIRED_SCRIPTS = [
@@ -110,3 +111,4 @@ function urlInList(url, urlList) {
     }
     return false;
 }
+
