@@ -103,7 +103,7 @@ chrome.storage.local.get("collectionStats", function (result) {
         });
     }
 
-    alert("The analysis on this page run successfully. To see the results please visit the option page. Please note that you might have to refresh the option page to see the resuts.")
+    alert("The analysis on this page ran successfully. To see the results please visit the option page. Please note that you might have to refresh the option page to see the results.")
 
 });
     }
