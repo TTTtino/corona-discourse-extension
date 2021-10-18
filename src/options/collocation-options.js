@@ -1,6 +1,5 @@
-
 // load the collocation data in the collocation section and then perform the callback function
-function loadCollocationData(callback){
+function loadCollocationData(callback) {
     chrome.storage.local.get("collocationData", function (result) {
         // if no collocation data is currently stored
         if (typeof result.collocationData === "undefined") {
@@ -16,18 +15,21 @@ function loadCollocationData(callback){
             chrome.storage.local.get(
                 "collectionStats",
                 (collectionResult) => {
-                    var statCollection = collectionResult.collectionStats;
-                    console.log(result.collocationData);
-                    createCollocationStatTable(
-                        calculateFreqPMI(
-                            result.collocationData,
-                            statCollection.collocation.selfReference
-                        ),
-                        statCollection.collocation.selfReference,
-                        document.getElementById("collocation-section")
-                    );
-                    
-            callback();
+
+                    if (typeof collectionResult.collectionStats != "undefined") {
+                        var statCollection = collectionResult.collectionStats;
+  
+                        createCollocationStatTable(
+                            calculateFreqPMI(
+                                result.collocationData,
+                                statCollection.collocation.selfReference
+                            ),
+                            statCollection.collocation.selfReference,
+                            document.getElementById("collocation-section")
+                        );
+
+                        callback();
+                    }
                 }
             );
         }
@@ -42,9 +44,9 @@ function storeNewCollocateInstructions(collocateInst, callback) {
         // create default data collection and assign value to it if none exists
         if (typeof result.collectionStats === "undefined") {
             var defaultCollectionStats = new StatCollectionInfo();
-            if(collocateInst == null){
+            if (collocateInst == null) {
                 result.collectionStats.collocation = null;
-            } else{
+            } else {
                 result.collectionStats.collocation = new Collocation(
                     collocateInst["pivot-tokens"],
                     collocateInst["target-tokens"],
@@ -54,8 +56,7 @@ function storeNewCollocateInstructions(collocateInst, callback) {
                     collocateInst["span"][1]
                 );
             }
-            chrome.storage.local.set(
-                {
+            chrome.storage.local.set({
                     collectionStats: defaultCollectionStats,
                 },
                 () => {
@@ -64,9 +65,9 @@ function storeNewCollocateInstructions(collocateInst, callback) {
                 }
             );
         } else {
-            if(collocateInst == null){
+            if (collocateInst == null) {
                 result.collectionStats.collocation = null;
-            } else{
+            } else {
                 result.collectionStats.collocation = new Collocation(
                     collocateInst["pivot-tokens"],
                     collocateInst["target-tokens"],
@@ -79,8 +80,7 @@ function storeNewCollocateInstructions(collocateInst, callback) {
 
 
             // override the currently stored StatCollectionInfo object
-            chrome.storage.local.set(
-                {
+            chrome.storage.local.set({
                     collectionStats: result.collectionStats,
                 },
                 () => {
@@ -105,7 +105,7 @@ function createCollocationStatTable(
             collocationData,
             selfReference
         );
-        if(data.length == 0){
+        if (data.length == 0) {
             // Create an element saying no stats have been collected yet if collocationData is null
             let noDataMessage = document.createElement("p");
             noDataMessage.innerHTML =
@@ -129,7 +129,7 @@ function createCollocationStatTable(
 
             for (let key in element) {
                 let cell = row.insertCell();
-             
+
                 if (!isNaN(element[key])) {
                     let text = document.createElement("span");
                     var roundedNum = Number(element[key].toFixed(4));
@@ -145,7 +145,7 @@ function createCollocationStatTable(
                 }
             }
 
-            rowNum+=1;
+            rowNum += 1;
         }
 
         // header for the collocation stat table
@@ -175,6 +175,7 @@ function createCollocationStatTable(
         parentElement.appendChild(table);
         parentElement.classList.add("scrollable-div");
     } else {
+        console.log("DSAJDJASDJASJDJASDJAS");
         // Create an element saying no stats have been collected yet if collocationData is null
         let noDataMessage = document.createElement("p");
         noDataMessage.innerHTML =
@@ -234,13 +235,15 @@ function getCalculatedCollocationData(callback) {
             chrome.storage.local.get(
                 "collectionStats",
                 function (collectionResult) {
-                    // console.log("Collocation data found");
-                    var statCollection = collectionResult.collectionStats;
-                    var finalCollocationData = calculateFreqPMI(
-                        result.collocationData,
-                        statCollection.collocation.selfReference
-                    );
-                    callback(finalCollocationData);
+                    if (typeof collectionStats != "undefined") {
+                        // console.log("Collocation data found");
+                        var statCollection = collectionResult.collectionStats;
+                        var finalCollocationData = calculateFreqPMI(
+                            result.collocationData,
+                            statCollection.collocation.selfReference
+                        );
+                        callback(finalCollocationData);
+                    }
                 }
             );
         }

@@ -17,8 +17,7 @@ function onReaderLoad(event) {
             storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
                 storeNewConcordanceInstructions(
                     jsonIn["concordance-lines"],
-                    () => {
-                    }
+                    () => {}
                 );
             });
         });
@@ -33,17 +32,21 @@ function copyToClipboard(text) {
 
 // Combine all the collected stats into one object and perform the callback function with it as an argument
 function getCombinedStats(callback) {
-    var statOutput = {researchName:null, collocation: null, concordance: null };
-    getStatsToCollect((result)=>{
-        if(result != null){
+    var statOutput = {
+        researchName: null,
+        collocation: null,
+        concordance: null
+    };
+    getStatsToCollect((result) => {
+        if (result != null) {
             statOutput.researchName = result.researchName;
         }
-        
+
         getCalculatedCollocationData((collocationStats) => {
             if (collocationStats !== null) {
                 statOutput.collocation = collocationStats;
             }
-    
+
             getConcordanceData((concordStats) => {
                 if (concordStats !== null) {
                     statOutput.concordance = concordStats;
@@ -71,7 +74,11 @@ function copyStatsToClipBoard() {
 // Function to download data to a file
 // https://stackoverflow.com/questions/13405129/javascript-create-and-save-file
 function download(data, filename, type) {
-    var file = new Blob([data], { type: type });
+
+
+    var file = new Blob([data], {
+        type: type
+    });
     if (window.navigator.msSaveOrOpenBlob)
         // IE10+
         window.navigator.msSaveOrOpenBlob(file, filename);
@@ -89,12 +96,22 @@ function download(data, filename, type) {
         }, 0);
     }
 }
+
+function downloadResultsAsCSV(data, filename, collocationData, collocationSelfFef) {
+
+    json = JSON.parse(data);
+
+    exportConcordanceToCSV(filename, json);
+    exportCollocationToCSV(filename, collocationData, collocationSelfFef);
+
+}
 // Download all the collected data as a json file
 function getResultsAsJSON(callback) {
     var textToCopy = "";
 
     getCombinedStats((statOutput) => {
         if (statOutput.collocation != null || statOutput.concordance != null) {
+            console.log("STAT OUTPUT", statOutput.toString())
             textToCopy += JSON.stringify(statOutput, null, "\t");
             callback(textToCopy);
         } else {
@@ -134,23 +151,45 @@ function downloadCollectedStats() {
                         currentDate.getMinutes() +
                         "-" +
                         currentDate.getSeconds();
-                } else{
+                } else {
                     var fileName =
-                    "UnknownParameters_Collected_Stats_" +
-                    currentDate.getDate() +
-                    "-" +
-                    currentDate.getMonth() +
-                    "-" +
-                    currentDate.getFullYear() +
-                    "_" +
-                    currentDate.getHours() +
-                    "-" +
-                    currentDate.getMinutes() +
-                    "-" +
-                    currentDate.getSeconds();
+                        "UnknownParameters_Collected_Stats_" +
+                        currentDate.getDate() +
+                        "-" +
+                        currentDate.getMonth() +
+                        "-" +
+                        currentDate.getFullYear() +
+                        "_" +
+                        currentDate.getHours() +
+                        "-" +
+                        currentDate.getMinutes() +
+                        "-" +
+                        currentDate.getSeconds();
                     currentDate.getSeconds();
                 }
-                download(textToCopy, fileName, "application/json");
+
+
+                getCalculatedCollocationData((collocationStats) => {
+
+                    chrome.storage.local.get(
+                        "collectionStats",
+                        function (collectionResult) {
+                            var statCollection = collectionResult.collectionStats;
+
+                            if (collocationStats !== null) {
+                                downloadResultsAsCSV(textToCopy, fileName, collocationStats, statCollection.collocation.selfReference);
+                            }
+                 
+                        }
+                    );
+                  
+                    
+                
+                });
+        
+                
+                // download(textToCopy, fileName, "application/json");
+
             });
         } else {
             alert("No Stats have been collected");
@@ -217,7 +256,7 @@ function showInputParameters(collectionStats, parentElement) {
         return;
     }
     // Collocation Table
-    if(collectionStats.collocation != null){
+    if (collectionStats.collocation != null) {
         createTableFromObject(
             collectionStats.collocation,
             ["Collocation Parameters", "Value"],
@@ -226,12 +265,160 @@ function showInputParameters(collectionStats, parentElement) {
 
     }
     // Concordance Table
-    if(collectionStats.concordance != null){
+    if (collectionStats.concordance != null) {
         createTableFromObject(
             collectionStats.concordance,
             ["Concordance Parameter", "Value"],
             parentElement
         );
     }
-   
+
+}
+
+
+function convertToCSV(objArray) {
+    var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+    var str = '';
+
+    for (var i = 0; i < array.length; i++) {
+        var line = '';
+        for (var index in array[i]) {
+            if (line != '') line += ','
+
+            line += array[i][index];
+        }
+
+        str += line + '\r\n';
+    }
+
+    return str;
+}
+
+function exportCSVFile(headers, items, fileTitle) {
+
+    if (headers) {
+
+        items.unshift(headers);
+    }
+
+    var jsonObject = JSON.stringify(items);
+
+    var csv = this.convertToCSV(jsonObject);
+
+    var exportedFilename = fileTitle + '.csv' || 'export.csv';
+
+    var blob = new Blob([csv], {
+        type: 'text/csv;charset=utf-8;'
+    });
+    if (navigator.msSaveBlob) { // IE 10+ 
+        navigator.msSaveBlob(blob, exportedFilename);
+    } else {
+        var link = document.createElement("a");
+        if (link.download !== undefined) { // feature detection
+            // Browsers that support HTML5 download attribute
+            var url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", exportedFilename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+}
+
+
+
+
+
+//Export collocation lines JSON data into CSV file
+function exportCollocationToCSV(title, collocationData, selfReference) {
+
+    var data = formatCollocationStatsForTable(
+        collocationData,
+        selfReference
+    );
+
+
+    // Create headers for collocation table nGramFrequencies
+    var headers = {
+        index: '#'.replace(/,/g, ''), // remove commas to avoid errors
+        pivot: "Pivot",
+        target: "Target",
+        pivotFreq: "Pivot Frequency",
+        targetFreq: "Target Frequency",
+        pivotTargetFreq: "Pivot-Target Frequency",
+        pivotProb: "Pivot Probability",
+        targetProb: "Target Probability",
+        pivotTargetProb: "Pivot-Target Probability",
+        pmi: "PMI",
+
+    };
+
+
+    var itemsFormatted = [];
+
+    var index = 0;
+
+    // format the data for concordance lines
+    data.forEach((item) => {
+
+        index += 1;
+        itemsFormatted.push({
+        index: index,
+        pivot: '"'+item['pivot']+'"',
+        target: '"'+item['target']+'"',
+        pivotFreq: '"'+item['pivotFreq']+'"',
+        targetFreq: '"'+item['targetFreq']+'"',
+        pivotTargetFreq: '"'+item['pivotTargetFreq']+'"',
+        pivotProb: '"'+item['pivotProb']+'"',
+        targetProb: '"'+item['targetProb']+'"',
+        pivotTargetProb: '"'+item['pivotTargetProb']+'"',
+        pmi: '"'+item['pmi']+'"',
+
+        });
+    });
+
+
+
+    fileTitle = title + "_Collocations";
+
+     exportCSVFile(headers, itemsFormatted, fileTitle);
+
+}
+
+//Export concordance lines JSON data into CSV file
+function exportConcordanceToCSV(title, concordanceJsonData) {
+
+    // Create headers for concordance lines table
+    var headers = {
+        index: '#'.replace(/,/g, ''), // remove commas to avoid errors
+        count: "Frequency",
+        left: "Left Span",
+        right: "Right Span",
+        word: "Target Token",
+
+    };
+
+    var itemsFormatted = []
+
+    var index = 0;
+    // format the data for concordance lines
+    concordanceJsonData["concordance"]["concordanceLines"].forEach((item) => {
+        index += 1;
+        itemsFormatted.push({
+            index: index,
+            count: item['count'], // remove commas to avoid errors,
+            left: '"' + item['left'] + '"',
+            right: '"' + item['right'] + '"',
+            word: '"' + item['word'] + '"'
+        });
+    });
+
+
+    fileTitle = title + "_ConcordanceLines";
+
+
+    exportCSVFile(headers, itemsFormatted, fileTitle); // call the exportCSVFile() function to process the JSON and trigger the download
+
 }
