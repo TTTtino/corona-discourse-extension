@@ -43,12 +43,14 @@ function load_options() {
 
     });
 
-
     document.getElementById("projectDetails").style.visibility = 'hidden';
 
 
+    // ---------------------- ALLOWED LIST TAB ----------------------
 
-    chrome.storage.local.get({ allowedWebsites: [] }, function (result) {
+    chrome.storage.local.get({
+        allowedWebsites: []
+    }, function (result) {
         var websites = result.allowedWebsites;
         var websiteTable = document.getElementById("allowlist-table");
         // iterate through each entry in the allowlist and add to the allowlist table
@@ -58,18 +60,21 @@ function load_options() {
         }
 
         // for each type of stat to collect, each one must be loaded using callbacks
-        loadCollocationData(() => {
-            console.log("Loading Concordance Data");
-            loadConcordanceData(() => {});
-        });
+
+    });
+
+    // ---------------------- OVERVIEW TAB ----------------------
+    loadCollocationData(() => {
+        console.log("Loading Concordance Data");
+        loadConcordanceData(() => {});
     });
 }
 
+// Get available projects from database and load them into select project tab
 function loadProject() {
-
-
     // get the input parameters for the currently selected project
     chrome.storage.local.get("project", function (result) {
+
 
         // check if there is a currently selected project
         // if so, show project and description
@@ -176,9 +181,9 @@ function resetStoredData(preResetFunction) {
         }
         // remove the stored collocationData and concordanceData
         // add more callbacks for each stat that is added
+        chrome.storage.local.remove("collocationData", () => {
+            chrome.storage.local.remove("concordanceData", () => {
 
-        chrome.storage.local.remove("collocationData", ()=>{
-            chrome.storage.local.remove("concordanceData", ()=>{
                 alert("All collected data was successfully deleted.")
                 location.reload();
             });
@@ -226,7 +231,8 @@ document
     .getElementById("submit-results")
     .addEventListener("click", () => {
 
-        if (confirm("Are you sure you want to submit you results? If you press 'OK' the results will be send to the researchers.")) {
+        if (confirm("Are you sure you want to submit your results? If you press 'OK' the results will be sent to the researchers.")) {
+
             getResultsAsJSON((textToCopy) => {
 
                 chrome.storage.local.get("project", function (result) {
@@ -236,7 +242,6 @@ document
                             project_id: result.project.id,
                             result: JSON.parse(textToCopy)
                         }
-
 
 
                         fetch(SERVER_URL + '/api/results/', {
@@ -271,8 +276,8 @@ document
 document
     .getElementById("allowlist-input")
     .addEventListener("keyup", (e) => {
+        if (e.key === "Enter") {
 
-        if(e.key === "Enter"){
             addEntryToAllowList();
         }
     });
@@ -286,10 +291,10 @@ document.getElementById("reset-selected-project").addEventListener("click", () =
     resetStoredProject();
 });
 
-// copy all collected stats to the clipboard when the copy-clipboard button is pressed
-document
-    .getElementById("copy-clipboard")
-    .addEventListener("click", copyStatsToClipBoard);
+// // copy all collected stats to the clipboard when the copy-clipboard button is pressed
+// document
+//     .getElementById("copy-clipboard")
+//     .addEventListener("click", copyStatsToClipBoard);
 
 // download all collected stats as a json file when the download-stats button is pressed
 document
@@ -381,7 +386,6 @@ document.getElementById("availableAnalysis").addEventListener("change", () => {
 
         })
 
-
     } else {
         document.getElementById("projectDetails").style.visibility = 'hidden';
     }
@@ -394,6 +398,7 @@ document.getElementById("select-analysis").addEventListener("click", () => {
         var projectId = list.options[list.selectedIndex].value;
         var projectName = list.options[list.selectedIndex].text;
         var projectDescription = document.getElementById("projectDescription").innerHTML;
+
 
         fetch(SERVER_URL + '/api/query/?id=' + projectId, {
             method: 'GET',
@@ -421,6 +426,7 @@ document.getElementById("select-analysis").addEventListener("click", () => {
 
                 var project = new ProjectInfo(projectId, projectName, projectDescription);
 
+
                 chrome.storage.local.set({
                     collectionStats: jsonIn
                 }, () => {});
@@ -429,14 +435,13 @@ document.getElementById("select-analysis").addEventListener("click", () => {
                     project: project
                 }, () => {});
 
+
                 alert("The project " + projectName + " was successfully set as the project you are participating in. You will now be redirected to the overview.")
                 location.reload();
 
 
 
             }
-
-
 
         })
 

@@ -102,9 +102,16 @@ function createConcordanceTable(concordanceData, parentElement) {
         var table = document.createElement("table");
         table.classList.add("stat-table");
 
+        var rowNum = 1;
+
         // iterate through each concordance line and add rows of concordance lines to the table
         for (let element of concordLines) {
             let row = table.insertRow();
+
+             //create cell for current row number
+             let cell = row.insertCell();
+             cell.append(rowNum)
+
             let leftCell = row.insertCell();
             leftCell.style = "text-align: right;";
             // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
@@ -153,10 +160,13 @@ function createConcordanceTable(concordanceData, parentElement) {
             });
             excludedCell.style = "text-align: center;";
             excludedCell.appendChild(checkBox);
+
+            rowNum+=1;
         }
 
         // header for the concordance table
         var header = [
+            "#",
             "Left Content",
             "Pivot",
             "Right Content",
@@ -175,12 +185,14 @@ function createConcordanceTable(concordanceData, parentElement) {
 
         // append the concordance table to the parentElement
         parentElement.appendChild(table);
+        parentElement.classList.add("scrollable-div");
     } else {
         // Create an element saying no stats have been collected yet.
         var noDataMessage = document.createElement("p");
         noDataMessage.innerHTML =
             "No Concordance data has been collected so far. Browse some of the allowed websites to collect data.";
         parentElement.appendChild(noDataMessage);
+        parentElement.classList.remove("scrollable-div");
     }
 }
 // Toggles the specific concordLine's exlcusion attribute, depending on the value of checkBoxElement

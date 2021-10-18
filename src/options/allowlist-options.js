@@ -23,7 +23,15 @@ function addToAllowListStorage(input, callback) {
 // add the value inside the allowList input to the allowList table and save to storage
 function addEntryToAllowList(){
     let inputField = document.getElementById("allowlist-input")
-    addToAllowListStorage(inputField.value, () => {
+
+    // remove http/https and www prefix from url
+    url = inputField.value.replace(/(^\w+:|^)\/\//, '');
+    url = url.replace(/www\./, '');
+
+    console.log("URL",url);
+
+
+    addToAllowListStorage(url, () => {
         // add the new website to the allowList table
         let websiteTable = document.getElementById("allowlist-table");
         createAllowListRow(websiteTable, inputField.value, websiteTable.rows.length-1);
@@ -41,7 +49,7 @@ function createAllowListRow(websiteTable, input, rowI) {
     siteName.innerHTML = input;
     let delButton = document.createElement("input");
     delButton.type = "image";
-    delButton.src = "../images/trash-can.png";
+    delButton.src = "../images/remove-cross.png";
     delButton.classList.add("allowlist-delete-button");
     delButton.innerHTML = "Del";
     const website = input;
