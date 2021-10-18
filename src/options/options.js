@@ -1,5 +1,5 @@
 // requires: allowList-options.js, concordance-options, collocation-options, save-load-options.js
-var SERVER_URL = 'https://pripa-devel.azurewebsites.net';
+var SERVER_URL = 'https://pripa.azurewebsites.net';
 
 console.log("OPTIONS.js");
 
