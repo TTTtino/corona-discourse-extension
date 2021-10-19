@@ -104,15 +104,15 @@ function createConcordanceTable(concordanceData, parentElement) {
 
         let row = thead.insertRow();
 
-            // create each cell of the header and append to the table
-            for (let value of header) {
-                let th = document.createElement("th");
-                let text = document.createTextNode(value);
-                th.appendChild(text);
-                row.appendChild(th);
-            }
+        // create each cell of the header and append to the table
+        for (let value of header) {
+            let th = document.createElement("th");
+            let text = document.createTextNode(value);
+            th.appendChild(text);
+            row.appendChild(th);
+        }
 
-            var rowNum = 1;
+        var rowNum = 1;
 
         // loop through every concordance line entry
         concordanceData.forEach(concordEntry => {
@@ -132,8 +132,8 @@ function createConcordanceTable(concordanceData, parentElement) {
                 }
             });
 
-         
-            
+
+
 
             // iterate through each concordance line and add rows of concordance lines to the table
             for (let element of concordLines) {
@@ -232,29 +232,49 @@ function toggleConcordanceLineExclusion(concordLine, checkBoxElement) {
                 concordLineB.right === concordLine.right
             );
         };
-        // finds the index of the concordance line where they are equivalent
-        const loc =
-            concordanceDataResult.concordanceLines.findIndex(
-                containsConcordLine
-            );
-        if (checkBoxElement.checked == true) {
-            concordanceDataResult.concordanceLines[loc].excluded = true;
-        } else {
-            concordanceDataResult.concordanceLines[loc].excluded = false;
-        }
-        chrome.storage.local.set({
-                concordanceData: concordanceDataResult
-            },
-            () => {}
-        );
+
+        var loc = '';
+
+
+        concordanceDataResult.forEach(concordObject => {
+
+            // finds the index of the concordance line where they are equivalent
+            loc =
+                concordObject.concordanceLines.findIndex(
+                    containsConcordLine
+                );
+
+            if (loc > 0) {
+                if (checkBoxElement.checked == true) {
+                    concordObject.concordanceLines[loc].excluded = true;
+                } else {
+                    concordObject.concordanceLines[loc].excluded = false;
+                }
+                chrome.storage.local.set({
+                        concordanceData: concordanceDataResult
+                    },
+                    () => {
+                        ;
+                    });
+
+            }
+        });
+
+
     });
 }
 
 // Removes any lines in concordanceData if the line has been marked for exclusion
 // returns the new concordanceData.
 function removeExcluded(concordanceData) {
-    concordanceData.concordanceLines = concordanceData.concordanceLines.filter(line => !line.excluded);
+
+    concordanceData.forEach(concordanceObject => {
+        
+        concordanceObject.concordanceLines = concordanceObject.concordanceLines.filter(line => !line.excluded);
+    });
+
     return concordanceData;
+
 }
 
 // Gets the stored concordance data then performs the callback function with the resulting object as an argument
@@ -265,7 +285,7 @@ function getConcordanceData(callback) {
             callback(null);
         } else {
             let exclRemoved = removeExcluded(result.concordanceData);
-            if (exclRemoved.concordanceLines.length > 0) {
+            if (exclRemoved.length > 0) {
                 callback(exclRemoved);
             } else {
                 callback(null);

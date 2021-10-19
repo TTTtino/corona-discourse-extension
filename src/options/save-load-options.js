@@ -402,23 +402,30 @@ function exportConcordanceToCSV(title, concordanceJsonData) {
         left: "Left Span",
         word: "Target Token",
         right: "Right Span",
+        source: "Source",
+        
        
     };
 
     var itemsFormatted = []
 
     var index = 0;
+
     // format the data for concordance lines
-    concordanceJsonData["concordanceLines"].forEach((item) => {
-        index += 1;
-        itemsFormatted.push({
-            index: index,
-            count: item['count'], // remove commas to avoid errors,
-            left: '"' + getCleanedCSVContent(item['left']) + '"',
-            word: '"' + getCleanedCSVContent(item['word']) + '"',
-            right: '"' + getCleanedCSVContent(item['right']) + '"'
-           
-        });
+    concordanceJsonData.forEach((itemObject) => {
+
+        itemObject['concordanceLines'].forEach(item => {
+            index += 1;
+            itemsFormatted.push({
+                index: index,
+                count: item['count'], // remove commas to avoid errors,
+                left: '"' + getCleanedCSVContent(item['left']) + '"',
+                word: '"' + getCleanedCSVContent(item['word']) + '"',
+                right: '"' + getCleanedCSVContent(item['right']) + '"',
+                source: '"' + getCleanedCSVContent(itemObject['source']) + '"'
+            });
+        })
+        
     });
 
 
