@@ -52,6 +52,7 @@ chrome.storage.local.get("collectionStats", function (result) {
     }
 
     if(statCollection.concordance){
+        console.log("JA");
         // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
         var calculatedConcordance = performConcordance(tokens.wordTokens, statCollection.concordance);
         //console.log(calculatedConcordance);
@@ -65,8 +66,7 @@ chrome.storage.local.get("collectionStats", function (result) {
         });
         // chrome.storage.local.remove("concordanceData");
         chrome.storage.local.get("concordanceData", function(result){
-            // if none found...
-            if (typeof result.concordanceData === "undefined") {
+
                 // creates an empty collocation data and combines it with result for current page
                 var defConcordanceData = new ConcordanceData();
                 defConcordanceData.concordanceLines = concordanceLines.sort((firstEl, secondEl) => {
@@ -79,27 +79,28 @@ chrome.storage.local.get("collectionStats", function (result) {
                         return 0;
                     }
                 })
+
+                // save current page source
+                defConcordanceData.source = window.location.hostname;
+                
+
+                if(typeof result.concordanceData === 'undefined'){
+                    result.concordanceData = new Array();
+
+                }
+                
+                result.concordanceData.push(defConcordanceData)
+
+
                 // console.log("Combined=", newCol);
                 // set the storage to the new data
                 chrome.storage.local.set(
-                    { concordanceData: defConcordanceData },
+                    { concordanceData: result.concordanceData },
                     function () {
                         console.log("concordanceData not stored, storing it now");
-                        console.log("Concordance Lines", defConcordanceData);
                     }
-                );
-            } else {
-                console.log("Stored", result);
-                // combine the data for the current page with the existing stored data
-                var newConcordance = combineConcordanceData(result.concordanceData, concordanceLines);
-                // set the data to be the combined result
-                chrome.storage.local.set({ concordanceData: newConcordance }, function () {
-                    console.log("New concordance value set", newConcordance);
-
-
-                });
-            }
-
+                );            
+                
         });
     }
 
