@@ -52,7 +52,7 @@ chrome.storage.local.get("collectionStats", function (result) {
     }
 
     if(statCollection.concordance){
-        console.log("JA");
+
         // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
         var calculatedConcordance = performConcordance(tokens.wordTokens, statCollection.concordance);
         //console.log(calculatedConcordance);
@@ -70,7 +70,7 @@ chrome.storage.local.get("collectionStats", function (result) {
                 // creates an empty collocation data and combines it with result for current page
                 var defConcordanceData = new ConcordanceData();
                 defConcordanceData.concordanceLines = concordanceLines.sort((firstEl, secondEl) => {
-                    console.log("test");
+
                     if(firstEl.word.toLowerCase() < secondEl.word.toLowerCase()){
                         return -1;
                     } else if(firstEl.word.toLowerCase() > secondEl.word.toLowerCase()){

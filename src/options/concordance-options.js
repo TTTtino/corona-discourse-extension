@@ -102,10 +102,22 @@ function createConcordanceTable(concordanceData, parentElement) {
 
         let thead = table.createTHead();
 
+        let row = thead.insertRow();
+
+            // create each cell of the header and append to the table
+            for (let value of header) {
+                let th = document.createElement("th");
+                let text = document.createTextNode(value);
+                th.appendChild(text);
+                row.appendChild(th);
+            }
+
+            var rowNum = 1;
+
         // loop through every concordance line entry
         concordanceData.forEach(concordEntry => {
 
-           var concordLines = concordEntry.concordanceLines;
+            var concordLines = concordEntry.concordanceLines;
 
             // sort the concordance lines by the word
             concordLines.sort((firstEl, secondEl) => {
@@ -120,7 +132,8 @@ function createConcordanceTable(concordanceData, parentElement) {
                 }
             });
 
-            var rowNum = 1;
+         
+            
 
             // iterate through each concordance line and add rows of concordance lines to the table
             for (let element of concordLines) {
@@ -192,21 +205,7 @@ function createConcordanceTable(concordanceData, parentElement) {
 
                 rowNum += 1;
             }
-
-            let row = thead.insertRow();
-
-            // create each cell of the header and append to the table
-        for (let value of header) {
-            let th = document.createElement("th");
-            let text = document.createTextNode(value);
-            th.appendChild(text);
-            row.appendChild(th);
-        }
-
-
         });
-
-        
 
         // append the concordance table to the parentElement
         parentElement.appendChild(table);
