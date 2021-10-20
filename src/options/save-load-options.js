@@ -35,7 +35,11 @@ function getCombinedStats(callback) {
     var statOutput = {
         researchName: null,
         collocation: null,
-        concordance: null
+        concordanceLines: {
+            concordance: null,
+            totalExcluded: null
+        }
+
     };
     getStatsToCollect((result) => {
         if (result != null) {
@@ -49,7 +53,9 @@ function getCombinedStats(callback) {
 
             getConcordanceData((concordStats) => {
                 if (concordStats !== null) {
-                    statOutput.concordance = concordStats;
+
+                    statOutput.concordanceLines.concordance = concordStats[0];
+                    statOutput.concordanceLines.totalExcluded = concordStats[1]
                 }
                 callback(statOutput);
             });
@@ -62,7 +68,7 @@ function getCombinedStats(callback) {
 function copyStatsToClipBoard() {
     var textToCopy = "";
     getCombinedStats((statOutput) => {
-        if (statOutput.collocation != null || statOutput.concordance != null) {
+        if (statOutput.collocation != null || statOutput.concordanceLines != null) {
             textToCopy += JSON.stringify(statOutput, null, "\t");
             copyToClipboard(textToCopy);
         } else {
@@ -103,7 +109,7 @@ function getResultsAsJSON(callback) {
     var textToCopy = "";
 
     getCombinedStats((statOutput) => {
-        if (statOutput.collocation != null || statOutput.concordance != null) {
+        if (statOutput.collocation != null || statOutput.concordanceLines != null) {
             console.log("STAT OUTPUT", statOutput.toString())
             textToCopy += JSON.stringify(statOutput, null, "\t");
             callback(textToCopy);
@@ -122,7 +128,8 @@ function downloadCollectedStats() {
     var textToCopy = "";
 
     getCombinedStats((statOutput) => {
-        if (statOutput.collocation != null || statOutput.concordance != null) {
+        console.log("statOutput ",statOutput)
+        if (statOutput.collocation != null || statOutput.concordanceLines != null) {
             textToCopy += JSON.stringify(statOutput, null, "\t");
 
             var currentDate = new Date();
@@ -161,43 +168,43 @@ function downloadCollectedStats() {
                     currentDate.getSeconds();
                 }
 
-                
+
 
                 msg = "";
 
-                try{
+                try {
                     json = JSON.parse(textToCopy);
 
-                    exportConcordanceToCSV(fileName, json['concordance']);
-                    
-                } catch(error){
+                    exportConcordanceToCSV(fileName, json['concordanceLines']);
+
+                } catch (error) {
                     console.log(error)
                     msg += "No concordance data to download."
                 }
-            
+
                 success = "Download was successful. The files can be found in your browser's download folder or in the folder you specified.";
-            
-                if(msg != ''){
-                    success+=" Note: "+msg;
+
+                if (msg != '') {
+                    success += " Note: " + msg;
                 }
                 alert(success);
 
                 try {
-                getCalculatedCollocationData((collocationStats) => {
+                    getCalculatedCollocationData((collocationStats) => {
+                        console.log("collocationStats",collocationStats)
+                        chrome.storage.local.get(
+                            "collectionStats",
+                            function (collectionResult) {
+                                var statCollection = collectionResult.collectionStats;
+                                exportCollocationToCSV(fileName, collocationStats, statCollection.collocation.selfReference);
 
-                    chrome.storage.local.get(
-                        "collectionStats",
-                        function (collectionResult) {
-                            var statCollection = collectionResult.collectionStats;
-                            exportCollocationToCSV(fileName, collocationStats, statCollection.collocation.selfReference);
-                            
-                        }
-                    );
+                            }
+                        );
 
-                });
-            } catch (error) {
-                msg += "No collocation data to download. "
-            }
+                    });
+                } catch (error) {
+                    msg += "No collocation data to download. "
+                }
 
             });
         } else {
@@ -403,8 +410,9 @@ function exportConcordanceToCSV(title, concordanceJsonData) {
         word: "Target Token",
         right: "Right Span",
         source: "Source",
-        
-       
+        totalExcluded: "Total Excluded in %"
+
+
     };
 
     var itemsFormatted = []
@@ -412,21 +420,36 @@ function exportConcordanceToCSV(title, concordanceJsonData) {
     var index = 0;
 
     // format the data for concordance lines
-    concordanceJsonData.forEach((itemObject) => {
 
-        itemObject['concordanceLines'].forEach(item => {
+    concordanceJsonData['concordance'].forEach(lines => {
+        lines['concordanceLines'].forEach(item => {
+
             index += 1;
-            itemsFormatted.push({
-                index: index,
-                count: item['count'], // remove commas to avoid errors,
-                left: '"' + getCleanedCSVContent(item['left']) + '"',
-                word: '"' + getCleanedCSVContent(item['word']) + '"',
-                right: '"' + getCleanedCSVContent(item['right']) + '"',
-                source: '"' + getCleanedCSVContent(itemObject['source']) + '"'
-            });
-        })
-        
+
+            if (index === 1) {
+                itemsFormatted.push({
+                    index: index,
+                    count: item['count'], // remove commas to avoid errors,
+                    left: '"' + getCleanedCSVContent(item['left']) + '"',
+                    word: '"' + getCleanedCSVContent(item['word']) + '"',
+                    right: '"' + getCleanedCSVContent(item['right']) + '"',
+                    source: '"' + getCleanedCSVContent(lines['source']) + '"',
+                    totalExcluded: concordanceJsonData['totalExcluded']
+                });
+            } else {
+                itemsFormatted.push({
+                    index: index,
+                    count: item['count'], // remove commas to avoid errors,
+                    left: '"' + getCleanedCSVContent(item['left']) + '"',
+                    word: '"' + getCleanedCSVContent(item['word']) + '"',
+                    right: '"' + getCleanedCSVContent(item['right']) + '"',
+                    source: '"' + getCleanedCSVContent(lines['source']) + '"'
+                });
+
+            }
+        });
     });
+
 
 
     fileTitle = title + "_ConcordanceLines";
@@ -436,6 +459,6 @@ function exportConcordanceToCSV(title, concordanceJsonData) {
 
 }
 
-function getCleanedCSVContent(variable){
-    return variable.replace(/"/g,'""');
+function getCleanedCSVContent(variable) {
+    return variable.replace(/"/g, '""');
 }

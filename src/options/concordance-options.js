@@ -268,12 +268,24 @@ function toggleConcordanceLineExclusion(concordLine, checkBoxElement) {
 // returns the new concordanceData.
 function removeExcluded(concordanceData) {
 
+    var concordanceNumber = 0;
+    var concordanceNumberAfterExcluding = 0;
+
     concordanceData.forEach(concordanceObject => {
-        
-        concordanceObject.concordanceLines = concordanceObject.concordanceLines.filter(line => !line.excluded);
+        // get total number of concordance lines
+        concordanceNumber += concordanceObject.concordanceLines.length;
+        // remove lines where excluded is true
+        concordanceObject.concordanceLines = concordanceObject.concordanceLines .filter(line => !line.excluded);
+
+        concordanceNumberAfterExcluding+=concordanceObject.concordanceLines.length;
     });
 
-    return concordanceData;
+
+    // get total excluded lines in %
+    var totalExcluded = 1 - concordanceNumberAfterExcluding/concordanceNumber;
+    totalExcluded = totalExcluded.toFixed(4)*100;
+
+    return [concordanceData,totalExcluded];
 
 }
 
@@ -285,7 +297,7 @@ function getConcordanceData(callback) {
             callback(null);
         } else {
             let exclRemoved = removeExcluded(result.concordanceData);
-            if (exclRemoved.length > 0) {
+            if (exclRemoved[0].length > 0) {
                 callback(exclRemoved);
             } else {
                 callback(null);
