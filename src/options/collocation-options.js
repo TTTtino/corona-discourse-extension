@@ -243,6 +243,11 @@ function getCalculatedCollocationData(callback) {
                             result.collocationData,
                             statCollection.collocation.selfReference
                         );
+
+                        finalCollocationData = formatCollocationStatsForTable(
+                            finalCollocationData
+                            ,statCollection.collocation.selfReference)
+
                         callback(finalCollocationData);
                     
                 }

@@ -48,6 +48,7 @@ function getCombinedStats(callback) {
 
         getCalculatedCollocationData((collocationStats) => {
             if (collocationStats !== null) {
+
                 statOutput.collocation = collocationStats;
             }
 
@@ -112,6 +113,9 @@ function getResultsAsJSON(callback) {
         if (statOutput.collocation != null || statOutput.concordanceLines != null) {
             console.log("STAT OUTPUT", statOutput.toString())
             textToCopy += JSON.stringify(statOutput, null, "\t");
+
+            
+
             callback(textToCopy);
         } else {
             alert("No data has been collected");
@@ -187,24 +191,17 @@ function downloadCollectedStats() {
                 if (msg != '') {
                     success += " Note: " + msg;
                 }
-                alert(success);
-
                 try {
-                    getCalculatedCollocationData((collocationStats) => {
-                        console.log("collocationStats",collocationStats)
-                        chrome.storage.local.get(
-                            "collectionStats",
-                            function (collectionResult) {
-                                var statCollection = collectionResult.collectionStats;
-                                exportCollocationToCSV(fileName, collocationStats, statCollection.collocation.selfReference);
 
-                            }
-                        );
-
-                    });
+                    exportCollocationToCSV(fileName, json["collocation"]);
+          
                 } catch (error) {
+                    console.group(error)
                     msg += "No collocation data to download. "
                 }
+
+                alert(success +' '+msg);
+
 
             });
         } else {
@@ -344,17 +341,11 @@ function exportCSVFile(headers, items, fileTitle) {
 }
 
 //Export collocation lines JSON data into CSV file
-function exportCollocationToCSV(title, collocationData, selfReference) {
-
-    var data = formatCollocationStatsForTable(
-        collocationData,
-        selfReference
-    );
-
+function exportCollocationToCSV(title, data) {
 
     // Create headers for collocation table nGramFrequencies
     var headers = {
-        index: '#'.replace(/,/g, ''), // remove commas to avoid errors
+        index: '#',
         pivot: "Pivot",
         target: "Target",
         pivotFreq: "Pivot Frequency",
