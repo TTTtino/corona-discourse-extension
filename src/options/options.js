@@ -54,6 +54,7 @@ function load_options() {
         var websites = result.allowedWebsites;
         var websiteTable = document.getElementById("allowlist-table");
         // iterate through each entry in the allowlist and add to the allowlist table
+        console.log("websites", websites)
 
         for (var i = 0; i < websites.length; i++) {
             createAllowListRow(websiteTable, websites[i], i);
@@ -199,15 +200,17 @@ function resetStoredProject(preResetFunction) {
     var deleteWarningMessage = `This will reset the selected project. Do you want to reset the selected project? This will not delete the collected data.`;
     // if the user presses "OK" on the confirm box
     if (confirm(deleteWarningMessage)) {
-        // perform the preResetFunction if not null
-        if (preResetFunction != null) {
-            preResetFunction();
-        }
+
         // remove the stored collocationData and concordanceData
         // add more callbacks for each stat that is added
         chrome.storage.local.remove("collectionStats", () => {
-            chrome.storage.local.remove("project", () => {
-                location.reload();
+            chrome.storage.local.remove("allowedWebsites", () => {
+                chrome.storage.local.remove("project", () => {
+                    // perform the preResetFunction if not null
+                    if (preResetFunction != null) {
+                        preResetFunction();
+                    }
+                });
             });
         });
         return true;
@@ -218,13 +221,6 @@ function resetStoredProject(preResetFunction) {
 
 // load the necessary data for the options page once the DOM content is loaded
 document.addEventListener("DOMContentLoaded", load_options);
-
-// add a row to the allowList table and store the value in the entry field 
-// when the allowlist-add-button is clicked
-document
-    .getElementById("allowlist-add-button")
-    .addEventListener("click", addEntryToAllowList);
-
 
 // ask user for permission to submit results and send results to backend
 document
@@ -266,19 +262,6 @@ document
                     }
                 });
             });
-        }
-    });
-
-
-
-// add a row to the allowList table and store the value in the entry field 
-// when the enter key is pressed inside the allowlist-input field
-document
-    .getElementById("allowlist-input")
-    .addEventListener("keyup", (e) => {
-        if (e.key === "Enter") {
-
-            addEntryToAllowList();
         }
     });
 
@@ -349,11 +332,15 @@ for (i = 0; i < coll.length; i++) {
 
 // get the input parameters for stat collection and display it on the page
 chrome.storage.local.get("collectionStats", function (result) {
-    if (typeof result.collectionStats !== "undefined") {
-        showInputParameters(result.collectionStats, document.getElementById("data-collection-info"));
-    } else {
-        showInputParameters(null, document.getElementById("data-collection-info"));
-    }
+    chrome.storage.local.get({
+        allowedWebsites: []
+    }, function (resultUrls) {
+        if (typeof result.collectionStats !== "undefined" || typeof resultUrls.allowedWebsites !== "undefined") {
+            showInputParameters(result.collectionStats, resultUrls.allowedWebsites, document.getElementById("data-collection-info"));
+        } else {
+            showInputParameters(null, document.getElementById("data-collection-info"));
+        }
+    });
 });
 
 
@@ -392,58 +379,66 @@ document.getElementById("availableAnalysis").addEventListener("change", () => {
 });
 
 document.getElementById("select-analysis").addEventListener("click", () => {
-    if (confirm('Are you sure you want to participate in this project? By confirming the selected project will be saved and you currently participating project. NOTE: No data will be collected until you activate the extension. You can change the project at any time. ')) {
-
-        list = document.getElementById("availableAnalysis");
-        var projectId = list.options[list.selectedIndex].value;
-        var projectName = list.options[list.selectedIndex].text;
-        var projectDescription = document.getElementById("projectDescription").innerHTML;
-
-
-        fetch(SERVER_URL + '/api/query/?id=' + projectId, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-            },
-            credentials: 'include'
-        }).then(r => r.text()).then(result => {
-            if (typeof result !== 'undefined') {
-                try {
-                    var jsonIn = JSON.parse(result)
-                } catch (err) {
-                    alert("We are sorry, something went wrong and the project couldn't be set as the current project. Please try again later.")
-                    return null;
-                }
-                storeNewResearchName(jsonIn["title"], () => {
-                    storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
-                        storeNewConcordanceInstructions(
-                            jsonIn["concordance-lines"],
-                            () => {}
-                        );
-                    });
-                });
-
-                var project = new ProjectInfo(projectId, projectName, projectDescription);
-
-
-                chrome.storage.local.set({
-                    collectionStats: jsonIn
-                }, () => {});
-
-                chrome.storage.local.set({
-                    project: project
-                }, () => {});
-
-
-                alert("The project " + projectName + " was successfully set as the project you are participating in. You will now be redirected to the overview.")
-                location.reload();
-
-
-
-            }
-
-        })
-
+    if (confirm('Are you sure you want to participate in this project? By confirming the selected project will be saved and you currently participating project. NOTE: No data will be collected until you activate the extension. You can change the project at any time.')) {
+        resetStoredProject(storeNewProject);
     }
 });
+
+function storeNewProject() {
+    list = document.getElementById("availableAnalysis");
+    var projectId = list.options[list.selectedIndex].value;
+    var projectName = list.options[list.selectedIndex].text;
+    var projectDescription = document.getElementById("projectDescription").innerHTML;
+
+    fetch(SERVER_URL + '/api/query/?id=' + projectId, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+        },
+        credentials: 'include'
+    }).then(r => r.text()).then(result => {
+        if (typeof result !== 'undefined') {
+            try {
+                var jsonIn = JSON.parse(result)
+            } catch (err) {
+                alert("We are sorry, something went wrong and the project couldn't be set as the current project. Please try again later.")
+                return null;
+            }
+            storeNewResearchName(jsonIn["title"], () => {
+                storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
+                    storeNewConcordanceInstructions(
+                        jsonIn["concordance-lines"],
+                        () => {}
+                    );
+                });
+            });
+
+            var project = new ProjectInfo(projectId, projectName, projectDescription);
+
+            if (typeof jsonIn['allow-list'] !== 'undefined') {
+                chrome.storage.local.set({
+                    allowedWebsites: getStrippedDownAllowListURLS(jsonIn['allow-list']),
+                }, () => {});
+            }
+
+
+            chrome.storage.local.set({
+                collectionStats: jsonIn
+            }, () => {});
+
+            chrome.storage.local.set({
+                project: project
+            }, () => {});
+
+
+            alert("The project " + projectName + " was successfully set as the project you are participating in. You will now be redirected to the overview.")
+            location.reload();
+
+
+
+        }
+
+    })
+
+}

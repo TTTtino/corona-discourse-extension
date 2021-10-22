@@ -2,7 +2,6 @@
 function loadConcordanceData(callback) {
     chrome.storage.local.get("concordanceData", function (result) {
         // if concordance data does not exist
-        console.log(result.concordanceData);
         if (typeof result.concordanceData === "undefined" || result.concordanceData.length == 0) {
             // should create an empty table since there is no data
             createConcordanceTable(
@@ -77,7 +76,7 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
 // Create a stat table using concordanceData as a child of some parentElement
 function createConcordanceTable(concordanceData, parentElement) {
     // if input concordanceData is not null
-    if (concordanceData !== null || concordanceData.length > 0) {
+    if (concordanceData !== null) {
         // the maximum characters of each side of a concordance line before it is cut off
         const lineLimit = 90;
         // the number of characters that should be displayed if the left or right is past the lineLimit

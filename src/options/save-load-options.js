@@ -114,7 +114,7 @@ function getResultsAsJSON(callback) {
             console.log("STAT OUTPUT", statOutput.toString())
             textToCopy += JSON.stringify(statOutput, null, "\t");
 
-            
+
 
             callback(textToCopy);
         } else {
@@ -132,7 +132,7 @@ function downloadCollectedStats() {
     var textToCopy = "";
 
     getCombinedStats((statOutput) => {
-        console.log("statOutput ",statOutput)
+        console.log("statOutput ", statOutput)
         if (statOutput.collocation != null || statOutput.concordanceLines != null) {
             textToCopy += JSON.stringify(statOutput, null, "\t");
 
@@ -194,13 +194,13 @@ function downloadCollectedStats() {
                 try {
 
                     exportCollocationToCSV(fileName, json["collocation"]);
-          
+
                 } catch (error) {
                     console.group(error)
                     msg += "No collocation data to download. "
                 }
 
-                alert(success +' '+msg);
+                alert(success + ' ' + msg);
 
 
             });
@@ -217,8 +217,16 @@ function createTableFromObject(obj, headerList, parentElement) {
     for (const key in obj) {
         let row = table.insertRow();
         let titleCell = row.insertCell();
-        // set the first column of the row to be the key
-        let titleText = document.createTextNode(key);
+
+        var titleText =document.createTextNode('');
+        // check if object is an array(no keys)
+        if (!Array.isArray(obj)) {
+            titleText = document.createTextNode(key);
+        } else{
+            var keyAsNum = parseInt(key);
+            titleText = document.createTextNode(String(keyAsNum +1));
+        }
+
         titleCell.appendChild(titleText);
 
         let valueCell = row.insertCell();
@@ -258,8 +266,8 @@ function createTableFromObject(obj, headerList, parentElement) {
 }
 
 // show the collection Stats as a child of parentElement
-function showInputParameters(collectionStats, parentElement) {
-    // TODO: also show the research title
+function showInputParameters(collectionStats, allowList, parentElement) {
+
     if (collectionStats == null) {
         parentElement.appendChild(document.createElement("br"));
         let noStatParametersText = document.createTextNode(
@@ -267,6 +275,14 @@ function showInputParameters(collectionStats, parentElement) {
         );
         parentElement.appendChild(noStatParametersText);
         return;
+    }
+    // Allow list tabel
+    if (allowList != null) {
+        createTableFromObject(
+            allowList,
+            ["Allow List Index", "Allow List URL"],
+            parentElement)
+
     }
     // Collocation Table
     if (collectionStats.collocation != null) {
