@@ -69,7 +69,7 @@ chrome.storage.local.get(['project'], function(result) {
   'There is no project selected. You can select a project in the options of the extension.</br> To open the options page please press  the button <b>Open Extension Options</b>'+
 '<ol>'+
   '<li>Within the option page, please select <b>Select project</b> from the menu on the left.</li>'+
- ' <li>Select <b>Choose a project</b> from the dropbox and confirm your choice.</li>'+
+ ' <li>Select a project from the dropbox and confirm your choice.</li>'+
 '</ol>'+
 'After you finished the steps above the selected project will be displayed here and you can start to run the analysis.'
   document.getElementById("toggle-button").style.visibility = "hidden";
