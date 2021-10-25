@@ -1,12 +1,8 @@
 // requires: allowList-options.js, concordance-options, collocation-options, save-load-options.js
 var SERVER_URL = 'https://pripa-devel.azurewebsites.net';
 
-console.log("OPTIONS.js");
 
-chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
-        if (request.action === "test") {}
-    });
+console.log("OPTIONS.js");
 
 // load all the necessary things required in the options page
 function load_options() {
@@ -54,6 +50,7 @@ function load_options() {
         var websites = result.allowedWebsites;
         var websiteTable = document.getElementById("allowlist-table");
         // iterate through each entry in the allowlist and add to the allowlist table
+        console.log("websites", websites)
 
         for (var i = 0; i < websites.length; i++) {
             createAllowListRow(websiteTable, websites[i], i);
@@ -107,10 +104,7 @@ function loadProject() {
 
             }
 
-            chrome.storage.local.set({
-                extensionActive: true
-            }, () => {});
-
+     
 
         } else {
 
@@ -118,9 +112,6 @@ function loadProject() {
             document.getElementById("selected-project-title").innerHTML = "No Project Selected";
             document.getElementById("selected-project-details").style.display = 'none';
 
-            chrome.storage.local.set({
-                extensionActive: false
-            }, () => {});
 
             // select project tab
             document.getElementById("projectDetails").style.visibility = 'none';
@@ -183,9 +174,11 @@ function resetStoredData(preResetFunction) {
         // add more callbacks for each stat that is added
         chrome.storage.local.remove("collocationData", () => {
             chrome.storage.local.remove("concordanceData", () => {
+                chrome.storage.local.remove("extensionActive", () => {
 
-                alert("All collected data was successfully deleted.")
-                location.reload();
+                    alert("All collected data was successfully deleted.")
+                    location.reload();
+                });
             });
         });
         return true;
@@ -199,15 +192,22 @@ function resetStoredProject(preResetFunction) {
     var deleteWarningMessage = `This will reset the selected project. Do you want to reset the selected project? This will not delete the collected data.`;
     // if the user presses "OK" on the confirm box
     if (confirm(deleteWarningMessage)) {
-        // perform the preResetFunction if not null
-        if (preResetFunction != null) {
-            preResetFunction();
-        }
+
         // remove the stored collocationData and concordanceData
         // add more callbacks for each stat that is added
         chrome.storage.local.remove("collectionStats", () => {
-            chrome.storage.local.remove("project", () => {
-                location.reload();
+            chrome.storage.local.remove("allowedWebsites", () => {
+                chrome.storage.local.remove("project", () => {
+                    chrome.storage.local.remove("extensionActive", () => {
+                    resetExtension(() => {
+                        // perform the preResetFunction if not null
+                        if (preResetFunction != null) {
+                            preResetFunction();
+                        }
+
+                    })
+                });
+                });
             });
         });
         return true;
@@ -216,15 +216,17 @@ function resetStoredProject(preResetFunction) {
     }
 }
 
+function resetExtension(preResetFunction) {
+    // reset status of extension to inactive/false
+    chrome.storage.local.remove(
+        'extensionActive', () => {
+        if (preResetFunction !== null) {
+            preResetFunction();
+        }
+    });
+}
 // load the necessary data for the options page once the DOM content is loaded
 document.addEventListener("DOMContentLoaded", load_options);
-
-// add a row to the allowList table and store the value in the entry field 
-// when the allowlist-add-button is clicked
-document
-    .getElementById("allowlist-add-button")
-    .addEventListener("click", addEntryToAllowList);
-
 
 // ask user for permission to submit results and send results to backend
 document
@@ -269,26 +271,17 @@ document
         }
     });
 
-
-
-// add a row to the allowList table and store the value in the entry field 
-// when the enter key is pressed inside the allowlist-input field
-document
-    .getElementById("allowlist-input")
-    .addEventListener("keyup", (e) => {
-        if (e.key === "Enter") {
-
-            addEntryToAllowList();
-        }
-    });
-
 // reset the stored data when the reset-stats-button is clicked
 document.getElementById("reset-stats-button").addEventListener("click", () => {
-    resetStoredData();
+    resetStoredData(() => {
+        location.reload();
+    });
 });
 // reset the selected project when the reset-selected-project is clicked
 document.getElementById("reset-selected-project").addEventListener("click", () => {
-    resetStoredProject();
+    resetStoredProject(() => {
+        location.reload();
+    });
 });
 
 // // copy all collected stats to the clipboard when the copy-clipboard button is pressed
@@ -349,13 +342,16 @@ for (i = 0; i < coll.length; i++) {
 
 // get the input parameters for stat collection and display it on the page
 chrome.storage.local.get("collectionStats", function (result) {
-    if (typeof result.collectionStats !== "undefined") {
-        showInputParameters(result.collectionStats, document.getElementById("data-collection-info"));
-    } else {
-        showInputParameters(null, document.getElementById("data-collection-info"));
-    }
+    chrome.storage.local.get({
+        allowedWebsites: []
+    }, function (resultUrls) {
+        if (typeof result.collectionStats !== "undefined" || typeof resultUrls.allowedWebsites !== "undefined") {
+            showInputParameters(result.collectionStats, resultUrls.allowedWebsites, document.getElementById("data-collection-info"));
+        } else {
+            showInputParameters(null, document.getElementById("data-collection-info"));
+        }
+    });
 });
-
 
 
 document.getElementById("availableAnalysis").addEventListener("change", () => {
@@ -392,58 +388,65 @@ document.getElementById("availableAnalysis").addEventListener("change", () => {
 });
 
 document.getElementById("select-analysis").addEventListener("click", () => {
-    if (confirm('Are you sure you want to participate in this project? By confirming the selected project will be saved and you currently participating project. NOTE: No data will be collected until you activate the extension. You can change the project at any time. ')) {
+    if (confirm('Are you sure you want to participate in this project? By confirming the selected project will be saved and you currently participating project. NOTE: No data will be collected until you activate the extension. You can change the project at any time.')) {
+        resetStoredProject(() => {
+            list = document.getElementById("availableAnalysis");
+            var projectId = list.options[list.selectedIndex].value;
+            var projectName = list.options[list.selectedIndex].text;
+            var projectDescription = document.getElementById("projectDescription").innerHTML;
 
-        list = document.getElementById("availableAnalysis");
-        var projectId = list.options[list.selectedIndex].value;
-        var projectName = list.options[list.selectedIndex].text;
-        var projectDescription = document.getElementById("projectDescription").innerHTML;
-
-
-        fetch(SERVER_URL + '/api/query/?id=' + projectId, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-            },
-            credentials: 'include'
-        }).then(r => r.text()).then(result => {
-            if (typeof result !== 'undefined') {
-                try {
-                    var jsonIn = JSON.parse(result)
-                } catch (err) {
-                    alert("We are sorry, something went wrong and the project couldn't be set as the current project. Please try again later.")
-                    return null;
-                }
-                storeNewResearchName(jsonIn["title"], () => {
-                    storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
-                        storeNewConcordanceInstructions(
-                            jsonIn["concordance-lines"],
-                            () => {}
-                        );
+            fetch(SERVER_URL + '/api/query/?id=' + projectId, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+                },
+                credentials: 'include'
+            }).then(r => r.text()).then(result => {
+                if (typeof result !== 'undefined') {
+                    try {
+                        var jsonIn = JSON.parse(result)
+                    } catch (err) {
+                        alert("We are sorry, something went wrong and the project couldn't be set as the current project. Please try again later.")
+                        return null;
+                    }
+                    storeNewResearchName(jsonIn["title"], () => {
+                        storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
+                            storeNewConcordanceInstructions(
+                                jsonIn["concordance-lines"],
+                                () => {}
+                            );
+                        });
                     });
-                });
 
-                var project = new ProjectInfo(projectId, projectName, projectDescription);
+                    var project = new ProjectInfo(projectId, projectName, projectDescription);
 
-
-                chrome.storage.local.set({
-                    collectionStats: jsonIn
-                }, () => {});
-
-                chrome.storage.local.set({
-                    project: project
-                }, () => {});
+                    if (typeof jsonIn['allow-list'] !== 'undefined') {
+                        chrome.storage.local.set({
+                            allowedWebsites: getStrippedDownAllowListURLS(jsonIn['allow-list']),
+                        }, () => {});
+                    }
 
 
-                alert("The project " + projectName + " was successfully set as the project you are participating in. You will now be redirected to the overview.")
-                location.reload();
+                    chrome.storage.local.set({
+                        collectionStats: jsonIn
+                    }, () => {});
+
+                    chrome.storage.local.set({
+                        project: project
+                    }, () => {});
+
+                    resetExtension(() => {
+                        alert("The project " + projectName + " was successfully set as the project you are participating in. You will now be redirected to the overview.")
+                        location.reload();
+                    });
 
 
 
-            }
+                }
 
-        })
+            })
 
+        });
     }
 });

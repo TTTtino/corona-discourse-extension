@@ -225,16 +225,16 @@ tr {
     height: 30px;
     padding: 8px 10px;
 }
+.roundedNum {
 
+    font-weight: 500;
+}
 tbody > tr:hover {
     background-color: #026670;
     color: white;
 }
 
-.roundedNum {
-    color: #1c695f;
-    font-weight: 500;
-}
+
 
 .section {
     min-width: 400px;
