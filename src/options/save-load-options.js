@@ -17,8 +17,7 @@ function onReaderLoad(event) {
             storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
                 storeNewConcordanceInstructions(
                     jsonIn["concordance-lines"],
-                    () => {
-                    }
+                    () => {}
                 );
             });
         });
@@ -33,20 +32,31 @@ function copyToClipboard(text) {
 
 // Combine all the collected stats into one object and perform the callback function with it as an argument
 function getCombinedStats(callback) {
-    var statOutput = {researchName:null, collocation: null, concordance: null };
-    getStatsToCollect((result)=>{
-        if(result != null){
+    var statOutput = {
+        researchName: null,
+        collocation: null,
+        concordanceLines: {
+            concordance: null,
+            totalExcluded: null
+        }
+
+    };
+    getStatsToCollect((result) => {
+        if (result != null) {
             statOutput.researchName = result.researchName;
         }
-        
+
         getCalculatedCollocationData((collocationStats) => {
             if (collocationStats !== null) {
+
                 statOutput.collocation = collocationStats;
             }
-    
+
             getConcordanceData((concordStats) => {
                 if (concordStats !== null) {
-                    statOutput.concordance = concordStats;
+
+                    statOutput.concordanceLines.concordance = concordStats[0];
+                    statOutput.concordanceLines.totalExcluded = concordStats[1]
                 }
                 callback(statOutput);
             });
@@ -59,7 +69,7 @@ function getCombinedStats(callback) {
 function copyStatsToClipBoard() {
     var textToCopy = "";
     getCombinedStats((statOutput) => {
-        if (statOutput.collocation != null || statOutput.concordance != null) {
+        if (statOutput.collocation != null || statOutput.concordanceLines != null) {
             textToCopy += JSON.stringify(statOutput, null, "\t");
             copyToClipboard(textToCopy);
         } else {
@@ -71,7 +81,11 @@ function copyStatsToClipBoard() {
 // Function to download data to a file
 // https://stackoverflow.com/questions/13405129/javascript-create-and-save-file
 function download(data, filename, type) {
-    var file = new Blob([data], { type: type });
+
+
+    var file = new Blob([data], {
+        type: type
+    });
     if (window.navigator.msSaveOrOpenBlob)
         // IE10+
         window.navigator.msSaveOrOpenBlob(file, filename);
@@ -89,13 +103,19 @@ function download(data, filename, type) {
         }, 0);
     }
 }
+
+
 // Download all the collected data as a json file
 function getResultsAsJSON(callback) {
     var textToCopy = "";
 
     getCombinedStats((statOutput) => {
-        if (statOutput.collocation != null || statOutput.concordance != null) {
+        if (statOutput.collocation != null || statOutput.concordanceLines != null) {
+            console.log("STAT OUTPUT", statOutput.toString())
             textToCopy += JSON.stringify(statOutput, null, "\t");
+
+
+
             callback(textToCopy);
         } else {
             alert("No data has been collected");
@@ -112,7 +132,8 @@ function downloadCollectedStats() {
     var textToCopy = "";
 
     getCombinedStats((statOutput) => {
-        if (statOutput.collocation != null || statOutput.concordance != null) {
+        console.log("statOutput ", statOutput)
+        if (statOutput.collocation != null || statOutput.concordanceLines != null) {
             textToCopy += JSON.stringify(statOutput, null, "\t");
 
             var currentDate = new Date();
@@ -134,23 +155,54 @@ function downloadCollectedStats() {
                         currentDate.getMinutes() +
                         "-" +
                         currentDate.getSeconds();
-                } else{
+                } else {
                     var fileName =
-                    "UnknownParameters_Collected_Stats_" +
-                    currentDate.getDate() +
-                    "-" +
-                    currentDate.getMonth() +
-                    "-" +
-                    currentDate.getFullYear() +
-                    "_" +
-                    currentDate.getHours() +
-                    "-" +
-                    currentDate.getMinutes() +
-                    "-" +
-                    currentDate.getSeconds();
+                        "UnknownParameters_Collected_Stats_" +
+                        currentDate.getDate() +
+                        "-" +
+                        currentDate.getMonth() +
+                        "-" +
+                        currentDate.getFullYear() +
+                        "_" +
+                        currentDate.getHours() +
+                        "-" +
+                        currentDate.getMinutes() +
+                        "-" +
+                        currentDate.getSeconds();
                     currentDate.getSeconds();
                 }
-                download(textToCopy, fileName, "application/json");
+
+
+
+                msg = "";
+
+                try {
+                    json = JSON.parse(textToCopy);
+
+                    exportConcordanceToCSV(fileName, json['concordanceLines']);
+
+                } catch (error) {
+                    console.log(error)
+                    msg += "No concordance data to download."
+                }
+
+                success = "Download was successful. The files can be found in your browser's download folder or in the folder you specified.";
+
+                if (msg != '') {
+                    success += " Note: " + msg;
+                }
+                try {
+
+                    exportCollocationToCSV(fileName, json["collocation"]);
+
+                } catch (error) {
+                    console.group(error)
+                    msg += "No collocation data to download. "
+                }
+
+                alert(success + ' ' + msg);
+
+
             });
         } else {
             alert("No Stats have been collected");
@@ -165,8 +217,16 @@ function createTableFromObject(obj, headerList, parentElement) {
     for (const key in obj) {
         let row = table.insertRow();
         let titleCell = row.insertCell();
-        // set the first column of the row to be the key
-        let titleText = document.createTextNode(key);
+
+        var titleText =document.createTextNode('');
+        // check if object is an array(no keys)
+        if (!Array.isArray(obj)) {
+            titleText = document.createTextNode(key);
+        } else{
+            var keyAsNum = parseInt(key);
+            titleText = document.createTextNode(String(keyAsNum +1));
+        }
+
         titleCell.appendChild(titleText);
 
         let valueCell = row.insertCell();
@@ -206,8 +266,8 @@ function createTableFromObject(obj, headerList, parentElement) {
 }
 
 // show the collection Stats as a child of parentElement
-function showInputParameters(collectionStats, parentElement) {
-    // TODO: also show the research title
+function showInputParameters(collectionStats, allowList, parentElement) {
+
     if (collectionStats == null) {
         parentElement.appendChild(document.createElement("br"));
         let noStatParametersText = document.createTextNode(
@@ -216,8 +276,16 @@ function showInputParameters(collectionStats, parentElement) {
         parentElement.appendChild(noStatParametersText);
         return;
     }
+    // Allow list tabel
+    if (allowList != null) {
+        createTableFromObject(
+            allowList,
+            ["Allow List Index", "Allow List URL"],
+            parentElement)
+
+    }
     // Collocation Table
-    if(collectionStats.collocation != null){
+    if (collectionStats.collocation != null) {
         createTableFromObject(
             collectionStats.collocation,
             ["Collocation Parameters", "Value"],
@@ -226,12 +294,178 @@ function showInputParameters(collectionStats, parentElement) {
 
     }
     // Concordance Table
-    if(collectionStats.concordance != null){
+    if (collectionStats.concordance != null) {
         createTableFromObject(
             collectionStats.concordance,
             ["Concordance Parameter", "Value"],
             parentElement
         );
     }
-   
+
+}
+
+
+function convertToCSV(objArray) {
+    var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+    var str = '';
+
+    for (var i = 0; i < array.length; i++) {
+        var line = '';
+        for (var index in array[i]) {
+            if (line != '') line += ','
+
+            line += array[i][index];
+        }
+
+        str += line + '\r\n';
+    }
+
+    return str;
+}
+
+function exportCSVFile(headers, items, fileTitle) {
+
+    if (headers) {
+
+        items.unshift(headers);
+    }
+
+    var jsonObject = JSON.stringify(items);
+
+    var csv = this.convertToCSV(jsonObject);
+
+    var exportedFilename = fileTitle + '.csv' || 'export.csv';
+
+    var blob = new Blob([csv], {
+        type: 'text/csv;charset=utf-8;'
+    });
+    if (navigator.msSaveBlob) { // IE 10+ 
+        navigator.msSaveBlob(blob, exportedFilename);
+    } else {
+        var link = document.createElement("a");
+        if (link.download !== undefined) { // feature detection
+            // Browsers that support HTML5 download attribute
+            var url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", exportedFilename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+}
+
+//Export collocation lines JSON data into CSV file
+function exportCollocationToCSV(title, data) {
+
+    // Create headers for collocation table nGramFrequencies
+    var headers = {
+        index: '#',
+        pivot: "Pivot",
+        target: "Target",
+        pivotFreq: "Pivot Frequency",
+        targetFreq: "Target Frequency",
+        pivotTargetFreq: "Pivot-Target Frequency",
+        pivotProb: "Pivot Probability",
+        targetProb: "Target Probability",
+        pivotTargetProb: "Pivot-Target Probability",
+        pmi: "PMI",
+
+    };
+
+
+    var itemsFormatted = [];
+
+    var index = 0;
+
+    // format the data for concordance lines
+    data.forEach((item) => {
+
+        index += 1;
+        itemsFormatted.push({
+            index: index,
+            pivot: '"' + item['pivot'] + '"',
+            target: '"' + item['target'] + '"',
+            pivotFreq: '"' + item['pivotFreq'] + '"',
+            targetFreq: '"' + item['targetFreq'] + '"',
+            pivotTargetFreq: '"' + item['pivotTargetFreq'] + '"',
+            pivotProb: '"' + item['pivotProb'] + '"',
+            targetProb: '"' + item['targetProb'] + '"',
+            pivotTargetProb: '"' + item['pivotTargetProb'] + '"',
+            pmi: '"' + item['pmi'] + '"',
+
+        });
+    });
+
+
+
+    fileTitle = title + "_Collocations";
+
+    exportCSVFile(headers, itemsFormatted, fileTitle);
+
+}
+
+//Export concordance lines JSON data into CSV file
+function exportConcordanceToCSV(title, concordanceJsonData) {
+
+    // Create headers for concordance lines table
+    var headers = {
+        index: '#'.replace(/,/g, ''), // remove commas to avoid errors
+        count: "Frequency",
+        left: "Left Span",
+        word: "Target Token",
+        right: "Right Span",
+        source: "Source",
+        totalExcluded: "Total Excluded in %"
+
+
+    };
+
+    var itemsFormatted = []
+
+    var index = 0;
+
+    // format the data for concordance lines
+
+    concordanceJsonData['concordance'].forEach(lines => {
+        lines['concordanceLines'].forEach(item => {
+
+            index += 1;
+
+            if (index === 1) {
+                itemsFormatted.push({
+                    index: index,
+                    count: item['count'], // remove commas to avoid errors,
+                    left: '"' + getCleanedCSVContent(item['left']) + '"',
+                    word: '"' + getCleanedCSVContent(item['word']) + '"',
+                    right: '"' + getCleanedCSVContent(item['right']) + '"',
+                    source: '"' + getCleanedCSVContent(lines['source']) + '"',
+                    totalExcluded: concordanceJsonData['totalExcluded']
+                });
+            } else {
+                itemsFormatted.push({
+                    index: index,
+                    count: item['count'], // remove commas to avoid errors,
+                    left: '"' + getCleanedCSVContent(item['left']) + '"',
+                    word: '"' + getCleanedCSVContent(item['word']) + '"',
+                    right: '"' + getCleanedCSVContent(item['right']) + '"',
+                    source: '"' + getCleanedCSVContent(lines['source']) + '"'
+                });
+
+            }
+        });
+    });
+
+
+
+    fileTitle = title + "_ConcordanceLines";
+
+
+    exportCSVFile(headers, itemsFormatted, fileTitle); // call the exportCSVFile() function to process the JSON and trigger the download
+
+}
+
+function getCleanedCSVContent(variable) {
+    return variable.replace(/"/g, '""');
 }

@@ -2,6 +2,7 @@
 class ConcordanceData{
     constructor(){
         this.concordanceLines = [];
+        this.source = ''
     }
 }
 

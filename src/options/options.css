@@ -9,7 +9,7 @@ html {
 }
 
 body {
-    background-color: #f3f3f3;
+    background-color: #edeae5;
     margin: 0;
 }
 
@@ -86,12 +86,12 @@ body {
 }
 
 .tab:hover {
-    background-color: #2a9c8e;
+    background-color: #038591;
     color: white;
 }
 
 .tab.active {
-    background-color: #26887c;
+    background-color: #026670;
     color: white;
 }
 
@@ -127,11 +127,11 @@ body {
     margin-bottom: 3px;
 }
 
-.whitelist-delete-button {
-    background-color: #2a9d8f7f;
+.allowlist-delete-button {
+    background-color: #FF5151;
     border: none;
     color: white;
-    padding: 10px 10px;
+    padding: 1px 1px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -141,52 +141,45 @@ body {
     border-radius: 3px;
 }
 
-.whitelist-delete-button[type="image" i] {
-    opacity: 0.5;
-}
 
-td:hover .whitelist-delete-button {
-    background-color: #2a9d8f;
+
+td:hover .allowlist-delete-button {
+    background-color: #FF5151;
     height: 15px;
     width: 15px;
 }
 
-td:hover .whitelist-delete-button[type="image" i] {
+td:hover .allowlist-delete-button[type="image" i] {
     opacity: 1;
 }
 
-#whitelist-add-button {
-    background-color: #2a9d8f;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
+#allowlist-add-button {
+
     display: inline-block;
-    font-size: 10px;
-    border-radius: 3px;
+    font-size: 15px;
+
 }
 
-#whitelist-input {
+#allowlist-input {
     flex-grow: 1;
-    border: 1px solid #2a9d8f;
+    border: 1px solid #026670;
     margin-right: 5px;
     border-radius: 3px;
     padding: 0px 10px;
 }
 
-#whitelist-input:focus {
+#allowlist-input:focus {
     outline: none;
-    border: 2px solid #2a9d8f;
+    border: 2px solid #037e89;
 }
 
-#whitelist-form-div {
+#allowlist-form-div {
     width: 100%;
     display: flex;
     margin-bottom: 0px;
 }
 
-#whitelist-table {
+#allowlist-table {
     min-width: 200;
     width: 100%;
 }
@@ -196,12 +189,18 @@ td:hover .whitelist-delete-button[type="image" i] {
     width: 1%;
 }
 
+.scrollable-div{
+    display: none; 
+    overflow:scroll; 
+    height:400px;
+}
+
 table {
     border-collapse: collapse;
     border-radius: 3px;
     min-width: 200;
     width: 100%;
-    border: 1px solid #2a9d8f;
+    border: 1px solid #026670;
     border-spacing: 0;
     max-height: 70%;
     overflow-y: auto;
@@ -226,16 +225,16 @@ tr {
     height: 30px;
     padding: 8px 10px;
 }
+.roundedNum {
 
+    font-weight: 500;
+}
 tbody > tr:hover {
-    background-color: #2a9c8e;
+    background-color: #026670;
     color: white;
 }
 
-.roundedNum {
-    color: #1c695f;
-    font-weight: 500;
-}
+
 
 .section {
     min-width: 400px;
@@ -267,13 +266,13 @@ tbody > tr:hover {
 
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
 .collapsible-button:hover {
-    background-color: #2a9c8e;
+    background-color: #05818c;
     color: white;
 }
 
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
 .collapsible-button:hover {
-    background-color: #2a9c8e;
+    background-color: #038793;
     color: white;
 }
 
@@ -305,7 +304,7 @@ input[type="file"] {
 .default-button {
     display: inline-block;
     cursor: pointer;
-    background-color: #2a9d8f;
+    background-color: #026670;
     border: none;
     color: white;
     padding: 6px 12px;

@@ -115,7 +115,6 @@ function calculateProbPMI(pivotProbs, targetProbs, nGramProbs, canSelfReference)
 
 // calculates the PMI given just the CollocationData object containing only the frequencies
 function calculateFreqPMI(collocationData, canSelfReference){
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", collocationData);
     var pivotProb = {};
     // iterate through the frequencies and calculate the probabilities for each "pivot"
     for (var key in collocationData.pivotFrequencies) {
