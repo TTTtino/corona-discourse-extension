@@ -3,8 +3,20 @@
 class StatCollectionInfo {
     constructor() {
         this.researchName = "Default Input Parameters";
+        this.metaInstructions = null;
         this.collocation = null;
         this.concordance = null;
+    }
+}
+
+// Stores parameters for meta instructions of query
+class MetaInstructions{
+    constructor(removePunctuation,standardiseVocabulary, standardiseCasing){
+        this.removePunctuation = removePunctuation;
+        this.standardiseVocabulary = standardiseVocabulary;
+        this.standardiseCasing = standardiseCasing;
+
+        
     }
 }
 

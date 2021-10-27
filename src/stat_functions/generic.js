@@ -102,6 +102,8 @@ function tokenize(corpus, storeLocation=false) {
         // add sentence buffer contents to sentence tokens list
         sentenceTokens.push(sentenceBuffer);
     }
+
+    console.log("TOKENS",wordTokens);
     return { sentenceTokens: sentenceTokens, wordTokens: wordTokens };
 }
 
@@ -239,3 +241,4 @@ function getStatsToCollect(callback) {
         }
     });
 }
+
