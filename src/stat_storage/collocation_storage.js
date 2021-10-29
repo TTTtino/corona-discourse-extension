@@ -1,4 +1,3 @@
-
     // class for storing the collected collocation data
     class CollocationData {
         constructor() {
@@ -10,6 +9,7 @@
             this.tokenSum = 0;
         }
     }
+
 
     // Combine two collocation data objects and return the result
     function combineCollocationData(prevCollocationData, collocationData) {

@@ -1,5 +1,6 @@
 // Listens for changes on any of the tabs
 console.log("backend file.js");
+ 
 // Scripts that are required by the foreground script to run on the page
 const REQUIRED_SCRIPTS = [
     "stat_storage/collocation_storage.js",
@@ -8,6 +9,13 @@ const REQUIRED_SCRIPTS = [
     "stat_functions/collocation.js",
     "stat_functions/concordance.js",
 ];
+
+//Handler when message is sent from Content Scripts
+chrome.runtime.onMessage.addListener(function (message, caller, handler) {
+    if (message.test){
+        runAnalysis(message.test,message.url)
+    };
+});
 
 // listener for changes on all tabs
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
