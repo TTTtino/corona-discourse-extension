@@ -186,21 +186,22 @@ function downloadCollectedStats() {
                     msg += "No concordance data to download."
                 }
 
-                success = "Download was successful. The files can be found in your browser's download folder or in the folder you specified.";
+                success = "Download was successful. The result file can be found in your browser's download folder or in the folder you specified.";
 
-                if (msg != '') {
-                    success += " Note: " + msg;
-                }
                 try {
 
                     exportCollocationToCSV(fileName, json["collocation"]);
 
                 } catch (error) {
                     console.group(error)
-                    msg += "No collocation data to download. "
+                    msg += " No collocation data to download. "
                 }
 
-                alert(success + ' ' + msg);
+                if (msg != '') {
+                    success += " Note: " + msg;
+                }
+
+                alert(success);
 
 
             });
