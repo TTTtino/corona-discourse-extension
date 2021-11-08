@@ -1,4 +1,6 @@
-{
+{    "meta-instructions": {
+	"load-content-at":"open"
+},
     "title": "Basic Input File",
 	"allow-list":["www.bbc.co.uk","www.theguardian.com"],
 	"collocate-groups": {

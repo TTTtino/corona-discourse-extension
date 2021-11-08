@@ -1,6 +1,6 @@
 // Listens for changes on any of the tabs
 console.log("backend file.js");
- 
+
 // Scripts that are required by the foreground script to run on the page
 const REQUIRED_SCRIPTS = [
     "stat_storage/collocation_storage.js",
@@ -12,8 +12,8 @@ const REQUIRED_SCRIPTS = [
 
 //Handler when message is sent from Content Scripts
 chrome.runtime.onMessage.addListener(function (message, caller, handler) {
-    if (message.test){
-        runAnalysis(message.test,message.url)
+    if (message.test) {
+        runAnalysis(message.test, message.url)
     };
 });
 
@@ -27,10 +27,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             128: "images/bw_logo128.png",
         },
     });
-
     // save current tab ID and url after tab was fully loaded
     // this is needed to identify url when tab is closed
-    chrome.storage.local.get({extensionActive: false }, (result) => {
+    chrome.storage.local.get({
+        extensionActive: false
+    }, (result) => {
         if (result.extensionActive && changeInfo.status === "complete" && /^http/.test(tab.url)) {
             // Get the list of allowed list of websites from the chrome local storage
             chrome.storage.local.get({

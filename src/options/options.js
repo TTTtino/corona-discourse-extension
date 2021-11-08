@@ -104,7 +104,7 @@ function loadProject() {
 
             }
 
-     
+
 
         } else {
 
@@ -199,14 +199,14 @@ function resetStoredProject(preResetFunction) {
             chrome.storage.local.remove("allowedWebsites", () => {
                 chrome.storage.local.remove("project", () => {
                     chrome.storage.local.remove("extensionActive", () => {
-                    resetExtension(() => {
-                        // perform the preResetFunction if not null
-                        if (preResetFunction != null) {
-                            preResetFunction();
-                        }
+                        resetExtension(() => {
+                            // perform the preResetFunction if not null
+                            if (preResetFunction != null) {
+                                preResetFunction();
+                            }
 
-                    })
-                });
+                        })
+                    });
                 });
             });
         });
@@ -220,10 +220,10 @@ function resetExtension(preResetFunction) {
     // reset status of extension to inactive/false
     chrome.storage.local.remove(
         'extensionActive', () => {
-        if (preResetFunction !== null) {
-            preResetFunction();
-        }
-    });
+            if (preResetFunction !== null) {
+                preResetFunction();
+            }
+        });
 }
 // load the necessary data for the options page once the DOM content is loaded
 document.addEventListener("DOMContentLoaded", load_options);
@@ -410,38 +410,8 @@ document.getElementById("select-analysis").addEventListener("click", () => {
                         alert("We are sorry, something went wrong and the project couldn't be set as the current project. Please try again later.")
                         return null;
                     }
-                    storeNewResearchName(jsonIn["title"], () => {
-                        storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
-                            storeNewConcordanceInstructions(
-                                jsonIn["concordance-lines"],
-                                () => {}
-                            );
-                        });
-                    });
 
-                    var project = new ProjectInfo(projectId, projectName, projectDescription);
-
-                    if (typeof jsonIn['allow-list'] !== 'undefined') {
-                        chrome.storage.local.set({
-                            allowedWebsites: getStrippedDownAllowListURLS(jsonIn['allow-list']),
-                        }, () => {});
-                    }
-
-
-                    chrome.storage.local.set({
-                        collectionStats: jsonIn
-                    }, () => {});
-
-                    chrome.storage.local.set({
-                        project: project
-                    }, () => {});
-
-                    resetExtension(() => {
-                        alert("The project " + projectName + " was successfully set as the project you are participating in. You will now be redirected to the overview.")
-                        location.reload();
-                    });
-
-
+                    storeProjectData(jsonIn, projectId, projectName, projectDescription);
 
                 }
 
@@ -450,3 +420,65 @@ document.getElementById("select-analysis").addEventListener("click", () => {
         });
     }
 });
+
+async function storeProjectData(jsonIn, projectId, projectName, projectDescription) {
+    let storeStatInstr = new Promise((resolve, reject) => {
+        storeNewResearchName(jsonIn["title"], () => {
+            storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
+                storeNewConcordanceInstructions(
+                    jsonIn["concordance-lines"],
+                    () => {
+                        storeNewMetaInstructions(jsonIn['meta-instructions'], () => {
+                            resolve();
+                        });
+                    }
+                );
+            });
+        });
+         })
+    
+
+    let stripWebsite = new Promise((resolve, reject) => {
+        if (typeof jsonIn['allow-list'] !== 'undefined') {
+            chrome.storage.local.set({
+                allowedWebsites: getStrippedDownAllowListURLS(jsonIn['allow-list']),
+            }, () => {
+                resolve()
+            });
+        }
+    })
+
+    var project = new ProjectInfo(projectId, projectName, projectDescription);
+
+    let storeInfo = new Promise((resolve, reject) => {
+        chrome.storage.local.set({
+            collectionStats: jsonIn
+        }, () => {
+            resolve()
+        });
+
+    })
+    let storeProject = new Promise((resolve, reject) => {
+        chrome.storage.local.set({
+            project: project
+        }, () => {
+            resolve()
+        });
+
+    })
+
+    await Promise.all(
+        [
+            storeStatInstr,
+            stripWebsite,
+            storeInfo, 
+            storeProject
+
+        ])
+
+    resetExtension(() => {
+        alert("The project " + projectName + " was successfully set as the project you are participating in. You will now be redirected to the overview.")
+        location.reload();
+    });
+    s
+}

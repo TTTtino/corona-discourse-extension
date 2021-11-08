@@ -17,7 +17,7 @@ function onReaderLoad(event) {
             storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
                 storeNewConcordanceInstructions(
                     jsonIn["concordance-lines"],
-                    () => {}
+                    () => {storeNewMetaInstructions(jsonIn['meta-instructions']),()=>{}}
                 );
             });
         });
@@ -34,6 +34,7 @@ function copyToClipboard(text) {
 function getCombinedStats(callback) {
     var statOutput = {
         researchName: null,
+        metaInstr:null, 
         collocation: null,
         concordanceLines: {
             concordance: null,
@@ -58,7 +59,12 @@ function getCombinedStats(callback) {
                     statOutput.concordanceLines.concordance = concordStats[0];
                     statOutput.concordanceLines.totalExcluded = concordStats[1]
                 }
-                callback(statOutput);
+
+                getMetaInstructionsData((metaInstrData) => {
+                    statOutput.metaInstruction = metaInstrData;
+                    callback(statOutput);
+                })
+                
             });
         });
     });
@@ -282,6 +288,15 @@ function showInputParameters(collectionStats, allowList, parentElement) {
             allowList,
             ["Allow List Index", "Allow List URL"],
             parentElement)
+
+    }
+    // Meta Instruction Table
+    if (collectionStats.metaInstruction != null) {
+        createTableFromObject(
+            collectionStats.metaInstruction,
+            ["Meta Instruction Parameters", "Value"],
+            parentElement
+        );
 
     }
     // Collocation Table
