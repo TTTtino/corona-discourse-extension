@@ -163,7 +163,7 @@ function storeNewResearchName(name, callback) {
 // if the user confirms an alert, then "callback" function is performed before resetting the stored data
 function resetStoredData(preResetFunction) {
     // warning message to display in the confirm box when data is going to be reset
-    var deleteWarningMessage = `This will reset all collected data. Would you like to delete all collected data? \nYou can download the collected data first, by going to the section 'Export Collected Statistics' above.`;
+    var deleteWarningMessage = `This will reset the results. Would you like to delete your results? \nIf you would like to download your results first, go to the section 'Export Collected Statistics' above.`;
     // if the user presses "OK" on the confirm box
     if (confirm(deleteWarningMessage)) {
         // perform the preResetFunction if not null
@@ -176,7 +176,7 @@ function resetStoredData(preResetFunction) {
             chrome.storage.local.remove("concordanceData", () => {
                 chrome.storage.local.remove("extensionActive", () => {
 
-                    alert("All collected data was successfully deleted.")
+                    alert("Your results have been successfully deleted.")
                     location.reload();
                 });
             });
@@ -187,9 +187,9 @@ function resetStoredData(preResetFunction) {
     }
 }
 // if the user confirms an alert, then "callback" function is performed before resetting the selected Project
-function resetStoredProject(preResetFunction) {
+function resetStoredProject(projectName,preResetFunction) {
     // warning message to display in the confirm box when data is going to be reset
-    var deleteWarningMessage = `This will reset the selected project. Do you want to reset the selected project? This will not delete the collected data.`;
+    var deleteWarningMessage = `This will reset the selected project: `+projectName+`. Do you want to reset this? Resetting the project will not delete your results.`;
     // if the user presses "OK" on the confirm box
     if (confirm(deleteWarningMessage)) {
 
@@ -233,7 +233,7 @@ document
     .getElementById("submit-results")
     .addEventListener("click", () => {
 
-        if (confirm("Are you sure you want to submit your results? If you press 'OK' the results will be sent to the researchers.")) {
+        if (confirm("Are you sure you want to submit your results? Select 'OK' to submit these results to the researchers.")) {
 
             getResultsAsJSON((textToCopy) => {
 
@@ -257,9 +257,9 @@ document
                             credentials: 'include'
                         }).then(function (response) {
                             if (response.status === 200) {
-                                alert("Results were successfully submitted. Thank you for your help!")
+                                alert("Your results were successfully submitted. Thank you for participating in [project]. \nFor information and further support please navigate to the 'Help' tab.")
                             } else {
-                                alert("Unfortunately  a problem occurred and your results couldn't be submitted.")
+                                alert("Unfortunately, a problem occurred and your results couldn't be submitted. Please try again. \nTo contact the researchers and for further support please navigate to the 'Help' tab.")
                             }
                         });
                     } else {
@@ -279,7 +279,8 @@ document.getElementById("reset-stats-button").addEventListener("click", () => {
 });
 // reset the selected project when the reset-selected-project is clicked
 document.getElementById("reset-selected-project").addEventListener("click", () => {
-    resetStoredProject(() => {
+    var projectName = document.getElementById("projectTitle").innerHTML;
+    resetStoredProject(projectName,() => {
         location.reload();
     });
 });
@@ -388,8 +389,10 @@ document.getElementById("availableAnalysis").addEventListener("change", () => {
 });
 
 document.getElementById("select-analysis").addEventListener("click", () => {
-    if (confirm('Are you sure you want to participate in this project? By confirming the selected project will be saved and you currently participating project. NOTE: No data will be collected until you activate the extension. You can change the project at any time.')) {
-        resetStoredProject(() => {
+
+    var projectName = document.getElementById("projectTitle").innerHTML;
+    if (confirm('Please confirm that you agree to participate in the selected project: '+projectName+'. Please remember to activate the extension to start collecting your results. You can change the project, delete your results, or stop participating at any time.')) {
+        resetStoredProject(projectName,() => {
             list = document.getElementById("availableAnalysis");
             var projectId = list.options[list.selectedIndex].value;
             var projectName = list.options[list.selectedIndex].text;
@@ -407,7 +410,7 @@ document.getElementById("select-analysis").addEventListener("click", () => {
                     try {
                         var jsonIn = JSON.parse(result)
                     } catch (err) {
-                        alert("We are sorry, something went wrong and the project couldn't be set as the current project. Please try again later.")
+                        alert("We are sorry, something went wrong and your current project selection has not been set. Please try again. \nFor information and further support please navigate to the 'Help' tab.")
                         return null;
                     }
 
@@ -449,6 +452,7 @@ async function storeProjectData(jsonIn, projectId, projectName, projectDescripti
     })
 
     var project = new ProjectInfo(projectId, projectName, projectDescription);
+
 
     let storeInfo = new Promise((resolve, reject) => {
         chrome.storage.local.set({
