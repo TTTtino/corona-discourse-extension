@@ -3,10 +3,12 @@ try {
     importScripts(
         "StatCollectionInfo.js",
         "ProjectInfo.js",
+        "stat_storage/collocation_storage.js",
+        "stat_storage/concordance_storage.js",
         "stat_functions/generic.js",
         "stat_functions/collocation.js",
         "stat_functions/concordance.js",
-        "background/settings.js",
+        "stat_functions/analysis.js",
         "background/main.js"
     );
 } catch (e) {

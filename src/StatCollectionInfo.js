@@ -3,8 +3,15 @@
 class StatCollectionInfo {
     constructor() {
         this.researchName = "Default Input Parameters";
+        this.metaInstruction = null;
         this.collocation = null;
         this.concordance = null;
+    }
+}
+
+class MetaInstructions{
+    constructor(loadContentAt){
+      this.loadContentAt =loadContentAt;
     }
 }
 
