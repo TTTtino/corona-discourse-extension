@@ -146,6 +146,7 @@ function generateNgrams(wordTokens, [l, r]) {
 // get the frequency of a token in the list of tokens
 // returns: int representing occurence of token
 function getFrequency(word, wordTokens, regex = true) {
+
     var count = 0;
     // if not using regex
     if (regex === false) {
