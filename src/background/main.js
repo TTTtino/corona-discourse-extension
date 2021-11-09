@@ -1,6 +1,8 @@
 // Listens for changes on any of the tabs
 console.log("backend file.js");
 
+
+
 // Scripts that are required by the foreground script to run on the page
 const REQUIRED_SCRIPTS = [
     "stat_storage/collocation_storage.js",
@@ -13,7 +15,22 @@ const REQUIRED_SCRIPTS = [
 //Handler when message is sent from Content Scripts
 chrome.runtime.onMessage.addListener(function (message, caller, handler) {
     if (message.test) {
-        runAnalysis(message.test, message.url)
+        runAnalysis(message.test, message.url,(result)=>{
+            if(result === true){
+                chrome.action.setBadgeText({text:'*'});
+            }
+            else{
+                chrome.action.setBadgeText({text:''});
+            }
+        
+    
+        })
+
+        
+        
+        
+
+        
     };
 });
 
@@ -39,6 +56,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             }, function (result) {
                 var allowList = result.allowedWebsites;
                 var url = new URL(tab.url);
+
+                chrome.action.setBadgeText({text:''});
 
                 // compare the current pages url against the allowList
                 if (urlInList(url.href, allowList)) {
