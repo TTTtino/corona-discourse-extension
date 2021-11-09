@@ -1,7 +1,7 @@
+chrome.action.setBadgeText({text:''});
+
 // get's the extension status. If not stored then it defaults to false
 chrome.storage.local.get({extensionActive: false}, (result)=>{
-
-  console.log("FUCKING RESULT", result)
   // if the extension is active
   if(result.extensionActive){
       // make the toggle button "active"

@@ -4,6 +4,8 @@ var SERVER_URL = 'https://pripa-devel.azurewebsites.net';
 
 console.log("OPTIONS.js");
 
+chrome.action.setBadgeText({text:''});
+
 // load all the necessary things required in the options page
 function load_options() {
 
