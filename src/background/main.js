@@ -12,20 +12,72 @@ const REQUIRED_SCRIPTS = [
     "stat_functions/concordance.js",
 ];
 
+// init total websites count and total websites with hits count
+chrome.storage.local.get("totalWebsitesAndHits", (result) => {
+
+    // init total websites count and total websites with hits count
+    if (typeof result.totalWebsitesAndHits === 'undefined') {
+        result.totalWebsitesAndHits = {
+            totalWebsites: 0,
+            websitesWithHits: 0
+        };
+
+        chrome.storage.local.set({
+            totalWebsitesAndHits: result.totalWebsitesAndHits,
+        },
+        () => {});
+    }
+
+
+});
+
 //Handler when message is sent from Content Scripts
 chrome.runtime.onMessage.addListener(function (message, caller, handler) {
     if (message.test) {
-        runAnalysis(message.test, message.url,(result)=>{
-            if(result === true){
-                chrome.action.setBadgeText({text:'*'});
+        runAnalysis(message.test, message.url, (resultsExists) => {
+            // show badge notification if results exists
+            //else remove badge notification
+            if (resultsExists) {
+                chrome.action.setBadgeText({
+                    text: '*'
+                });
+            } else {
+                chrome.action.setBadgeText({
+                    text: ''
+                });
             }
-            else{
-                chrome.action.setBadgeText({text:''});
-            }
-        
-    
+
+            // get total websites count and total websites with hits count
+            chrome.storage.local.get("totalWebsitesAndHits", (result) => {
+
+                var resultsCount = 0;
+                if (resultsExists) {
+                    resultsCount += 1;
+                }
+                // init counter if undefined
+                if (typeof result.totalWebsitesAndHits === 'undefined') {
+                    result.totalWebsitesAndHits = {
+                        totalWebsites: 1,
+                        websitesWithHits: resultsCount
+                    };
+                }
+                else{
+                    result.totalWebsitesAndHits.totalWebsites += 1;
+                    result.totalWebsitesAndHits.websitesWithHits += resultsCount;
+
+                }
+
+                chrome.storage.local.set({
+                    totalWebsitesAndHits: result.totalWebsitesAndHits,
+                },
+                () => {});
+            });
+
+
+
+
         })
-        
+
     };
 });
 
@@ -98,8 +150,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                             executeMultipleScripts(scripts, tabId);
 
                         });
-                }else{
-                    chrome.action.setBadgeText({text:''});
+                } else {
+                    chrome.action.setBadgeText({
+                        text: ''
+                    });
                 }
             });
         }
