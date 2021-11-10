@@ -17,7 +17,9 @@ function onReaderLoad(event) {
             storeNewCollocateInstructions(jsonIn["collocate-groups"], () => {
                 storeNewConcordanceInstructions(
                     jsonIn["concordance-lines"],
-                    () => {storeNewMetaInstructions(jsonIn['meta-instructions']),()=>{}}
+                    () => {
+                        storeNewMetaInstructions(jsonIn['meta-instructions']), () => {}
+                    }
                 );
             });
         });
@@ -34,7 +36,8 @@ function copyToClipboard(text) {
 function getCombinedStats(callback) {
     var statOutput = {
         researchName: null,
-        metaInstr:null, 
+        metaInstr: null,
+        metaResults: null,
         collocation: null,
         concordanceLines: {
             concordance: null,
@@ -62,14 +65,42 @@ function getCombinedStats(callback) {
 
                 getMetaInstructionsData((metaInstrData) => {
                     statOutput.metaInstruction = metaInstrData;
-                    callback(statOutput);
+                    getMetaResultsData((metaResult) => {
+                        statOutput.metaResults = metaResult;
+                        callback(statOutput);
+                    })
+
+
+
                 })
-                
+
             });
         });
     });
 
 }
+
+// returns percentage of visited pages on allow list with hits
+function getMetaResultsData(callback) {
+    // init total websites count and total websites with hits count
+    chrome.storage.local.get("totalWebsitesAndHits", (result) => {
+
+        var totalHits = 0;
+
+        // check if there is an entry for  total websites count and total websites with hits count
+        if (typeof result.totalWebsitesAndHits !== 'undefined') {
+            // calculate total hits in relation to total visited pages
+            totalHits = Math.round(((1/result.totalWebsitesAndHits.totalWebsites) * result.totalWebsitesAndHits.websitesWithHits) * 100);
+        }
+
+        callback(totalHits);
+
+
+
+
+    });
+}
+
 
 // Copy all the stats that have been collected so far and copy it to clipboard as a string
 function copyStatsToClipBoard() {
@@ -179,13 +210,13 @@ function downloadCollectedStats() {
                 }
 
 
-
+                // export concordance lines as CSV file
                 msg = "";
 
                 try {
                     json = JSON.parse(textToCopy);
 
-                    exportConcordanceToCSV(fileName, json['concordanceLines']);
+                    exportConcordanceToCSV(fileName, json['concordanceLines'],json['metaResults']);
 
                 } catch (error) {
                     console.log(error)
@@ -194,9 +225,10 @@ function downloadCollectedStats() {
 
                 success = "Download was successful. The result file can be found in your browser's download folder or in the folder you specified.";
 
+                // export collocations as CSV file
                 try {
 
-                    exportCollocationToCSV(fileName, json["collocation"]);
+                    exportCollocationToCSV(fileName, json["collocation"],json['metaResults']);
 
                 } catch (error) {
                     console.group(error)
@@ -206,6 +238,8 @@ function downloadCollectedStats() {
                 if (msg != '') {
                     success += " Note: " + msg;
                 }
+
+                // export meta results as CSV file
 
                 alert(success);
 
@@ -225,13 +259,13 @@ function createTableFromObject(obj, headerList, parentElement) {
         let row = table.insertRow();
         let titleCell = row.insertCell();
 
-        var titleText =document.createTextNode('');
+        var titleText = document.createTextNode('');
         // check if object is an array(no keys)
         if (!Array.isArray(obj)) {
             titleText = document.createTextNode(key);
-        } else{
+        } else {
             var keyAsNum = parseInt(key);
-            titleText = document.createTextNode(String(keyAsNum +1));
+            titleText = document.createTextNode(String(keyAsNum + 1));
         }
 
         titleCell.appendChild(titleText);
@@ -373,7 +407,7 @@ function exportCSVFile(headers, items, fileTitle) {
 }
 
 //Export collocation lines JSON data into CSV file
-function exportCollocationToCSV(title, data) {
+function exportCollocationToCSV(title, data,metaResults) {
 
     // Create headers for collocation table nGramFrequencies
     var headers = {
@@ -387,6 +421,8 @@ function exportCollocationToCSV(title, data) {
         targetProb: "Target Probability",
         pivotTargetProb: "Pivot-Target Probability",
         pmi: "PMI",
+        totalHits: "Total Hits in %"
+
 
     };
 
@@ -399,19 +435,39 @@ function exportCollocationToCSV(title, data) {
     data.forEach((item) => {
 
         index += 1;
-        itemsFormatted.push({
-            index: index,
-            pivot: '"' + item['pivot'] + '"',
-            target: '"' + item['target'] + '"',
-            pivotFreq: '"' + item['pivotFreq'] + '"',
-            targetFreq: '"' + item['targetFreq'] + '"',
-            pivotTargetFreq: '"' + item['pivotTargetFreq'] + '"',
-            pivotProb: '"' + item['pivotProb'] + '"',
-            targetProb: '"' + item['targetProb'] + '"',
-            pivotTargetProb: '"' + item['pivotTargetProb'] + '"',
-            pmi: '"' + item['pmi'] + '"',
 
-        });
+        if (index === 1) {
+            itemsFormatted.push({
+                index: index,
+                pivot: '"' + item['pivot'] + '"',
+                target: '"' + item['target'] + '"',
+                pivotFreq: '"' + item['pivotFreq'] + '"',
+                targetFreq: '"' + item['targetFreq'] + '"',
+                pivotTargetFreq: '"' + item['pivotTargetFreq'] + '"',
+                pivotProb: '"' + item['pivotProb'] + '"',
+                targetProb: '"' + item['targetProb'] + '"',
+                pivotTargetProb: '"' + item['pivotTargetProb'] + '"',
+                pmi: '"' + item['pmi'] + '"',
+                totalHits: metaResults
+
+            });
+
+        } else {
+            itemsFormatted.push({
+                index: index,
+                pivot: '"' + item['pivot'] + '"',
+                target: '"' + item['target'] + '"',
+                pivotFreq: '"' + item['pivotFreq'] + '"',
+                targetFreq: '"' + item['targetFreq'] + '"',
+                pivotTargetFreq: '"' + item['pivotTargetFreq'] + '"',
+                pivotProb: '"' + item['pivotProb'] + '"',
+                targetProb: '"' + item['targetProb'] + '"',
+                pivotTargetProb: '"' + item['pivotTargetProb'] + '"',
+                pmi: '"' + item['pmi'] + '"',
+
+            });
+        }
+
     });
 
 
@@ -423,7 +479,7 @@ function exportCollocationToCSV(title, data) {
 }
 
 //Export concordance lines JSON data into CSV file
-function exportConcordanceToCSV(title, concordanceJsonData) {
+function exportConcordanceToCSV(title, concordanceJsonData, totalHits) {
 
     // Create headers for concordance lines table
     var headers = {
@@ -433,7 +489,9 @@ function exportConcordanceToCSV(title, concordanceJsonData) {
         word: "Target Token",
         right: "Right Span",
         source: "Source",
-        totalExcluded: "Total Excluded in %"
+        totalExcluded: "Total Excluded in %",
+        totalHits: "Total Hits in %"
+
 
 
     };
@@ -457,7 +515,8 @@ function exportConcordanceToCSV(title, concordanceJsonData) {
                     word: '"' + getCleanedCSVContent(item['word']) + '"',
                     right: '"' + getCleanedCSVContent(item['right']) + '"',
                     source: '"' + getCleanedCSVContent(lines['source']) + '"',
-                    totalExcluded: concordanceJsonData['totalExcluded']
+                    totalExcluded: concordanceJsonData['totalExcluded'],
+                    totalHits: totalHits
                 });
             } else {
                 itemsFormatted.push({
