@@ -110,10 +110,6 @@ function loadProject() {
         // check if there is a currently selected project
         // if so, show project and description
         if (typeof result.project !== "undefined") {
-            // display project on overview page
-            document.getElementById("selected-project-title").innerHTML = result.project.name;
-            document.getElementById("selected-project-description").innerHTML = result.project.description;
-            document.getElementById("selected-project-details").style.display = 'block';
 
             // display project on select project page
             var list = document.getElementById('availableAnalysis');
@@ -142,9 +138,6 @@ function loadProject() {
 
         } else {
 
-            // overview tab
-            document.getElementById("selected-project-title").innerHTML = "No Project Selected";
-            document.getElementById("selected-project-details").style.display = 'none';
 
 
             // select project tab
@@ -194,59 +187,78 @@ function storeNewResearchName(name, callback) {
     });
 }
 
+function performDeleteData(callback) {
+    // remove the stored collocationData and concordanceData
+    // add more callbacks for each stat that is added
+    chrome.storage.local.remove("collocationData", () => {
+        chrome.storage.local.remove("concordanceData", () => {
+            chrome.storage.local.remove("extensionActive", () => {
+                chrome.storage.local.remove("totalWebsitesAndHits", () => {
+                    callback();
+                });
+            });
+        });
+    });
+
+}
+
 // if the user confirms an alert, then "callback" function is performed before resetting the stored data
 function resetStoredData(preResetFunction) {
     // warning message to display in the confirm box when data is going to be reset
-    var deleteWarningMessage = `This will reset the results. Would you like to delete your results? \nIf you would like to download your results first, go to the section 'Export Collected Statistics' above.`;
+    var deleteWarningMessage = `You are about to reset the results. Would you like to delete your results? \nIf you would like to download your results first, go to the section 'Export Collected Statistics' in the tab 'Analysis'.`;
     // if the user presses "OK" on the confirm box
     if (confirm(deleteWarningMessage)) {
-        // perform the preResetFunction if not null
-        if (preResetFunction != null) {
-            preResetFunction();
-        }
-        // remove the stored collocationData and concordanceData
-        // add more callbacks for each stat that is added
-        chrome.storage.local.remove("collocationData", () => {
-                chrome.storage.local.remove("concordanceData", () => {
-                        chrome.storage.local.remove("extensionActive", () => {
-                                chrome.storage.local.remove("totalWebsitesAndHits", () => {
 
-                                    alert("Your results have been successfully deleted.")
-                                    location.reload();
-                                });
-                        });
-                });
+        performDeleteData(() => {
+
+            alert("Your results have been successfully deleted.")
+
+            // perform the preResetFunction if not null
+            if (preResetFunction != null) {
+                preResetFunction();
+            }
+
+
         });
-    return true;
-} else {
-    return false;
-}
+
+
+
+
+        return true;
+    } else {
+        return false;
+    }
 }
 // if the user confirms an alert, then "callback" function is performed before resetting the selected Project
 function resetStoredProject(projectName, preResetFunction) {
     // warning message to display in the confirm box when data is going to be reset
-    var deleteWarningMessage = `This will reset the selected project: ` + projectName + `. Do you want to reset this? Resetting the project will not delete your results.`;
+    var deleteWarningMessage = `This will reset the selected project: ` + projectName + `. Do you want to reset this? Resetting the project will delete your results.`;
     // if the user presses "OK" on the confirm box
     if (confirm(deleteWarningMessage)) {
+        performDeleteData(() => {
+            // remove the stored collocationData and concordanceData
+            // add more callbacks for each stat that is added
+            chrome.storage.local.remove("collectionStats", () => {
+                chrome.storage.local.remove("allowedWebsites", () => {
+                    chrome.storage.local.remove("project", () => {
+                        chrome.storage.local.remove("extensionActive", () => {
+                            resetExtension(() => {
+                                // perform the preResetFunction if not null
+                                if (preResetFunction != null) {
+                                    preResetFunction();
+                                }
 
-        // remove the stored collocationData and concordanceData
-        // add more callbacks for each stat that is added
-        chrome.storage.local.remove("collectionStats", () => {
-            chrome.storage.local.remove("allowedWebsites", () => {
-                chrome.storage.local.remove("project", () => {
-                    chrome.storage.local.remove("extensionActive", () => {
-                        resetExtension(() => {
-                            // perform the preResetFunction if not null
-                            if (preResetFunction != null) {
-                                preResetFunction();
-                            }
-
-                        })
+                            })
+                        });
                     });
                 });
             });
+            return true;
+
         });
-        return true;
+
+
+
     } else {
         return false;
     }
@@ -293,7 +305,7 @@ document
                             credentials: 'include'
                         }).then(function (response) {
                             if (response.status === 200) {
-                                alert("Your results were successfully submitted. Thank you for participating in "+result.project.name+". \nFor information and further support please navigate to the 'Help' tab.")
+                                alert("Your results were successfully submitted. Thank you for participating in " + result.project.name + ". \nFor information and further support please navigate to the 'Help' tab.")
                             } else {
                                 alert("Unfortunately, a problem occurred and your results couldn't be submitted. Please try again. \nTo contact the researchers and for further support please navigate to the 'Help' tab.")
                             }
@@ -390,6 +402,14 @@ chrome.storage.local.get("collectionStats", function (result) {
     });
 });
 
+chrome.storage.local.get("project", function (result) {
+
+    if (typeof result.project === 'undefined') {
+        document.getElementById("project-overview-section").style.visibility = 'hidden';
+    } else {
+        document.getElementById("project-overview-section").style.visibility = 'visible';
+    }
+});
 
 document.getElementById("availableAnalysis").addEventListener("change", () => {
 
@@ -426,8 +446,10 @@ document.getElementById("availableAnalysis").addEventListener("change", () => {
 
 document.getElementById("select-analysis").addEventListener("click", () => {
 
+
     var projectName = document.getElementById("projectTitle").innerHTML;
     if (confirm('Please confirm that you agree to participate in the selected project: ' + projectName + '. Please remember to activate the extension to start collecting your results. You can change the project, delete your results, or stop participating at any time.')) {
+
         resetStoredProject(projectName, () => {
             list = document.getElementById("availableAnalysis");
             var projectId = list.options[list.selectedIndex].value;

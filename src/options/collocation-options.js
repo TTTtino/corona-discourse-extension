@@ -18,7 +18,7 @@ function loadCollocationData(callback) {
 
                     if (typeof collectionResult.collectionStats != "undefined") {
                         var statCollection = collectionResult.collectionStats;
-  
+
                         createCollocationStatTable(
                             calculateFreqPMI(
                                 result.collocationData,
@@ -36,6 +36,21 @@ function loadCollocationData(callback) {
     });
 }
 
+function getCollocateInstructions(collocateInst) {
+    var collocation = null;
+    if (collocateInst !== null) {
+        collocation = new Collocation(
+            collocateInst["pivot-tokens"],
+            collocateInst["target-tokens"],
+            collocateInst["allow-self-reference"],
+            collocateInst["parse-as-regex"],
+            collocateInst["span"][0],
+            collocateInst["span"][1]
+        );
+    }
+
+    return collocation;
+}
 
 // Takes in an object containing collocation parameters and saves it as a Collocation object 
 // and then performs a callback function
@@ -236,20 +251,19 @@ function getCalculatedCollocationData(callback) {
             chrome.storage.local.get(
                 "collectionStats",
                 function (collectionResult) {
-                   
-                        // console.log("Collocation data found");
-                        var statCollection = collectionResult.collectionStats;
-                        var finalCollocationData = calculateFreqPMI(
-                            result.collocationData,
-                            statCollection.collocation.selfReference
-                        );
 
-                        finalCollocationData = formatCollocationStatsForTable(
-                            finalCollocationData
-                            ,statCollection.collocation.selfReference)
+                    // console.log("Collocation data found");
+                    var statCollection = collectionResult.collectionStats;
+                    var finalCollocationData = calculateFreqPMI(
+                        result.collocationData,
+                        statCollection.collocation.selfReference
+                    );
 
-                        callback(finalCollocationData);
-                    
+                    finalCollocationData = formatCollocationStatsForTable(
+                        finalCollocationData, statCollection.collocation.selfReference)
+
+                    callback(finalCollocationData);
+
                 }
             );
         }
