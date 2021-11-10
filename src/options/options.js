@@ -110,10 +110,6 @@ function loadProject() {
         // check if there is a currently selected project
         // if so, show project and description
         if (typeof result.project !== "undefined") {
-            // display project on overview page
-            document.getElementById("selected-project-title").innerHTML = result.project.name;
-            document.getElementById("selected-project-description").innerHTML = result.project.description;
-            document.getElementById("selected-project-details").style.display = 'block';
 
             // display project on select project page
             var list = document.getElementById('availableAnalysis');
@@ -142,9 +138,6 @@ function loadProject() {
 
         } else {
 
-            // overview tab
-            document.getElementById("selected-project-title").innerHTML = "No Project Selected";
-            document.getElementById("selected-project-details").style.display = 'none';
 
 
             // select project tab
@@ -390,6 +383,14 @@ chrome.storage.local.get("collectionStats", function (result) {
     });
 });
 
+chrome.storage.local.get("project", function (result) {
+    
+    if(typeof result.project === 'undefined'){
+        document.getElementById("project-overview-section").style.visibility = 'hidden';
+    }else{
+        document.getElementById("project-overview-section").style.visibility = 'visible';
+    }
+});
 
 document.getElementById("availableAnalysis").addEventListener("change", () => {
 

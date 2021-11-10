@@ -18,19 +18,20 @@
     <div class="container">
         <div class="header">
             <div>
-                <img src="../images/logo.png" class="header-logo" />
+                <img src="../images/logo1024.png" class="header-logo" />
             </div>
             <h1>PriPA Extension</h1>
         </div>
         <!-- Side navigation -->
         <div class="sidenav">
             <ul class="tabs">
-                <li data-tab-target="#general" class="tab active">
-                    Analysis Overview / Results
-                </li>
                 <li data-tab-target="#selectAnalysis" class="tab">
                     Select Project
                 </li>
+                <li data-tab-target="#general" class="tab active">
+                    Analysis Overview / Results
+                </li>
+               
                 <li data-tab-target="#allow-list" class="tab">
                     Allow List
                 </li>
@@ -95,35 +96,13 @@
                 <p1>Export all collected statistics as *.csv files</p1>
 
                 <div>
-                    <!-- <button id="copy-clipboard" class="btn btn-outline-primary">
-                    Copy To Clipboard
-                </button> -->
 
                     <button id="download-stats" class="btn btn-outline-primary">
                         Download
                     </button>
                 </div>
                 </br>
-                <h1 class="title">Project Overview</h1>
-
-                <p1>You can change the selected project in the tab "Select Project" on the left-hand navigation.</p1>
-                <p1>The currently selected project is:</p1>
-                <h2 class="sub-title" id="selected-project-title">No Project Selected</h2>
-                <div id="selected-project-details">
-                    </br>
-
-                    <p id="selected-project-description"> Project description</p>
-                    </br>
-                    <button id="reset-selected-project" class="btn btn-outline-danger">
-                        Reset Selected Project
-                    </button>
-
-
-
-                    <h2 class="sub-title">Data Collection Information</h2>
-                    <p1>These are the parameters for data collection</p1>
-                    <div id="data-collection-info"></div>
-                </div>
+                
 
             </div>
             <div id="selectAnalysis" data-tab-content>
@@ -154,6 +133,19 @@
 
                     </form>
                 </div>
+                <div id ="project-overview-section">
+                <h2 id="project-overview-section" class="title">Project Overview</h2>
+                    <button id="reset-selected-project" class="btn btn-outline-danger">
+                        Reset Selected Project
+                    </button>
+
+
+
+                    <h2 class="sub-title">Data Collection Information</h2>
+                    <p1>These are the parameters for data collection</p1>
+                    <div id="data-collection-info"></div>
+                </div>
+            </div>
             </div>
 
             <div id="allow-list" data-tab-content>
