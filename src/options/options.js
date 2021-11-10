@@ -4,7 +4,7 @@ var SERVER_URL = 'https://pripa-devel.azurewebsites.net';
 
 console.log("OPTIONS.js");
 
-chrome.action.setBadgeText({text:''});
+
 
 // load all the necessary things required in the options page
 function load_options() {
@@ -67,6 +67,38 @@ function load_options() {
         console.log("Loading Concordance Data");
         loadConcordanceData(() => {});
     });
+
+
+
+
+
+    // init total websites count and total websites with hits count
+    chrome.storage.local.get("totalWebsitesAndHits", (result) => {
+
+        // init total websites count and total websites with hits count
+        if (typeof result.totalWebsitesAndHits === 'undefined') {
+            result.totalWebsitesAndHits = {
+                totalWebsites: 0,
+                websitesWithHits: 0
+            };
+            // load total visited websites 
+            document.getElementById("total-websites-visited").innerHTML = "0";
+
+            // load total visited websites 
+            document.getElementById("total-websites-with-hits").innerHTML = "0";
+
+        } else {
+
+            // load total visited websites 
+            document.getElementById("total-websites-visited").innerHTML = result.totalWebsitesAndHits.totalWebsites;
+
+            // load total visited websites 
+            document.getElementById("total-websites-with-hits").innerHTML = result.totalWebsitesAndHits.websitesWithHits;
+
+        }
+    });
+
+
 }
 
 // Get available projects from database and load them into select project tab
@@ -175,23 +207,25 @@ function resetStoredData(preResetFunction) {
         // remove the stored collocationData and concordanceData
         // add more callbacks for each stat that is added
         chrome.storage.local.remove("collocationData", () => {
-            chrome.storage.local.remove("concordanceData", () => {
-                chrome.storage.local.remove("extensionActive", () => {
+                chrome.storage.local.remove("concordanceData", () => {
+                        chrome.storage.local.remove("extensionActive", () => {
+                                chrome.storage.local.remove("totalWebsitesAndHits", () => {
 
-                    alert("Your results have been successfully deleted.")
-                    location.reload();
+                                    alert("Your results have been successfully deleted.")
+                                    location.reload();
+                                });
+                        });
                 });
-            });
         });
-        return true;
-    } else {
-        return false;
-    }
+    return true;
+} else {
+    return false;
+}
 }
 // if the user confirms an alert, then "callback" function is performed before resetting the selected Project
-function resetStoredProject(projectName,preResetFunction) {
+function resetStoredProject(projectName, preResetFunction) {
     // warning message to display in the confirm box when data is going to be reset
-    var deleteWarningMessage = `This will reset the selected project: `+projectName+`. Do you want to reset this? Resetting the project will not delete your results.`;
+    var deleteWarningMessage = `This will reset the selected project: ` + projectName + `. Do you want to reset this? Resetting the project will not delete your results.`;
     // if the user presses "OK" on the confirm box
     if (confirm(deleteWarningMessage)) {
 
@@ -259,7 +293,7 @@ document
                             credentials: 'include'
                         }).then(function (response) {
                             if (response.status === 200) {
-                                alert("Your results were successfully submitted. Thank you for participating in [project]. \nFor information and further support please navigate to the 'Help' tab.")
+                                alert("Your results were successfully submitted. Thank you for participating in "+result.project.name+". \nFor information and further support please navigate to the 'Help' tab.")
                             } else {
                                 alert("Unfortunately, a problem occurred and your results couldn't be submitted. Please try again. \nTo contact the researchers and for further support please navigate to the 'Help' tab.")
                             }
@@ -282,7 +316,7 @@ document.getElementById("reset-stats-button").addEventListener("click", () => {
 // reset the selected project when the reset-selected-project is clicked
 document.getElementById("reset-selected-project").addEventListener("click", () => {
     var projectName = document.getElementById("projectTitle").innerHTML;
-    resetStoredProject(projectName,() => {
+    resetStoredProject(projectName, () => {
         location.reload();
     });
 });
@@ -393,8 +427,8 @@ document.getElementById("availableAnalysis").addEventListener("change", () => {
 document.getElementById("select-analysis").addEventListener("click", () => {
 
     var projectName = document.getElementById("projectTitle").innerHTML;
-    if (confirm('Please confirm that you agree to participate in the selected project: '+projectName+'. Please remember to activate the extension to start collecting your results. You can change the project, delete your results, or stop participating at any time.')) {
-        resetStoredProject(projectName,() => {
+    if (confirm('Please confirm that you agree to participate in the selected project: ' + projectName + '. Please remember to activate the extension to start collecting your results. You can change the project, delete your results, or stop participating at any time.')) {
+        resetStoredProject(projectName, () => {
             list = document.getElementById("availableAnalysis");
             var projectId = list.options[list.selectedIndex].value;
             var projectName = list.options[list.selectedIndex].text;
@@ -440,8 +474,8 @@ async function storeProjectData(jsonIn, projectId, projectName, projectDescripti
                 );
             });
         });
-         })
-    
+    })
+
 
     let stripWebsite = new Promise((resolve, reject) => {
         if (typeof jsonIn['allow-list'] !== 'undefined') {
@@ -477,7 +511,7 @@ async function storeProjectData(jsonIn, projectId, projectName, projectDescripti
         [
             storeStatInstr,
             stripWebsite,
-            storeInfo, 
+            storeInfo,
             storeProject
 
         ])
