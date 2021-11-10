@@ -25,11 +25,6 @@ chrome.runtime.onMessage.addListener(function (message, caller, handler) {
         
     
         })
-
-        
-        
-        
-
         
     };
 });
@@ -57,7 +52,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                 var allowList = result.allowedWebsites;
                 var url = new URL(tab.url);
 
-                chrome.action.setBadgeText({text:''});
 
                 // compare the current pages url against the allowList
                 if (urlInList(url.href, allowList)) {
@@ -104,6 +98,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                             executeMultipleScripts(scripts, tabId);
 
                         });
+                }else{
+                    chrome.action.setBadgeText({text:''});
                 }
             });
         }
