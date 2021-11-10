@@ -293,7 +293,7 @@ document
                             credentials: 'include'
                         }).then(function (response) {
                             if (response.status === 200) {
-                                alert("Your results were successfully submitted. Thank you for participating in [project]. \nFor information and further support please navigate to the 'Help' tab.")
+                                alert("Your results were successfully submitted. Thank you for participating in "+result.project.name+". \nFor information and further support please navigate to the 'Help' tab.")
                             } else {
                                 alert("Unfortunately, a problem occurred and your results couldn't be submitted. Please try again. \nTo contact the researchers and for further support please navigate to the 'Help' tab.")
                             }
