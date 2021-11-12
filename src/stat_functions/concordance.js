@@ -157,7 +157,8 @@ function tokenInList(token, targetList, regex) {
         // add ^ and $ to create regex object to define a clear start and end
         // iterate through tokens and test the word regex against each token
         for (let i = 0; i < targetList.length; i++) {
-            const re = new RegExp("^" + targetList[i] + "$");
+            const re = new RegExp(formatRegexToken( targetList[i]));
+            // const re = new RegExp("^" + targetList[i] + "$");
             if (re.test(token)) {
                 return true;
             }
