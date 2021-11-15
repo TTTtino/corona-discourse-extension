@@ -1,9 +1,12 @@
 // tokenize a corpus and return the token lists
 // returns: {wordTokens: [string], sentenceTokens: [string]}
-function tokenize(corpus, storeLocation=false) {
+function tokenize(corpus, storeLocation = false) {
     // return empty tokens if no corpus given
     if (corpus === "undefined") {
-        return { sentenceTokens: [], wordTokens: [] };
+        return {
+            sentenceTokens: [],
+            wordTokens: []
+        };
     }
     var wordTokens = [];
     var sentenceTokens = [];
@@ -16,7 +19,7 @@ function tokenize(corpus, storeLocation=false) {
         var char = corpus[i];
         // if the character is a letter or a number
         if (/[a-zA-Z0-9]+/.test(char)) {
-            if(wordStart === -1){
+            if (wordStart === -1) {
                 wordStart = i;
             }
             // add character to buffer
@@ -30,7 +33,7 @@ function tokenize(corpus, storeLocation=false) {
             // if the nextChar is a letter
             var nextChar = corpus[i + 1];
             if (/[a-zA-Z0-9]+/.test(nextChar)) {
-                if(wordStart === -1){
+                if (wordStart === -1) {
                     wordStart = i;
                 }
                 // add currentChar to buffer
@@ -45,9 +48,9 @@ function tokenize(corpus, storeLocation=false) {
         // if character is ' ' or newline
         if (/^[\s\n\r]$/.test(char) && wordBuffer !== "") {
             // add word in buffer to wordTokens
-            if(storeLocation){
+            if (storeLocation) {
                 wordTokens.push([wordBuffer, wordStart, wordEnd])
-            } else{
+            } else {
                 wordTokens.push(wordBuffer);
             }
             // reset buffer
@@ -81,9 +84,9 @@ function tokenize(corpus, storeLocation=false) {
             wordEnd = i;
         }
         // add word in buffer to wordTokens
-        if(storeLocation){
+        if (storeLocation) {
             wordTokens.push([wordBuffer, wordStart, wordEnd])
-        } else{
+        } else {
             wordTokens.push(wordBuffer);
         }
         // reset buffer
@@ -102,7 +105,10 @@ function tokenize(corpus, storeLocation=false) {
         // add sentence buffer contents to sentence tokens list
         sentenceTokens.push(sentenceBuffer);
     }
-    return { sentenceTokens: sentenceTokens, wordTokens: wordTokens };
+    return {
+        sentenceTokens: sentenceTokens,
+        wordTokens: wordTokens
+    };
 }
 
 // generate n-grams based on left and right span
@@ -137,7 +143,11 @@ function generateNgrams(wordTokens, [l, r]) {
         }
 
         // push the object to the ngram array
-        ngram.push({ word: wordTokens[i], left: left, right: right });
+        ngram.push({
+            word: wordTokens[i],
+            left: left,
+            right: right
+        });
     }
     return ngram;
 }
@@ -158,7 +168,7 @@ function getFrequency(word, wordTokens, regex = true) {
         }
     } else {
         // add ^ and $ to create regex object to define a clear start and end
-        let re = new RegExp("^" + word + "$");
+        let re = new RegExp(formatRegexToken(word));
         // iterate through tokens and test the word regex against each token
         for (let i = 0; i < wordTokens.length; i++) {
             if (re.test(wordTokens[i])) {
@@ -197,8 +207,8 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
             }
         }
     } else {
-        let pivotRe = new RegExp("^" + pivot + "$");
-        let targetRe = new RegExp("^" + target + "$");
+        let pivotRe = new RegExp(formatRegexToken(pivot));
+        let targetRe = new RegExp(formatRegexToken(target));
         for (let i = 0; i < ngrams.length; i++) {
             var element = ngrams[i];
             // if the n-grams word passes the regex of the pivot that is being searched
@@ -224,14 +234,14 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
 }
 
 // remove the positions from the token list and only include the token
-function removePositionsFromTokenList(tokenList){
+function removePositionsFromTokenList(tokenList) {
     return tokenList.map(x => x[0]);
 }
 
 // gets the stat collection info and calls the callback parameter function with result as an argument
 function getStatsToCollect(callback) {
     chrome.storage.local.get("collectionStats", function (result) {
-        // if no collection stats havfe been defined
+        // if no collection stats have been defined
         if (typeof result.collectionStats === "undefined") {
             callback(null);
         } else {
@@ -239,4 +249,16 @@ function getStatsToCollect(callback) {
             callback(result.collectionStats);
         }
     });
+}
+
+function formatRegexToken(word) {
+    if (word.startsWith("\b")) {
+         word = word.slice(0, -1) + '\\b';
+         word = '\\b' + word.slice(1);
+
+    }
+
+    word = "^" + word + "$";
+
+    return word;
 }
