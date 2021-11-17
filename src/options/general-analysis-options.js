@@ -51,8 +51,9 @@ function storeNewMetaInstructions(metaInfo, callback) {
             // create new meta instructions with query values 
             result.collectionStats.metaInstructions = new MetaInstructions(metaInfo['remove-punctuation'],
                 metaInfo['standardise-vocabulary'],
-                metaInfo['standardise-casing']);
-
+                metaInfo['standardise-casing'],
+                metaInfo['stopwords']);
+ 
             // override the currently stored StatCollectionInfo object
             chrome.storage.local.set({
                     collectionStats: result.collectionStats,
@@ -64,64 +65,4 @@ function storeNewMetaInstructions(metaInfo, callback) {
         }
     });
 
-}
-
-// Cleans tokens so accurate analysis can be performed.
-// Includes: removing stopwords, apply lemmatisation, to lowercase
-function cleanTokens(tokens) {
-    // get meta instructions of query
-    chrome.storage.local.get("collectionStats", function (result) {
-        if (typeof result.metaInstructions !== "undefined") {
-
-            // TODO implement removing stopdwords
-
-            if (result.metaInstructions.standardiseVocabulary === 'lemmatisation') {
-                tokens = lemmatize(tokens);
-            }
-
-        }
-
-    });
-}
-// Performs lemmatisation on tokens
-// Lemmatisation: Lemmatisation in linguistics is the process of grouping together the inflected 
-// forms of a word so they can be analysed as a single item, identified by the word's lemma, or dictionary form.
-function lemmatize(tokens) {
-
-    var lemmatizer = new Lemmatizer();
-
-    // get POS (Position Of Speech) tag of tokens.
-    // this is necessary to get the correct lemmatized token
-    var taggedWords = new POSTagger().tag(tokens);
-
-    var lemmaTokens = []
-
-    for (i = 0; i < taggedWords.length; i++) {
-
-        // map the correct lemmatizer tag of tokens
-        var posTag = '';
-
-        if (taggedWords[i][1].startsWith('J')) {
-            posTag = 'adj';
-        } else if (taggedWords[i][1].startsWith('V')) {
-            posTag = 'verb';
-        } else if (taggedWords[i][1].startsWith('N')) {
-            posTag = 'noun';
-        } else if (taggedWords[i][1].startsWith('R')) {
-            posTag = 'adv';
-        }
-
-        try {
-            lemmaTokens.push(lemmatizer.only_lemmas(taggedWords[i][0], posTag)[0]);
-
-            if (lemmaTokens[i] === undefined) {
-                lemmaTokens[i] = taggedWords[i][0];
-            }
-        } catch (err) {
-            lemmaTokens.push(taggedWords[i][0]);
-        }
-
-    }
-
-    return lemmaTokens;
 }

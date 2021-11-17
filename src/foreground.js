@@ -10,7 +10,7 @@ chrome.storage.local.get("collectionStats", function (result) {
     // check which stats to collect and find them them
     console.log("Stats to collect: ", statCollection);
     var pageText = getPageContent();
-    var tokens = tokenize(pageText, true);;
+    var tokens = getTokenizedCorpus(pageText, true);;
     console.log("Extracted Text", pageText);
 
     if(statCollection.collocation){

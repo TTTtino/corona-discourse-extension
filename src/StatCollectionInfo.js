@@ -11,10 +11,11 @@ class StatCollectionInfo {
 
 // Stores parameters for meta instructions of query
 class MetaInstructions{
-    constructor(removePunctuation,standardiseVocabulary, standardiseCasing){
+    constructor(removePunctuation,standardiseVocabulary, standardiseCasing,stopwords){
         this.removePunctuation = removePunctuation;
         this.standardiseVocabulary = standardiseVocabulary;
         this.standardiseCasing = standardiseCasing;
+        this.stopwords = stopwords;
 
         
     }
