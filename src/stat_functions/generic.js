@@ -105,10 +105,12 @@ function tokenize(corpus, storeLocation = false) {
         // add sentence buffer contents to sentence tokens list
         sentenceTokens.push(sentenceBuffer);
     }
+
     return {
         sentenceTokens: sentenceTokens,
         wordTokens: wordTokens
     };
+
 }
 
 // generate n-grams based on left and right span
