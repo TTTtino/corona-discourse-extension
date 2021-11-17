@@ -9,15 +9,15 @@ class StatCollectionInfo {
     }
 }
 
+
 // Stores parameters for meta instructions of query
 class MetaInstructions{
-    constructor(removePunctuation,standardiseVocabulary, standardiseCasing,stopwords){
+    constructor(removePunctuation,standardiseVocabulary, standardiseCasing,loadContentAt){
         this.removePunctuation = removePunctuation;
         this.standardiseVocabulary = standardiseVocabulary;
         this.standardiseCasing = standardiseCasing;
-        this.stopwords = stopwords;
+       this.loadContentAt =loadContentAt;
 
-        
     }
 }
 

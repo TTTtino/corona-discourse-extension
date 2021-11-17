@@ -1,7 +1,7 @@
+chrome.action.setBadgeText({text:''});
+
 // get's the extension status. If not stored then it defaults to false
 chrome.storage.local.get({extensionActive: false}, (result)=>{
-
-  console.log("FUCKING RESULT", result)
   // if the extension is active
   if(result.extensionActive){
       // make the toggle button "active"
@@ -32,8 +32,7 @@ document.getElementById("toggle-button").addEventListener("click", () => {
       let status = !result.extensionActive;
       // if new status is active
       if(status){
-        if(confirm("Are you sure you want to activate this extension? By activating it, it will read the content of the website you see before you."+
-        "The collected data will not be saved anywhere until we don't specifically got your permission to do so. If you close this tab, all the collected data will be permanently deleted")){
+        if(confirm("Please confirm that you want to activate this extension. After you activate the extension, it will read the content of the allow-listed websites as you browse them. The collected results will not be saved anywhere until you give your permission to share them.  To review your results, navigate to the 'Analysis Overview / Results' tab on the 'Extension Options' page.")){
           // make the toggle button "active"
           document.getElementById("toggle-button").dataset.active = true;
           // Change the toggle button text to "active"

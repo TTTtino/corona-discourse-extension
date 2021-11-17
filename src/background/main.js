@@ -1,7 +1,8 @@
 // Listens for changes on any of the tabs
-
-
 console.log("backend file.js");
+
+
+
 // Scripts that are required by the foreground script to run on the page
 const REQUIRED_SCRIPTS = [
     "stat_storage/collocation_storage.js",
@@ -11,8 +12,74 @@ const REQUIRED_SCRIPTS = [
     "stat_functions/concordance.js",
 ];
 
+// init total websites count and total websites with hits count
+chrome.storage.local.get("totalWebsitesAndHits", (result) => {
+
+    // init total websites count and total websites with hits count
+    if (typeof result.totalWebsitesAndHits === 'undefined') {
+        result.totalWebsitesAndHits = {
+            totalWebsites: 0,
+            websitesWithHits: 0
+        };
+
+        chrome.storage.local.set({
+            totalWebsitesAndHits: result.totalWebsitesAndHits,
+        },
+        () => {});
+    }
 
 
+});
+
+//Handler when message is sent from Content Scripts
+chrome.runtime.onMessage.addListener(function (message, caller, handler) {
+    if (message.test) {
+        runAnalysis(message.test, message.url, (resultsExists) => {
+            // show badge notification if results exists
+            //else remove badge notification
+            if (resultsExists) {
+                chrome.action.setBadgeText({
+                    text: '*'
+                });
+            } else {
+                chrome.action.setBadgeText({
+                    text: ''
+                });
+            }
+
+            // get total websites count and total websites with hits count
+            chrome.storage.local.get("totalWebsitesAndHits", (result) => {
+
+                var resultsCount = 0;
+                if (resultsExists) {
+                    resultsCount += 1;
+                }
+                // init counter if undefined
+                if (typeof result.totalWebsitesAndHits === 'undefined') {
+                    result.totalWebsitesAndHits = {
+                        totalWebsites: 1,
+                        websitesWithHits: resultsCount
+                    };
+                }
+                else{
+                    result.totalWebsitesAndHits.totalWebsites += 1;
+                    result.totalWebsitesAndHits.websitesWithHits += resultsCount;
+
+                }
+
+                chrome.storage.local.set({
+                    totalWebsitesAndHits: result.totalWebsitesAndHits,
+                },
+                () => {});
+            });
+
+
+
+
+        })
+
+    };
+});
 
 // listener for changes on all tabs
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -24,13 +91,19 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             128: "images/bw_logo128.png",
         },
     });
-    chrome.storage.local.get({extensionActive: false}, (result)=>{
+    // save current tab ID and url after tab was fully loaded
+    // this is needed to identify url when tab is closed
+    chrome.storage.local.get({
+        extensionActive: false
+    }, (result) => {
         if (result.extensionActive && changeInfo.status === "complete" && /^http/.test(tab.url)) {
-
-           // Get the list of allowed list of websites from the chrome local storage
-            chrome.storage.local.get({ allowedWebsites: [] }, function (result) {
+            // Get the list of allowed list of websites from the chrome local storage
+            chrome.storage.local.get({
+                allowedWebsites: []
+            }, function (result) {
                 var allowList = result.allowedWebsites;
                 var url = new URL(tab.url);
+
 
                 // compare the current pages url against the allowList
                 if (urlInList(url.href, allowList)) {
@@ -55,6 +128,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                                 if (
                                     url.hostname.includes(data.parsers[i].hostname)
                                 ) {
+
                                     var scripts = [
                                         data.parsers[i].parser,
                                         "./foreground.js",
@@ -63,7 +137,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                                     break;
                                 }
                             }
-    
+
                             // Use default parser if none were specified
                             if (!scripts) {
                                 var scripts = [
@@ -72,22 +146,29 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                                 ];
                                 scripts = REQUIRED_SCRIPTS.concat(scripts);
                             }
-    
+
                             executeMultipleScripts(scripts, tabId);
+
                         });
+                } else {
+                    chrome.action.setBadgeText({
+                        text: ''
+                    });
                 }
             });
         }
     });
-    
+
+
 });
 
 // recursively called until the list that is being passed through is empty, where each script in the filelist is executed
 function executeMultipleScripts(fileList, tabId) {
     if (fileList.length > 0) {
-        chrome.scripting.executeScript(
-            {
-                target: { tabId: tabId },
+        chrome.scripting.executeScript({
+                target: {
+                    tabId: tabId
+                },
                 files: [fileList[0]],
             },
             () => {
@@ -110,4 +191,3 @@ function urlInList(url, urlList) {
     }
     return false;
 }
-

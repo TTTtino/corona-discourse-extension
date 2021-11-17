@@ -18,19 +18,20 @@
     <div class="container">
         <div class="header">
             <div>
-                <img src="../images/logo.png" class="header-logo" />
+                <img src="../images/logo1024.png" class="header-logo" />
             </div>
             <h1>PriPA Extension</h1>
         </div>
         <!-- Side navigation -->
         <div class="sidenav">
             <ul class="tabs">
-                <li data-tab-target="#general" class="tab active">
-                    Analysis Overview / Results
-                </li>
                 <li data-tab-target="#selectAnalysis" class="tab">
                     Select Project
                 </li>
+                <li data-tab-target="#general" class="tab active">
+                    Analysis Overview / Results
+                </li>
+               
                 <li data-tab-target="#allow-list" class="tab">
                     Allow List
                 </li>
@@ -43,13 +44,19 @@
 
                 <h1 class="title">Analysis Result</h1>
 
+                <h3 class="sub-title">Total analysis hits</h3>
+                <p>You visited <b id="total-websites-visited"></b> pages on websites on the allow list with a total of
+                    <b id="total-websites-with-hits"></b> pages with hits.</p>
+
+
                 <h3 class="sub-title">Collocation groups</h3>
                 <p>In corpus linguistics, a collocation is a series of words or terms that co-occur more often than
                     would be expected by chance.</p>
-
                 <button type="button" class="collapsible-button active">
                     Collocation
                 </button>
+
+
                 <div id="collocation-section" class="stats section collapsible-content" style="display: none;"></div>
 
                 <h3 class="sub-title">Concordance lines</h3>
@@ -76,120 +83,93 @@
                             No, don't submit results and delete results
                         </button>
 
-                        <button  id="submit-results" class="btn btn-outline-primary">
+                        <button id="submit-results" class="btn btn-outline-primary">
                             Yes, submit results
                         </button>
                     </div>
 
                 </div>
-            
-            </br>
-            <input id="inst-file-input" type="file" />
-            <h3 class="sub-title">Export Collected Statistics</h3>
-            <p1>Export all collected statistics as *.csv files</p1>
 
-            <div>
-                <!-- <button id="copy-clipboard" class="btn btn-outline-primary">
-                    Copy To Clipboard
-                </button> -->
-
-                <button id="download-stats" class="btn btn-outline-primary">
-                    Download
-                </button>
-            </div>
-            </br>
-            <h1 class="title">Project Overview</h1>
-
-            <p1>You can change the selected project in the tab "Select Project" on the left-hand navigation.</p1>
-            <p1>The currently selected project is:</p1>
-            <h2 class="sub-title" id="selected-project-title">No Project Selected</h2>
-            <div id="selected-project-details">
                 </br>
+                <input id="inst-file-input" type="file" />
+                <h3 class="sub-title">Export Collected Statistics</h3>
+                <p1>Export all collected statistics as *.csv files</p1>
 
-                <p id="selected-project-description"> Project description</p>
-                </br>
-                <button id="reset-selected-project" class="btn btn-outline-danger">
-                    Reset Selected Project
-                </button>
-
-
-
-                <h2 class="sub-title">Data Collection Information</h2>
-                <p1>These are the parameters for data collection</p1>
-                <div id="data-collection-info"></div>
-            </div>
-
-        </div>
-        <div id="selectAnalysis" data-tab-content>
-            <h1 class="title">Available projects</h1>
-            <div id="analysis-form-div">
-                <p>In the dropdown box below all available projects are listed. By selecting a project a description
-                    will be shown. If you decide to participate in the project, please press the "Choose project" button
-                    which will be shown when selecting a project.</p>
-                <form method="post"
-                    onsubmit="return confirm('Are you sure you want to participate in this analysis?');">
-
-                    <div>
-                        <select id="availableAnalysis" class="form-select"></select>
-
-                    </div>
-
-                    <!-- Bouncing loading dots -->
-                    <div id="projectDetails">
-                        </br>
-                        <h4 id="projectTitle"> Project title </h4>
-
-                        <p id="projectDescription"> Project description</p>
-                        <input type="button" id="select-analysis" class="btn btn-outline-primary" value="Confirm Selection">
-                    </div>
-
-
-                </form>
-            </div>
-        </div>
-
-        <div id="allow-list" data-tab-content>
-            <h1 class="title">Allow List</h1>
-            <p> The allow list is a list of websites where analysis can be performed on. If a website is not listed
-                here, the extension won't be able to read the content of it.</p>
-            <div class="section">
                 <div>
-                    <table id="allowlist-table">
-                        <thead>
-                            <th>Website</th>
-                            <th></th>
-                        </thead>
-                    </table>
+
+                    <button id="download-stats" class="btn btn-outline-primary">
+                        Download
+                    </button>
+                </div>
+                </br>
+                
+
+            </div>
+            <div id="selectAnalysis" data-tab-content>
+                <h1 class="title">Available projects</h1>
+                <div id="analysis-form-div">
+                    <p>In the dropdown box below all available projects are listed. By selecting a project a description
+                        will be shown. If you decide to participate in the project, please press the "Choose project"
+                        button
+                        which will be shown when selecting a project.</p>
+                    <form method="post"
+                        onsubmit="return confirm('Are you sure you want to participate in this analysis?');">
+
+                        <div>
+                            <select id="availableAnalysis" class="form-select"></select>
+
+                        </div>
+
+                        <!-- Bouncing loading dots -->
+                        <div id="projectDetails">
+                            </br>
+                            <h4 id="projectTitle"> Project title </h4>
+
+                            <p id="projectDescription"> Project description</p>
+                            <input type="button" id="select-analysis" class="btn btn-outline-primary"
+                                value="Confirm Selection">
+                        </div>
+
+
+                    </form>
+
+                </div>
+                <div id ="project-overview-section">
+                <h2 id="project-overview-section" class="title">Project Overview</h2>
+                    <button id="reset-selected-project" class="btn btn-outline-danger">
+                        Reset Selected Project
+                    </button>
+
+
+
+                    <h2 class="sub-title">Data Collection Information</h2>
+                    <p1>These are the parameters for data collection</p1>
+                    <div id="data-collection-info"></div>
+                </div>
+            </div>
+
+            <div id="allow-list" data-tab-content>
+                <h1 class="title">Allow List</h1>
+                <p> The allow list is a list of websites where analysis can be performed on. If a website is not listed
+                    here, the extension won't be able to read the content of it.</p>
+                <div class="section">
+                    <div>
+                        <table id="allowlist-table">
+                            <thead>
+                                <th>Website</th>
+                                <th></th>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            <div id="help" data-tab-content>
+                <h1 class="title">Help</h1>
+                <div>
+                    <p>For information about the PriPA extension and explanations how to use it please visit our <a
+                            href="https://pripa.azurewebsites.net/extension/">website</a>.</p>
                 </div>
             </div>
         </div>
-<<<<<<< HEAD
-        <script src="/StatCollectionInfo.js"></script>
-        <script src="/ProjectInfo.js"></script>
-        <script src="../stat_functions/generic.js"></script>
-        <script src="../stat_functions/collocation.js"></script>
-        <script src="../stat_functions/concordance.js"></script>
-        <script src="../stat_storage/concordance_storage.js"></script>
-        <script src="whitelist-options.js"></script>
-        <script src="../stat_functions/javascript-lemmatizer/bower_components/underscore/underscore.js"></script>
-        <script src="../stat_functions/javascript-lemmatizer/js/lemmatizer.js"></script>
-        <script src="general-analysis-options.js"></script>
-        <script src="concordance-options.js"></script>
-        <script src="collocation-options.js"></script>
-        <script src="save-load-options.js"></script>
-        <script src="options.js"></script>
-    </body>
-</html>
-=======
-
-        <div id="help" data-tab-content>
-            <h1 class="title">Help</h1>
-            <div>
-                <p>For information about the PriPA extension and explanations how to use it please visit our <a
-                        href="https://pripa.azurewebsites.net/extension/">website</a>.</p>
-            </div>
-        </div>
-    </div>
     </div>
     <script src="/StatCollectionInfo.js"></script>
     <script src="/ProjectInfo.js"></script>
@@ -197,12 +177,15 @@
     <script src="../stat_functions/collocation.js"></script>
     <script src="../stat_functions/concordance.js"></script>
     <script src="../stat_storage/concordance_storage.js"></script>
+        <script src="../stat_functions/javascript-lemmatizer/bower_components/underscore/underscore.js"></script>
+        <script src="../stat_functions/javascript-lemmatizer/js/lemmatizer.js"></script>
+        <script src="general-analysis-options.js"></script>
     <script src="allowlist-options.js"></script>
     <script src="concordance-options.js"></script>
     <script src="collocation-options.js"></script>
+    <script src="meta-instructions-options.js"></script>
     <script src="save-load-options.js"></script>
     <script src="options.js"></script>
 </body>
 
 </html>
->>>>>>> update-analysis

@@ -1,4 +1,119 @@
 
+// tokenize a corpus and return the token lists
+// returns: {wordTokens: [string], sentenceTokens: [string]}
+function tokenize(corpus, storeLocation = false) {
+    // return empty tokens if no corpus given
+    if (corpus === "undefined") {
+        return {
+            sentenceTokens: [],
+            wordTokens: []
+        };
+    }
+    var wordTokens = [];
+    var sentenceTokens = [];
+    var wordBuffer = "";
+    var sentenceBuffer = "";
+    var wordStart = -1;
+    var wordEnd = -1;
+    // iterate through each character of the corpus
+    for (var i = 0; i < corpus.length - 1; i++) {
+        var char = corpus[i];
+        // if the character is a letter or a number
+        if (/[a-zA-Z0-9]+/.test(char)) {
+            if (wordStart === -1) {
+                wordStart = i;
+            }
+            // add character to buffer
+            //console.log("Adding to buffer" + wordBuffer);
+            wordBuffer = wordBuffer.concat(char);
+            wordEnd = i;
+        }
+
+        // if the character is '-'
+        if (char === "-") {
+            // if the nextChar is a letter
+            var nextChar = corpus[i + 1];
+            if (/[a-zA-Z0-9]+/.test(nextChar)) {
+                if (wordStart === -1) {
+                    wordStart = i;
+                }
+                // add currentChar to buffer
+                wordBuffer = wordBuffer.concat(char);
+                wordEnd = i;
+            } else {
+                // ignore character
+                continue;
+            }
+        }
+
+        // if character is ' ' or newline
+        if (/^[\s\n\r]$/.test(char) && wordBuffer !== "") {
+            // add word in buffer to wordTokens
+            if (storeLocation) {
+                wordTokens.push([wordBuffer, wordStart, wordEnd])
+            } else {
+                wordTokens.push(wordBuffer);
+            }
+            // reset buffer
+            wordBuffer = "";
+            wordStart = -1;
+            wordEnd = -1;
+        }
+
+        // if the character is not a sentence ending character
+        if (/^[^!.?\n\r]$/.test(char)) {
+            // add the character to a sentence buffer
+            sentenceBuffer = sentenceBuffer.concat(char);
+        } else {
+            // if the character is a sentence ending punctuation
+            if (/^[!.?]$/.test(char)) {
+                sentenceBuffer = sentenceBuffer.concat(char);
+            }
+            // if the character is a character that ends a sentence (excluding punctuation)
+            if (!/^[\n\s\r]*$/.test(sentenceBuffer)) {
+                sentenceTokens.push(sentenceBuffer);
+                sentenceBuffer = "";
+            }
+        }
+    }
+    // if word buffer is not empty
+    if (wordBuffer !== "") {
+        // the last character is alpha-numeric
+        if (/[a-zA-Z0-9]+/.test(corpus[i])) {
+            // add character to wordbuffer
+            wordBuffer = wordBuffer.concat(corpus[i]);
+            wordEnd = i;
+        }
+        // add word in buffer to wordTokens
+        if (storeLocation) {
+            wordTokens.push([wordBuffer, wordStart, wordEnd])
+        } else {
+            wordTokens.push(wordBuffer);
+        }
+        // reset buffer
+        wordBuffer = "";
+        wordStart = -1;
+        wordEnd = -1;
+    }
+
+    // if the sentence is not empty
+    if (sentenceBuffer !== "") {
+        // the last character is alpha-numeric or a sentence ending character
+        if (/[a-zA-Z0-9?!.\n\r]+/.test(corpus[i])) {
+            // add character to sentence buffer
+            sentenceBuffer = sentenceBuffer.concat(corpus[i]);
+        }
+        // add sentence buffer contents to sentence tokens list
+        sentenceTokens.push(sentenceBuffer);
+    }
+
+    return {
+        sentenceTokens: sentenceTokens,
+        wordTokens: wordTokens
+    };
+
+}
+
 // generate n-grams based on left and right span
 // returns: array of objects {word:string, left:[string], right:[string]}
 function generateNgrams(wordTokens, [l, r]) {
@@ -31,7 +146,11 @@ function generateNgrams(wordTokens, [l, r]) {
         }
 
         // push the object to the ngram array
-        ngram.push({ word: wordTokens[i], left: left, right: right });
+        ngram.push({
+            word: wordTokens[i],
+            left: left,
+            right: right
+        });
     }
     return ngram;
 } 
@@ -40,6 +159,7 @@ function generateNgrams(wordTokens, [l, r]) {
 // get the frequency of a token in the list of tokens
 // returns: int representing occurrence of token
 function getFrequency(word, wordTokens, regex = true) {
+
     var count = 0;
     // if not using regex
     if (regex === false) {
@@ -51,7 +171,7 @@ function getFrequency(word, wordTokens, regex = true) {
         }
     } else {
         // add ^ and $ to create regex object to define a clear start and end
-        let re = new RegExp("^" + word + "$");
+        let re = new RegExp(formatRegexToken(word));
         // iterate through tokens and test the word regex against each token
         for (let i = 0; i < wordTokens.length; i++) {
             if (re.test(wordTokens[i])) {
@@ -90,8 +210,8 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
             }
         }
     } else {
-        let pivotRe = new RegExp("^" + pivot + "$");
-        let targetRe = new RegExp("^" + target + "$");
+        let pivotRe = new RegExp(formatRegexToken(pivot));
+        let targetRe = new RegExp(formatRegexToken(target));
         for (let i = 0; i < ngrams.length; i++) {
             var element = ngrams[i];
             // if the n-grams word passes the regex of the pivot that is being searched
@@ -117,14 +237,14 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
 }
 
 // remove the positions from the token list and only include the token
-function removePositionsFromTokenList(tokenList){
+function removePositionsFromTokenList(tokenList) {
     return tokenList.map(x => x[0]);
 }
 
 // gets the stat collection info and calls the callback parameter function with result as an argument
 function getStatsToCollect(callback) {
     chrome.storage.local.get("collectionStats", function (result) {
-        // if no collection stats havfe been defined
+        // if no collection stats have been defined
         if (typeof result.collectionStats === "undefined") {
             callback(null);
         } else {
@@ -134,3 +254,14 @@ function getStatsToCollect(callback) {
     });
 }
 
+function formatRegexToken(word) {
+    if (word.startsWith("\b")) {
+         word = word.slice(0, -1) + '\\b';
+         word = '\\b' + word.slice(1);
+
+    }
+
+    word = "^" + word + "$";
+
+    return word;
+}
