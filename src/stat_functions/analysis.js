@@ -9,7 +9,10 @@ async function runAnalysis(pageText, url,callback) {
         }
         // check which stats to collect and find them them
         console.log("Stats to collect: ", statCollection);
-        var tokens = tokenize(pageText, true);;
+        var tokens = await getTokenizedCorpus(pageText, true);
+     
+
+        // var tokens = tokenize(pageText, true);
         console.log("Extracted Text", pageText);
 
 
@@ -20,8 +23,8 @@ async function runAnalysis(pageText, url,callback) {
                     var resultsFound = false;
 
                     // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
-                    const positionsRemoved = removePositionsFromTokenList(tokens.wordTokens)
-                    var calculatedCollocation = performCollocation(positionsRemoved, statCollection.collocation);
+                    //const positionsRemoved = removePositionsFromTokenList(tokens.wordTokens)
+                    var calculatedCollocation = performCollocation(tokens.wordTokens,tokens.originalWordTokens, statCollection.collocation);
 
                     // check if there are any results
                     for (const [key, value] of Object.entries(calculatedCollocation['targetFrequencies'])) {
@@ -79,7 +82,7 @@ async function runAnalysis(pageText, url,callback) {
                 if (statCollection.concordance) {
 
                     // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
-                    var calculatedConcordance = performConcordance(tokens.wordTokens, statCollection.concordance);
+                    var calculatedConcordance = performConcordance(tokens.wordTokens,tokens.originalWordTokens, statCollection.concordance);
                     //console.log(calculatedConcordance);
                     var concordanceLines = [];
                     calculatedConcordance.forEach(element => {

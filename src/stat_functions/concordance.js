@@ -1,21 +1,11 @@
-function performConcordance(wordTokens, concordanceInfo) {
-    //console.log(wordTokens);
-    // wordTokens.forEach(element => {
-    //     console.log(corpus.slice(element[1], element[2]+1));
-    //     // console.log(element[1], element[2]+1);
-    // });
-
-
-
-     const nGrams = generateNgrams(wordTokens, collocationInfo.span);
-
+function performConcordance(wordTokens,originalWordTokens, concordanceInfo) {
 
     var word = "";
     var token;
     var concordanceLineTokens = [];
     for (var iToken = 0; iToken < wordTokens.length; iToken++) {
         token = wordTokens[iToken];
-        word = token[0];
+        word = token;
         if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
             let left = [];
             for (let j = -concordanceInfo.span[0]; j < 0; j++) {
@@ -41,43 +31,6 @@ function performConcordance(wordTokens, concordanceInfo) {
 
     return concordanceLineTokens;
 }
-//function performConcordance(wordTokens, concordanceInfo) {
-//    //console.log(wordTokens);
-//    // wordTokens.forEach(element => {
-//    //     console.log(corpus.slice(element[1], element[2]+1));
-//    //     // console.log(element[1], element[2]+1);
-//    // });
-//    var word = "";
-//    var token;
-//    var concordanceLineTokens = [];
-//    for (var iToken = 0; iToken < wordTokens.length; iToken++) {
-//        token = wordTokens[iToken];
-//        word = token[0];
-//        if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
-//            let left = [];
-//            for (let j = -concordanceInfo.span[0]; j < 0; j++) {
-//                if (iToken + j >= 0) {
-//                    const tokenB = wordTokens[iToken + j];
-//                    left.push(tokenB);
-//                }
-//            }
-//            let right = [];
-//            for (let j = 1; j <= concordanceInfo.span[1]; j++) {
-//                if (iToken + j < wordTokens.length) {
-//                    const tokenB = wordTokens[iToken + j];
-//                    right.push(tokenB);
-//                }
-//            }
-//            concordanceLineTokens.push({
-//                left: left,
-//                right: right,
-//                wordToken: token,
-//            });
-//        }
-//    }
-//
-//    return concordanceLineTokens;
-//}
 
 function DEPRECATED_performConcordance(wordTokens, concordanceInfo) {
     //console.log(wordTokens);
@@ -90,7 +43,7 @@ function DEPRECATED_performConcordance(wordTokens, concordanceInfo) {
     var concordanceLineTokens = [];
     for (var iToken = 0; iToken < wordTokens.length; iToken++) {
         token = wordTokens[iToken];
-        word = token[0];
+        word = token;
         if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
             //console.log("Pivot Found");
             let left = [];
@@ -162,7 +115,7 @@ function stringifyTokenArray(array, corpus = false) {
     if (corpus === false) {
         return removePositionsFromTokenList(array).join(" ");
     } else {
-        var outStr = corpus.slice(array[0][1], array[array.length - 1][2] + 1);
+        var outStr = corpus.slice(array[0], array[array.length - 1] + 1);
         outStr = outStr.replaceAll("\r", "\\r");
         outStr = outStr.replaceAll("\n", "\\n");
         return outStr;

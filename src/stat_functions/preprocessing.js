@@ -1,18 +1,25 @@
 // tokenize and clean corpus
-function getTokenizedCorpus(corpus, storeLocation = false) {
-
+async function getTokenizedCorpus(corpus, storeLocation = false,callback) {
+return new Promise ((resolve) => {
     var tokens = tokenize(corpus, storeLocation);
     // get the stats to collect from chrome local storage
     chrome.storage.local.get("collectionStats", function (result) {
         if (result.collectionStats !== 'undefined') {
-            if (result.collectionStats.metaInstructions !== 'undefined') {
-                var tokens = cleanCorpus(tokens, metaInfo);
+            if (result.collectionStats.metaInstruction !== 'undefined') {
+                 tokens.wordTokens = cleanCorpus(
+                    tokens.wordTokens, 
+                    result.collectionStats.metaInstruction.stopwords, 
+                    result.collectionStats.metaInstruction.standardizeVocabulary,
+                    result.collectionStats.metaInstruction.standardiseCasing);
             }
         }
 
-        return tokens;
+        resolve(tokens)
     });
 
+
+})
+   
 
 }
 
@@ -67,7 +74,7 @@ function tokenize(corpus, storeLocation = false) {
         if (/^[\s\n\r]$/.test(char) && wordBuffer !== "") {
             // add word in buffer to wordTokens
             if (storeLocation) {
-                wordTokens.push([wordBuffer, wordStart, wordEnd])
+                wordTokens.push(wordBuffer)
             } else {
                 wordTokens.push(wordBuffer);
             }
@@ -101,18 +108,23 @@ function tokenize(corpus, storeLocation = false) {
             wordBuffer = wordBuffer.concat(corpus[i]);
             wordEnd = i;
         }
-        // add word in buffer to wordTokens
-        if (storeLocation) {
-            wordTokens.push([wordBuffer, wordStart, wordEnd])
-        } else {
-            wordTokens.push(wordBuffer);
-        }
-        // reset buffer
-        wordBuffer = "";
-        wordStart = -1;
-        wordEnd = -1;
-    }
 
+
+
+
+
+        
+              // add word in buffer to wordTokens
+              if (storeLocation) {
+                wordTokens.push([wordBuffer, wordStart, wordEnd])
+            } else {
+                wordTokens.push(wordBuffer);
+            }
+            // reset buffer
+            wordBuffer = "";
+            wordStart = -1;
+            wordEnd = -1;
+        }
     // if the sentence is not empty
     if (sentenceBuffer !== "") {
         // the last character is alpha-numeric or a sentence ending character
@@ -125,7 +137,8 @@ function tokenize(corpus, storeLocation = false) {
     }
     return {
         sentenceTokens: sentenceTokens,
-        wordTokens: wordTokens
+        wordTokens: wordTokens,
+        originalWordTokens: wordTokens
     };
 }
 
@@ -133,9 +146,7 @@ function tokenize(corpus, storeLocation = false) {
 
 // clean tokens
 // includes removing stopwords, apply lemmatisation and make lowercase
-function cleanCorpus(tokens) {
-    stopwords = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our", "ours 	ourselves", "out", "over", "own", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"]
-    standardizeVocabulary = 'lemmatisation';
+function cleanCorpus(tokens,stopwords,standardizeVocabulary,casing) {
 
     tokens = removeStopwords(tokens, stopwords);
 

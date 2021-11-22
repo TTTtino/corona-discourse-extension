@@ -1,7 +1,7 @@
 // Calculates the Probabilities and Frequencies based on the collocation collection info
 // and tokenised corpus
 // TODO: Improve readability and remove repeated code
-function performCollocation(wordTokens, collocationInfo) {
+function performCollocation(wordTokens,originalWorkTokens, collocationInfo) {
     // generate n-grams based on the span provided
     const nGrams = generateNgrams(wordTokens, collocationInfo.span);
 
@@ -15,7 +15,7 @@ function performCollocation(wordTokens, collocationInfo) {
         pivotFrequencies[pivot] = getFrequency(
             pivot,
             wordTokens,
-            collocationInfo.parseAsRegex
+            collocationInfo.parseAsRegex 
         );
         for (let iTarget = 0; iTarget < collocationInfo.targetTokens.length; iTarget++) {
             const target = collocationInfo.targetTokens[iTarget];

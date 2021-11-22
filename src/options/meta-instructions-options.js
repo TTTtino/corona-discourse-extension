@@ -6,7 +6,12 @@ function storeNewMetaInstructions(metaInst, callback) {
             if (metaInst == null) {
                 defaultCollectionStats.metaInstruction = null;
             } else {
+                removePunctuation,standardiseVocabulary, standardiseCasing,stopwords
                 defaultCollectionStats.metaInstruction = new MetaInstructions(
+                    metaInst["remove-punctuation"],
+                    metaInst["standardise-vocabulary"],
+                    metaInst["standardise-casing"],
+                    metaInst["stopwords"],
                     metaInst["load-content-at"]
                 );
             }
@@ -23,6 +28,10 @@ function storeNewMetaInstructions(metaInst, callback) {
                 result.collectionStats.metaInstruction = null;
             } else {
                 result.collectionStats.metaInstruction =  new MetaInstructions(
+                    metaInst["remove-punctuation"],
+                    metaInst["standardise-vocabulary"],
+                    metaInst["standardise-casing"],
+                    metaInst["stopwords"],
                     metaInst["load-content-at"]
                 );
             } 
