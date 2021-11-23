@@ -1,11 +1,11 @@
-function performConcordance(wordTokens,originalWordTokens, concordanceInfo) {
+function performConcordance(wordTokens, concordanceInfo) {
 
     var word = "";
     var token;
     var concordanceLineTokens = [];
     for (var iToken = 0; iToken < wordTokens.length; iToken++) {
         token = wordTokens[iToken];
-        word = token;
+        word = token[0];
         if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
             let left = [];
             for (let j = -concordanceInfo.span[0]; j < 0; j++) {
@@ -43,7 +43,7 @@ function DEPRECATED_performConcordance(wordTokens, concordanceInfo) {
     var concordanceLineTokens = [];
     for (var iToken = 0; iToken < wordTokens.length; iToken++) {
         token = wordTokens[iToken];
-        word = token;
+        word = token[0];
         if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
             //console.log("Pivot Found");
             let left = [];
@@ -115,7 +115,7 @@ function stringifyTokenArray(array, corpus = false) {
     if (corpus === false) {
         return removePositionsFromTokenList(array).join(" ");
     } else {
-        var outStr = corpus.slice(array[0], array[array.length - 1] + 1);
+        var outStr = corpus.slice(array[0][1], array[array.length - 1][2] + 1);
         outStr = outStr.replaceAll("\r", "\\r");
         outStr = outStr.replaceAll("\n", "\\n");
         return outStr;

@@ -1,27 +1,28 @@
 // tokenize and clean corpus
-async function getTokenizedCorpus(corpus, storeLocation = false,callback) {
-return new Promise ((resolve) => {
-    var tokens = tokenize(corpus, storeLocation);
-    // get the stats to collect from chrome local storage
-    chrome.storage.local.get("collectionStats", function (result) {
-        if (result.collectionStats !== 'undefined') {
-            if (result.collectionStats.metaInstruction !== 'undefined') {
-                 tokens.wordTokens = cleanCorpus(
-                    tokens.wordTokens, 
-                    result.collectionStats.metaInstruction.stopwords, 
-                    result.collectionStats.metaInstruction.standardizeVocabulary,
-                    result.collectionStats.metaInstruction.standardiseCasing);
+async function getTokenizedCorpus(corpus, storeLocation = false, callback) {
+    return new Promise((resolve) => {
+        var tokens = tokenize(corpus, storeLocation);
+        // get the stats to collect from chrome local storage
+        chrome.storage.local.get("collectionStats", function (result) {
+            if (result.collectionStats !== 'undefined') {
+                if (result.collectionStats.metaInstruction !== 'undefined') {
+                     tokens.wordTokens = cleanCorpus(
+                        tokens.wordTokens, 
+                        result.collectionStats.metaInstruction.stopwords, 
+                        result.collectionStats.metaInstruction.standardizeVocabulary,
+                        result.collectionStats.metaInstruction.standardiseCasing);
+                }
             }
-        }
 
         resolve(tokens)
-    });
+        });
 
 
-})
-   
+    })
+
 
 }
+
 
 // tokenize a corpus and return the token lists
 // returns: {wordTokens: [string], sentenceTokens: [string]}
@@ -73,15 +74,11 @@ function tokenize(corpus, storeLocation = false) {
         // if character is ' ' or newline
         if (/^[\s\n\r]$/.test(char) && wordBuffer !== "") {
             // add word in buffer to wordTokens
-            if (storeLocation) {
-                wordTokens.push(wordBuffer)
-            } else {
-                wordTokens.push(wordBuffer);
-            }
+
+            wordTokens.push(wordBuffer);
             // reset buffer
             wordBuffer = "";
-            wordStart = -1;
-            wordEnd = -1;
+
         }
 
         // if the character is not a sentence ending character
@@ -108,23 +105,15 @@ function tokenize(corpus, storeLocation = false) {
             wordBuffer = wordBuffer.concat(corpus[i]);
             wordEnd = i;
         }
+        // add word in buffer to wordTokens
 
+        wordTokens.push(wordBuffer)
 
+        // reset buffer
+        wordBuffer = "";
+   
+    }
 
-
-
-        
-              // add word in buffer to wordTokens
-              if (storeLocation) {
-                wordTokens.push([wordBuffer, wordStart, wordEnd])
-            } else {
-                wordTokens.push(wordBuffer);
-            }
-            // reset buffer
-            wordBuffer = "";
-            wordStart = -1;
-            wordEnd = -1;
-        }
     // if the sentence is not empty
     if (sentenceBuffer !== "") {
         // the last character is alpha-numeric or a sentence ending character
@@ -146,7 +135,7 @@ function tokenize(corpus, storeLocation = false) {
 
 // clean tokens
 // includes removing stopwords, apply lemmatisation and make lowercase
-function cleanCorpus(tokens,stopwords,standardizeVocabulary,casing) {
+function cleanCorpus(tokens, stopwords, standardizeVocabulary, casing) {
 
     tokens = removeStopwords(tokens, stopwords);
 

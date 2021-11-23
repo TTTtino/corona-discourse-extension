@@ -24,7 +24,7 @@ async function runAnalysis(pageText, url,callback) {
 
                     // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
                     //const positionsRemoved = removePositionsFromTokenList(tokens.wordTokens)
-                    var calculatedCollocation = performCollocation(tokens.wordTokens,tokens.originalWordTokens, statCollection.collocation);
+                    var calculatedCollocation = performCollocation(tokens.wordTokens, statCollection.collocation);
 
                     // check if there are any results
                     for (const [key, value] of Object.entries(calculatedCollocation['targetFrequencies'])) {
@@ -141,7 +141,9 @@ async function runAnalysis(pageText, url,callback) {
         }
 
         var collocationResultsFound = await runCollocationAnalysis();
-        var concordanceResultsFound = await runConcordanceAnalysis();
+        // var concordanceResultsFound = await runConcordanceAnalysis();
+
+        concordanceResultsFound = false
 
         console.log("collocationResultsFound", collocationResultsFound)
         console.log("concordanceResultsFound", concordanceResultsFound)
