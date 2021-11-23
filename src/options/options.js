@@ -2,6 +2,7 @@
 var SERVER_URL = 'https://pripa-devel.azurewebsites.net';
 
 
+
 console.log("OPTIONS.js");
 
 
@@ -301,9 +302,13 @@ document
                     chrome.storage.local.get("project", function (result) {
 
                         if (typeof result.project !== "undefined") {
+
+                            var jsonResult = JSON.parse(textToCopy)
+                            jsonResult['invitationId'] = invitationId
+
                             data = {
                                 project_id: result.project.id,
-                                result: JSON.parse(textToCopy)
+                                result: jsonResult
                             }
 
 
