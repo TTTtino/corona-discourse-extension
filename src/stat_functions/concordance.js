@@ -1,12 +1,288 @@
-function performConcordance(wordTokens, concordanceInfo) {
+function performConcordance(wordTokens, processingTokens, concordanceInfo) {
+
+    // get mapping list that maps processed token to original tokens
+    var mapping = mapCleanedCorpus(processingTokens[1], processingTokens[0])
+
+    // get collocations based on pivot and target tokens of concordance lines
+    var collocations = performCollocation(wordTokens, concordanceInfo);
+
+    var concordanceList = []
+
+    var token;
+    var pivot, target;
+    var leftSpan, leftContext, rightSpan, rightContext;
+    var span = concordanceInfo.span;
+    var context = concordanceInfo.context;
+    var concordanceLineTokens = [];
+    var originalTokens = processingTokens[1];
+    var n = originalTokens.length;
+
+    // for evert collocation 
+    for (var coll in collocations.nGramPivotPositions) {
+        pivot = collocations.nGramPivotPositions[coll][0][0];
+        target = collocations.nGramPivotPositions[coll][0][1];
+
+        var collPos = collocations.nGramPivotPositions[coll][1];
+
+        // for every occurrence  
+        for (var j = 0; j < collPos.length; j++) {
+            var pos = collPos[j];
+
+            var lContextExists = true;
+            var rContextExists = true;
+
+            // get array of left span
+            // span[0] =  number of tokens left from pivot token
+            // n = length of original token array
+            // Math.max ensures that array indices stay within boundaries
+            leftSpan = originalTokens.slice(
+                Math.max(0, Math.max(0, mapping[pos] - span[0] - 1)),
+                mapping[pos]
+            )
+
+            // get array oft right span
+            // Math.min ensures that array indices stay within boundaries
+            rightSpan = originalTokens.slice(
+                Math.min(n - 1, mapping[pos] + 1),
+                Math.min(n - 1, mapping[Math.min(pos + 1 + span[1], n)])
+            )
+
+            // cut lines at punctuation
+            if (concordanceInfo.ignorePunctuation) {
+                var left = getTrimmedSpan(leftSpan, target, concordanceInfo.parseAsRegex, true);
+                leftSpan = left.span;
+                lContextExists = left.contextExists;
+
+                var right = getTrimmedSpan(rightSpan, target, concordanceInfo.parseAsRegex, false);
+                rightSpan = right.span;
+                rContextExists = right.contextExists;
+            }
+
+            // check if additional left context exists.
+            // if so, get context
+            if (pos - span[0] > 0 && lContextExists) {
+
+                try {
+                    // get array of left context tokens
+                    leftSpan = originalTokens.slice(
+                        Math.max(0, Math.max(0, mapping[pos - span[0]] - context[0])),
+                        mapping[Math.max(0, pos - span[0])]
+                    )
+
+                } catch (error) {
+                    if (typeof error === RangeError) {
+                        // get array of left context tokens
+                        leftSpan = originalTokens.slice(
+                            Math.max(0, originalTokens[0]),
+                            mapping[pos - span[0]]
+                        )
+                    } else {
+                        leftContext = []
+                    }
+                }
+
+                // else, there is no context
+            } else {
+                leftContext = []
+            }
+            // check if additional right context exists.
+            // if so, get context
+            if (pos + span[1] < originalTokens.length && rContextExists) {
+                try {
+                    // get array oft right span
+                    // Math.min ensures that array indices stay within boundaries
+                    rightContext = originalTokens.slice(
+                        mapping[Math.min(n, pos + span[1] + 1)],
+                        Math.min(n, mapping[pos + span[1] + context[1] + 2])
+                    );
+
+
+                } catch (error) {
+                    if (typeof error === RangeError) {
+                        // get array oft right span
+                        // Math.min ensures that array indices stay within boundaries
+                        rightContext = originalTokens.slice(
+                            mapping[Math.min(n, pos + span[1] + 1)],
+                            n
+                        );
+                    } else {
+                        rightContext = [];
+                    }
+
+                }
+
+            } else {
+                rightContext = [];
+            }
+            concordanceList.push({
+                leftContext : leftContext.join(' '),
+                left: leftSpan.join(' '),
+                wordToken: pivot,
+                right: rightSpan.join(' '),
+                rightContext : rightContext.join(' '),
+                targetToken : target
+            });
+
+
+        }
+
+    }
+
+    return concordanceList;
+
+    // for (var iToken = 0; iToken < wordTokens.length; iToken++) {
+    //     token = colls[iToken];
+    //     word = token[0];
+    //     if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
+    //         let left = [];
+    //         for (let j = -concordanceInfo.span[0]; j < 0; j++) {
+    //             if (iToken + j >= 0) {
+    //                 const tokenB = wordTokens[iToken + j];
+    //                 left.push(tokenB);
+    //             }
+    //         }
+    //         let right = [];
+    //         for (let j = 1; j <= concordanceInfo.span[1]; j++) {
+    //             if (iToken + j < wordTokens.length) {
+    //                 const tokenB = wordTokens[iToken + j];
+    //                 right.push(tokenB);
+    //             }
+    //         }
+    //         concordanceLineTokens.push({
+    //             left: left,
+    //             right: right,
+    //             wordToken: token,
+    //         });
+    //     }
+    // }
+
+    return concordanceLineTokens;
+}
+
+function getTrimmedSpan(span, target, parseAsRegex, isLeftSpan) {
+    try {
+        var sliceContainsTarget = tokenInList(target, span, parseAsRegex)
+        var punctuationIndex = span.indexOf('.')
+
+        var tmpSpan;
+
+        if (isLeftSpan) {
+            tmpSpan = span.slice(
+                Math.max(0, punctuationIndex),
+                span.length
+            );
+        } else {
+            tmpSpan = span.slice(
+                -Math.min(span.length - 1, punctuationIndex + 1),
+                span.length
+            );
+        }
+
+        var tmpSliceContainsTarget = tokenInList(target, tmpSpan, parseAsRegex)
+
+        if (!tmpSliceContainsTarget && sliceContainsTarget) {
+
+        } else {
+            span = tmpSpan;
+            contextExists = false;
+        }
+
+    } catch (error) {
+        console.log(error)
+        return span
+    }
+
+    return {
+        span: span,
+        contextExists: contextExists
+    }
+}
+
+function getPivotTokenList(positionList) {
+    var pivotToken = []
+
+    for (var i = 0; i < positionList.length; i++) {
+        pivotToken.push
+    }
+}
+
+// map cleaned corpus token to processed tokens(cleaned minus lemma)
+function mapCleanedCorpus(originalTokens, processedTokens) {
+
+
+    // final mapping array
+    var mapping = []
+
+    // list with cleaned corpus tokens that are yet to be mapped
+    // ('token',index_original_corpus)
+    var backlog = []
+
+    // indicates whether all tokens were mapped
+    var cleanedDataEnd = false
+
+    var originalToken = '';
+    var processedToken = '';
+
+    // for every entry in the unprocessed token list
+    for (var i = 0; i < originalTokens.length; i++) {
+
+        // check if i exceeds the length of processed tokens
+        // if so, set variable to true (= last iteration loop)
+        if (i > processedTokens.length - 1) {
+            cleanedDataEnd = true;
+        } else {
+            processedToken = processedTokens[i].toLowerCase();
+        }
+
+        originalToken = originalTokens[i].toLowerCase();
+
+
+        if (backlog.length > 0) {
+            for (var j = 0; j < backlog.length; j++) {
+                // check if current backlog token is original token
+                // if so, add mapping index to mapping and remove token from backlog
+                if (backlog[j][0] === originalToken) {
+                    mapping[backlog[j][1]] = i;
+                    backlog.splice(j, 1);
+                    break;
+                }
+            }
+
+            // if current token isn't in backlog yet and this isn't last iteration, put token in backlog
+            // and add null placeholder to mapping
+            // null will later be replaced with mapping index
+            if (cleanedDataEnd === false) {
+                backlog.push([processedToken, i])
+                mapping.push(null);
+            }
+        }
+        // check if current processed token matches original token
+        // if so, add current index to mapping
+        else if (cleanedDataEnd === false && processedToken === originalToken) {
+            mapping.push(i);
+        } else if (cleanedDataEnd) {
+            break;
+        } else {
+            backlog.push([processedToken, i])
+            mapping.push(null);
+        }
+    }
+
+    return mapping
+}
+
+
+
+function DEPRECATED_performConcordance(wordTokens, concordanceInfo) {
 
     var word = "";
     var token;
     var concordanceLineTokens = [];
     for (var iToken = 0; iToken < wordTokens.length; iToken++) {
-        token = wordTokens[iToken];
-        word = token[0];
+        word = wordTokens[iToken];
+
         if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
+
             let left = [];
             for (let j = -concordanceInfo.span[0]; j < 0; j++) {
                 if (iToken + j >= 0) {
@@ -21,6 +297,7 @@ function performConcordance(wordTokens, concordanceInfo) {
                     right.push(tokenB);
                 }
             }
+
             concordanceLineTokens.push({
                 left: left,
                 right: right,
@@ -32,84 +309,9 @@ function performConcordance(wordTokens, concordanceInfo) {
     return concordanceLineTokens;
 }
 
-function DEPRECATED_performConcordance(wordTokens, concordanceInfo) {
-    //console.log(wordTokens);
-    // wordTokens.forEach(element => {
-    //     console.log(corpus.slice(element[1], element[2]+1));
-    //     // console.log(element[1], element[2]+1);
-    // });
-    var word = "";
-    var token;
-    var concordanceLineTokens = [];
-    for (var iToken = 0; iToken < wordTokens.length; iToken++) {
-        token = wordTokens[iToken];
-        word = token[0];
-        if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
-            //console.log("Pivot Found");
-            let left = [];
-            for (let j = -concordanceInfo.span[0]; j < 0; j++) {
-                if (iToken + j >= 0) {
-                    const tokenB = wordTokens[iToken + j];
-                    left.push(tokenB);
-                }
-            }
-            let right = [];
-            for (let j = 1; j <= concordanceInfo.span[1]; j++) {
-                if (iToken + j < wordTokens.length) {
-                    const tokenB = wordTokens[iToken + j];
-                    right.push(tokenB);
-                }
-            }
-
-            var surround = left.concat(right);
-            //console.log(surround);
-            for (let i = 0; i < surround.length; i++) {
-                const element = surround[i];
-                if (tokenInList(element[0], concordanceInfo.targetTokens)) {
-                    var leftContext = generateContext(
-                        iToken - concordanceInfo.span[0],
-                        -concordanceInfo.context[0],
-                        wordTokens
-                    );
-                    var rightContext = generateContext(
-                        iToken + concordanceInfo.span[1],
-                        concordanceInfo.context[1],
-                        wordTokens
-                    );
-                    concordanceLineTokens.push({
-                        left: leftContext.concat(left),
-                        right: right.concat(rightContext),
-                        wordToken: token,
-                    });
-                    break;
-                }
-            }
-            //console.log(corpus.slice(concordTokenLine.left[0][1], concordTokenLine.right[concordTokenLine.right.length-1][2]+1));
-        }
-    }
-
-    return concordanceLineTokens;
-    //console.log(generateContext(wordTokens.indexOf(wordTokens.indexOf(concordanceLineTokens[5].left[0]), -5, wordTokens)));
-}
-
-function stringifyConcordanceLine(concordLine, corpus = false) {
-    if(corpus){
-        return {
-            left: stringifyTokenArray(concordLine.left, corpus),
-            right: stringifyTokenArray(concordLine.right, corpus),
-            word: concordLine.wordToken[0]
-        };
-    } else{
-        return {
-            left: removePositionsFromTokenList(concordLine.left).join(" "),
-            right: removePositionsFromTokenList(concordLine.right).join(" "),
-            word: concordLine.wordToken[0]
-        };
-    }
-}
 
 function stringifyTokenArray(array, corpus = false) {
-    if(array.length == 0){
+    if (array.length == 0) {
         return "";
     }
     if (corpus === false) {
@@ -153,7 +355,7 @@ function tokenInList(token, targetList, regex) {
         // add ^ and $ to create regex object to define a clear start and end
         // iterate through tokens and test the word regex against each token
         for (let i = 0; i < targetList.length; i++) {
-            const re = new RegExp(formatRegexToken( targetList[i]));
+            const re = new RegExp(formatRegexToken(targetList[i]));
             // const re = new RegExp("^" + targetList[i] + "$");
             if (re.test(token)) {
                 return true;

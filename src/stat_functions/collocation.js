@@ -8,15 +8,21 @@ function performCollocation(wordTokens, collocationInfo) {
     var pivotFrequencies = {};
     var targetFrequencies = {};
     var nGramFrequency = {};
+    var nGramPivotLocation = {}
     // iterate through each pivot token provided
     for (let iPivot = 0; iPivot < collocationInfo.pivotTokens.length; iPivot++) {
         const pivot = collocationInfo.pivotTokens[iPivot];
-        // gets the frequency of the current pivot
-        pivotFrequencies[pivot] = getFrequency(
+
+        var pivotToken = getFrequency(
             pivot,
             wordTokens,
             collocationInfo.parseAsRegex
         );
+        // gets the frequency of the current pivot
+        if(pivotToken > 0){
+            pivotFrequencies[pivot] = pivotToken;
+        }
+        
         for (let iTarget = 0; iTarget < collocationInfo.targetTokens.length; iTarget++) {
             const target = collocationInfo.targetTokens[iTarget];
             if (!collocationInfo.selfReference && pivot === target) {
@@ -24,32 +30,44 @@ function performCollocation(wordTokens, collocationInfo) {
                 continue;
             } else {
                 // caluclate the nGram frequency using pivot and target, and store it in nGramFrequency dictionary
-                nGramFrequency[pivot + " " + target] = getNgramFrequency(
+
+                var ngramFreq = getNgramFrequency(
                     pivot,
                     target,
                     nGrams,
                     collocationInfo.parseAsRegex
                 );
+
+                if (ngramFreq.count > 0) {
+
+                    nGramFrequency[pivot + " " + target] = ngramFreq.count;
+                    nGramPivotLocation[pivot + " " + target] =[[pivot,target],ngramFreq.positions]
+                }
+
             }
         }
     }
 
     // iterate through the target tokens
     for (
-        let iTarget = 0;
-        iTarget < collocationInfo.targetTokens.length;
-        iTarget++
+        let iTarget = 0; iTarget < collocationInfo.targetTokens.length; iTarget++
     ) {
         const target = collocationInfo.targetTokens[iTarget];
-        // calculate the frequency for each target
-        targetFrequencies[target] = getFrequency(
+
+        var targetFreq = getFrequency(
             target,
             wordTokens,
             collocationInfo.parseAsRegex
         );
+
+        if (targetFreq > 0) {
+            // calculate the frequency for each target
+            targetFrequencies[target] = targetFreq;
+        }
+
     }
 
-   
+
     // create a CollocationData Object and store the calculated frequencies to return
     var colStorage = new CollocationData();
     colStorage.pivotFrequencies = pivotFrequencies;
@@ -57,6 +75,7 @@ function performCollocation(wordTokens, collocationInfo) {
     colStorage.nGramFrequencies = nGramFrequency;
     colStorage.nGramSum = nGrams.length;
     colStorage.tokenSum = wordTokens.length;
+    colStorage.nGramPivotPositions = nGramPivotLocation;
 
     return colStorage;
 }
@@ -90,7 +109,7 @@ function calculateProbPMI(pivotProbs, targetProbs, nGramProbs, canSelfReference)
 }
 
 // calculates the PMI given just the CollocationData object containing only the frequencies
-function calculateFreqPMI(collocationData, canSelfReference){
+function calculateFreqPMI(collocationData, canSelfReference) {
     var pivotProb = {};
     // iterate through the frequencies and calculate the probabilities for each "pivot"
     for (var key in collocationData.pivotFrequencies) {
@@ -128,6 +147,6 @@ function calculateFreqPMI(collocationData, canSelfReference){
     collocationData["targetProbabilities"] = targetProb;
     collocationData["nGramProbabilities"] = nGramProb;
     collocationData["pmi"] = pmi;
-    
+
     return collocationData;
 }

@@ -6,15 +6,31 @@ async function getTokenizedCorpus(corpus, storeLocation = false, callback) {
         chrome.storage.local.get("collectionStats", function (result) {
             if (result.collectionStats !== 'undefined') {
                 if (result.collectionStats.metaInstruction !== 'undefined') {
-                     tokens.wordTokens = cleanCorpus(
-                        tokens.wordTokens, 
-                        result.collectionStats.metaInstruction.stopwords, 
-                        result.collectionStats.metaInstruction.standardizeVocabulary,
+                    tokens.wordTokens = cleanCorpus(
+                        tokens.wordTokens,
+                        result.collectionStats.metaInstruction.stopwords,
+                        result.collectionStats.metaInstruction.removePunctuation,
+                        result.collectionStats.metaInstruction.standardiseVocabulary,
                         result.collectionStats.metaInstruction.standardiseCasing);
+
+                    if (result.collectionStats.metaInstruction.standardiseVocabulary === 'lemmatisation') {
+                        tokens.processingTokens[0] = cleanCorpus(
+                            tokens.wordTokens,
+                            result.collectionStats.metaInstruction.stopwords,
+                            result.collectionStats.metaInstruction.removePunctuation,
+                            "",
+                            result.collectionStats.metaInstruction.standardiseCasing);
+
+                    } else {
+                        tokens.processingTokens[0] = tokens.wordTokens;
+                    }
+
+
+
                 }
             }
 
-        resolve(tokens)
+            resolve(tokens)
         });
 
 
@@ -27,6 +43,7 @@ async function getTokenizedCorpus(corpus, storeLocation = false, callback) {
 // tokenize a corpus and return the token lists
 // returns: {wordTokens: [string], sentenceTokens: [string]}
 function tokenize(corpus, storeLocation = false) {
+
     // return empty tokens if no corpus given
     if (corpus === "undefined") {
         return {
@@ -43,6 +60,7 @@ function tokenize(corpus, storeLocation = false) {
     // iterate through each character of the corpus
     for (var i = 0; i < corpus.length - 1; i++) {
         var char = corpus[i];
+
         // if the character is a letter or a number
         if (/[a-zA-Z0-9]+/.test(char)) {
             if (wordStart === -1) {
@@ -53,6 +71,7 @@ function tokenize(corpus, storeLocation = false) {
             wordBuffer = wordBuffer.concat(char);
             wordEnd = i;
         }
+
 
         // if the character is '-'
         if (char === "-") {
@@ -72,12 +91,18 @@ function tokenize(corpus, storeLocation = false) {
         }
 
         // if character is ' ' or newline
-        if (/^[\s\n\r]$/.test(char) && wordBuffer !== "") {
+        if ((/^[.,:;]/.test(char) || /^[\s\n\r]$/.test(char)) && wordBuffer !== "") {
             // add word in buffer to wordTokens
 
             wordTokens.push(wordBuffer);
+
+            if (/[.,:;]+/.test(char)) {
+                wordTokens.push(char);
+            }
+
             // reset buffer
             wordBuffer = "";
+
 
         }
 
@@ -111,7 +136,7 @@ function tokenize(corpus, storeLocation = false) {
 
         // reset buffer
         wordBuffer = "";
-   
+
     }
 
     // if the sentence is not empty
@@ -127,7 +152,7 @@ function tokenize(corpus, storeLocation = false) {
     return {
         sentenceTokens: sentenceTokens,
         wordTokens: wordTokens,
-        originalWordTokens: wordTokens
+        processingTokens: [null, wordTokens]
     };
 }
 
@@ -135,19 +160,26 @@ function tokenize(corpus, storeLocation = false) {
 
 // clean tokens
 // includes removing stopwords, apply lemmatisation and make lowercase
-function cleanCorpus(tokens, stopwords, standardizeVocabulary, casing) {
+function cleanCorpus(tokens, stopwords, removePunctuation, standardizeVocabulary, casing) {
+    removePunctuation = true
 
-    tokens = removeStopwords(tokens, stopwords);
-
-    // apply lemmatisation
-    if (standardizeVocabulary === 'lemmatisation') {
-        tokens = lemmatise(tokens);
+    // remove punctuation . , ; :
+    if(removePunctuation){
+        tokens = removePunctuationFromTokenList(tokens);
     }
-
     // make lowercase
     if (casing === 'lowercase') {
         tokens = tokensToLowerCase(tokens);
     }
+
+    tokens = removeStopwords(tokens, stopwords);
+
+    // // apply lemmatisation
+    // if (standardizeVocabulary === 'lemmatisation') {
+    //     tokens = lemmatise(tokens);
+    // }
+
+
 
     return tokens
 
@@ -158,6 +190,13 @@ function cleanCorpus(tokens, stopwords, standardizeVocabulary, casing) {
 function removeStopwords(tokens, stopwords) {
     tokens = tokens.filter((el) => !stopwords.includes(el));
     return tokens
+}
+
+
+function removePunctuationFromTokenList(tokens){
+    tokens = tokens.filter((el) => !(/[.,:;]+/.test(el)));
+    return tokens;
+
 }
 
 function lemmatise(tokens) {

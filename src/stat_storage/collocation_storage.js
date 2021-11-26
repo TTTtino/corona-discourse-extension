@@ -5,6 +5,7 @@
             this.pivotFrequencies = {};
             this.targetFrequencies = {};
             this.nGramFrequencies = {};
+            this.nGramPivotPositions = {};
             this.nGramSum = 0;
             this.tokenSum = 0;
         }

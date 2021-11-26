@@ -82,7 +82,7 @@ async function runAnalysis(pageText, url,callback) {
                 if (statCollection.concordance) {
 
                     // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
-                    var calculatedConcordance = performConcordance(tokens.wordTokens,tokens.originalWordTokens, statCollection.concordance);
+                    var calculatedConcordance = performConcordance(tokens.wordTokens,tokens.processingTokens, statCollection.concordance);
                     //console.log(calculatedConcordance);
                     var concordanceLines = [];
                     calculatedConcordance.forEach(element => {
@@ -141,9 +141,8 @@ async function runAnalysis(pageText, url,callback) {
         }
 
         var collocationResultsFound = await runCollocationAnalysis();
-        // var concordanceResultsFound = await runConcordanceAnalysis();
+        var concordanceResultsFound = await runConcordanceAnalysis();
 
-        concordanceResultsFound = false
 
         console.log("collocationResultsFound", collocationResultsFound)
         console.log("concordanceResultsFound", concordanceResultsFound)

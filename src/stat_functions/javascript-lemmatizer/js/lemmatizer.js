@@ -16,20 +16,20 @@ if (typeof String.endsWith !== "function") {
 var Lemmatizer = function() {
   this.wn_files = {
     noun: [
-      '/static/dict/index.noun.json',
-      '/static/dict/noun.exc.json'
+      '/dict/index.noun.json',
+      '/dict/noun.exc.json'
     ],
     verb: [
-      '/static/dict/index.verb.json',
-      '/static/dict/verb.exc.json'
+      '/dict/index.verb.json',
+      '/dict/verb.exc.json'
     ],
     adj:  [
-      '/static/dict/index.adj.json',
-      '/static/dict/adj.exc.json'
+      '/dict/index.adj.json',
+      '/dict/adj.exc.json'
     ],
     adv:  [
-      '/static/dict/index.adv.json',
-      '/static/dict/adv.exc.json'
+      '/dict/index.adv.json',
+      '/dict/adv.exc.json'
     ]
   };
 
@@ -67,6 +67,7 @@ var Lemmatizer = function() {
     ]
   };
 
+  this.localStorage = {}
   this.wordlists  = {};
   this.exceptions = {};
 
@@ -174,9 +175,11 @@ Lemmatizer.prototype = {
   },
 
   open_file: function(key, file) {
-    if (!localStorage.getItem(key)) {
+    if (!this.localStorage[key]) {
+      url = chrome.runtime.getURL("stat_functions/javascript-lemmatizer"+file);
       var xhr = new XMLHttpRequest();
-      xhr.open("GET", file, false);
+      xhr.open("GET", url, false);
+      // xhr.open("GET", file, false);
       xhr.send();
       var data = xhr.responseText;
       this.store_data(key, data);
@@ -184,11 +187,11 @@ Lemmatizer.prototype = {
   },
 
   store_data: function(key, data) {
-    localStorage.setItem(key, data);
+    this.localStorage[key] = data;
   },
 
   fetch_data: function(key) {
-    var data = JSON.parse(localStorage.getItem(key));
+    var data = JSON.parse(this.localStorage[key]);
     return data;
   },
   // end of set up dictionary data

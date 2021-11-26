@@ -10,6 +10,8 @@ const REQUIRED_SCRIPTS = [
     "stat_functions/generic.js",
     "stat_functions/collocation.js",
     "stat_functions/concordance.js",
+    "stat_functions/javascript-lemmatizer/bower_components/underscore/underscore.js",
+    "stat_functions/javascript-lemmatizer/js/lemmatizer.js",
 ];
 
 // init total websites count and total websites with hits count
