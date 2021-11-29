@@ -84,14 +84,13 @@ async function runAnalysis(pageText, url,callback) {
                     // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
                     var calculatedConcordance = performConcordance(tokens.wordTokens,tokens.processingTokens, statCollection.concordance);
                     //console.log(calculatedConcordance);
-                    var concordanceLines = [];
-                    calculatedConcordance.forEach(element => {
-                        var line = stringifyConcordanceLine(element, pageText);
-                        // console.log(line.left, " || ",  line.word, " || ", line.right);
-                        line.excluded = false;
-                        line.count = 1;
-                        concordanceLines.push(line);
-                    });
+                    var concordanceLines = calculatedConcordance;
+                    // calculatedConcordance.forEach(element => {
+                    //     var line = stringifyConordanceLine(element, pageText);
+                    //     // console.log(line.left,  " || ",  line.word, " || ", line.right);
+                        
+                    //     concordanceLines.push(line);
+                    // });
 
                     // chrome.storage.local.remove("concordanceData");
                     chrome.storage.local.get("concordanceData", function (result) {

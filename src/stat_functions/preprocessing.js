@@ -161,7 +161,6 @@ function tokenize(corpus, storeLocation = false) {
 // clean tokens
 // includes removing stopwords, apply lemmatisation and make lowercase
 function cleanCorpus(tokens, stopwords, removePunctuation, standardizeVocabulary, casing) {
-    removePunctuation = true
 
     // remove punctuation . , ; :
     if(removePunctuation){

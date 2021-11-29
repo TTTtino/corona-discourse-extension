@@ -43,7 +43,8 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
                     concordanceInst["span"][1], // right span
                     concordanceInst["context"],
                     concordanceInst["ignore-punctuation"],
-                    concordanceInst["measurement"]
+                    concordanceInst["measurement"],
+                    concordanceInst["allow-self-reference"]
                 );
             }
             chrome.storage.local.set({
@@ -65,7 +66,8 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
                     concordanceInst["span"][1], // right span
                     concordanceInst["context"],
                     concordanceInst["ignore-punctuation"],
-                    concordanceInst["measurement"]
+                    concordanceInst["measurement"],
+                    concordanceInst["allow-self-reference"]
                 );
             }
 

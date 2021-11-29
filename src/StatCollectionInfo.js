@@ -42,12 +42,13 @@ class Collocation{
 
 // Stores parameters for extracting concordance lines
 class ConcordanceLines{
-    constructor(pivots,targets, regexParsing, leftSpan, rightSpan,context,ignorePunctuation,measurement){
+    constructor(pivots,targets, regexParsing, leftSpan, rightSpan,context,ignorePunctuation,measurement,selfReference){
         this.pivotTokens= pivots;
         this.targetTokens= targets;
         this.parseAsRegex= regexParsing;
         this.span= [leftSpan, rightSpan];
         this.context = context;
+        this.selfReference= selfReference;
         this.ignorePunctuation = ignorePunctuation;
         this.measurement = measurement;
     }

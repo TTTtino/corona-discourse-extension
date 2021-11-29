@@ -5,6 +5,7 @@ function performConcordance(wordTokens, processingTokens, concordanceInfo) {
 
     // get collocations based on pivot and target tokens of concordance lines
     var collocations = performCollocation(wordTokens, concordanceInfo);
+    var collocationsCalculated =   calculateFreqPMI(collocations,concordanceInfo.selfReference);
 
     var concordanceList = []
 
@@ -117,10 +118,13 @@ function performConcordance(wordTokens, processingTokens, concordanceInfo) {
             concordanceList.push({
                 leftContext : leftContext.join(' '),
                 left: leftSpan.join(' '),
-                wordToken: pivot,
+                word: wordTokens[pos],
                 right: rightSpan.join(' '),
                 rightContext : rightContext.join(' '),
-                targetToken : target
+                targetToken : target,
+                calculatedMeasurements : getCalculatedConcordanceLine(collocationsCalculated,pivot,target),
+                excluded : false,
+                count : 1
             });
 
 
@@ -129,34 +133,31 @@ function performConcordance(wordTokens, processingTokens, concordanceInfo) {
     }
 
     return concordanceList;
+}
 
-    // for (var iToken = 0; iToken < wordTokens.length; iToken++) {
-    //     token = colls[iToken];
-    //     word = token[0];
-    //     if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
-    //         let left = [];
-    //         for (let j = -concordanceInfo.span[0]; j < 0; j++) {
-    //             if (iToken + j >= 0) {
-    //                 const tokenB = wordTokens[iToken + j];
-    //                 left.push(tokenB);
-    //             }
-    //         }
-    //         let right = [];
-    //         for (let j = 1; j <= concordanceInfo.span[1]; j++) {
-    //             if (iToken + j < wordTokens.length) {
-    //                 const tokenB = wordTokens[iToken + j];
-    //                 right.push(tokenB);
-    //             }
-    //         }
-    //         concordanceLineTokens.push({
-    //             left: left,
-    //             right: right,
-    //             wordToken: token,
-    //         });
-    //     }
-    // }
+function getCalculatedConcordanceLine(colData,pivot,target){
+    var calculated = {};
+    var key = pivot+" "+target;
 
-    return concordanceLineTokens;
+    try {
+        calculated = {
+            nGramFrequencies : colData.nGramFrequencies[key],
+            nGramProbabilities: colData.nGramProbabilities[key],
+            nGramSum : colData.nGramSum,
+            pivotFrequencies : colData.pivotFrequencies[pivot],
+            pivotProbabilities : colData.pivotProbabilities[pivot],
+            pmi: colData.pmi[key],
+            targetFrequencies : colData.targetFrequencies[target],
+            targetProbabilities : colData.targetProbabilities[target],
+            tokenSum : colData.tokenSum            
+        }
+    } catch (error) {
+        
+    }
+
+    return calculated;
+
+
 }
 
 function getTrimmedSpan(span, target, parseAsRegex, isLeftSpan) {
@@ -273,45 +274,9 @@ function mapCleanedCorpus(originalTokens, processedTokens) {
 
 
 
-function DEPRECATED_performConcordance(wordTokens, concordanceInfo) {
-
-    var word = "";
-    var token;
-    var concordanceLineTokens = [];
-    for (var iToken = 0; iToken < wordTokens.length; iToken++) {
-        word = wordTokens[iToken];
-
-        if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
-
-            let left = [];
-            for (let j = -concordanceInfo.span[0]; j < 0; j++) {
-                if (iToken + j >= 0) {
-                    const tokenB = wordTokens[iToken + j];
-                    left.push(tokenB);
-                }
-            }
-            let right = [];
-            for (let j = 1; j <= concordanceInfo.span[1]; j++) {
-                if (iToken + j < wordTokens.length) {
-                    const tokenB = wordTokens[iToken + j];
-                    right.push(tokenB);
-                }
-            }
-
-            concordanceLineTokens.push({
-                left: left,
-                right: right,
-                wordToken: token,
-            });
-        }
-    }
-
-    return concordanceLineTokens;
-}
-
 
 function stringifyTokenArray(array, corpus = false) {
-    if (array.length == 0) {
+    if(array.length == 0){
         return "";
     }
     if (corpus === false) {
@@ -324,23 +289,9 @@ function stringifyTokenArray(array, corpus = false) {
     }
 }
 
-function DEPRECATED_generateContext(index, span, wordTokens) {
-    var context = [];
-    if (span < 0) {
-        for (let i = index + span; i < index; i++) {
-            if (i >= 0) {
-                context.push(wordTokens[i]);
-            }
-        }
-    } else if (span > 0) {
-        for (let i = index + 1; i <= index + span; i++) {
-            if (i < wordTokens.length) {
-                context.push(wordTokens[i]);
-            }
-        }
-    }
-    return context;
-}
+
+
+
 
 // returns: true if token matches any element in target list by regex, or exact
 function tokenInList(token, targetList, regex) {
