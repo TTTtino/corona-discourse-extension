@@ -65,7 +65,7 @@ function performConcordance(wordTokens, processingTokens, concordanceInfo) {
 
                 try {
                     // get array of left context tokens
-                    leftSpan = originalTokens.slice(
+                    leftContext = originalTokens.slice(
                         Math.max(0, Math.max(0, mapping[pos - span[0]] - context[0])),
                         mapping[Math.max(0, pos - span[0])]
                     )
@@ -73,7 +73,7 @@ function performConcordance(wordTokens, processingTokens, concordanceInfo) {
                 } catch (error) {
                     if (typeof error === RangeError) {
                         // get array of left context tokens
-                        leftSpan = originalTokens.slice(
+                        leftContext = originalTokens.slice(
                             Math.max(0, originalTokens[0]),
                             mapping[pos - span[0]]
                         )
