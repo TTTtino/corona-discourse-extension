@@ -188,14 +188,8 @@ function createConcordanceTable(concordanceData, parentElement) {
                 }
 
                 // cell pivot token
-                let wordCell = row.insertCell();
-                wordCell.classList.add("centered-cell");
-                let text = document.createElement("span");
-                text.innerHTML = element.word;
-                wordCell.appendChild(text);
-
-
-
+                createTextCell(element.calculatedMeasurements.word,row);
+          
                 // cell right span
                 let rightCell = row.insertCell();
                 // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
@@ -228,30 +222,16 @@ function createConcordanceTable(concordanceData, parentElement) {
                 // cell target
                 createTextCell(element.targetToken,row);
 
-                // // cell target
-                // let targetCell = row.insertCell();
-                // let targetText = document.createTextNode(element.target);
-                // targetCell.style = "text-align: center;";
-                // targetCell.appendChild(targetText);
+                  // cell count
+                  createTextCell(element.count,row);
 
-                // cell count
-                let countCell = row.insertCell();
-                let countText = document.createTextNode(element.count);
-                countCell.style = "text-align: center;";
-                countCell.appendChild(countText);
-
+              
                 // cell PMI
-                let pmiCell = row.insertCell();
-                let pmiText = document.createTextNode(element.count);
-                pmiCell.style = "text-align: center;";
-                pmiCell.appendChild(countText);
+                createTextCell(element.calculatedMeasurements.pmi,row);
+             
 
                 //cell source
-                let sourceCell = row.insertCell();
-                let sourceText = document.createTextNode(concordEntry.source);
-                sourceCell.style = "text-align: center;";
-                sourceCell.appendChild(sourceText);
-
+                createTextCell(concordEntry.source,row);
 
                 // cell exclude
                 let excludedCell = row.insertCell();
