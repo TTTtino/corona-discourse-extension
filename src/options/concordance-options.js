@@ -100,10 +100,14 @@ function createConcordanceTable(concordanceData, parentElement) {
         // header for the concordance table
         var header = [
             "#",
-            "Left Content",
+            "Left Context",
+            "Left Span",
             "Pivot",
-            "Right Content",
+            "Right Span",
+            "Right Context",
+            "Target",
             "Count",
+            "PMI",
             "Source",
             "Exclude?",
         ];
@@ -152,6 +156,22 @@ function createConcordanceTable(concordanceData, parentElement) {
                 let cell = row.insertCell();
                 cell.append(rowNum)
 
+                // cell left context
+                let leftContextCell = row.insertCell();
+                leftContextCell.style = "text-align: right;";
+                // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
+                if (element.leftContext.length > lineLimit) {
+                    let text = document.createElement("span");
+                    text.innerHTML = "..." + element.leftContext.slice(-lineDisplayLength);
+                    text.setAttribute("title", element.leftContext);
+                    leftContextCell.appendChild(text);
+                } else {
+                    let text = document.createElement("span");
+                    text.innerHTML = element.leftContext;
+                    leftContextCell.appendChild(text);
+                }
+
+
                 // cell left span
                 let leftCell = row.insertCell();
                 leftCell.style = "text-align: right;";
@@ -167,11 +187,14 @@ function createConcordanceTable(concordanceData, parentElement) {
                     leftCell.appendChild(text);
                 }
 
+                // cell pivot token
                 let wordCell = row.insertCell();
                 wordCell.classList.add("centered-cell");
                 let text = document.createElement("span");
                 text.innerHTML = element.word;
                 wordCell.appendChild(text);
+
+
 
                 // cell right span
                 let rightCell = row.insertCell();
@@ -188,11 +211,40 @@ function createConcordanceTable(concordanceData, parentElement) {
                     rightCell.appendChild(text);
                 }
 
+                // cell right context
+                let rightContextCell = row.insertCell();
+                // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
+                if (element.rightContext.length > lineLimit) {
+                    let text = document.createElement("span");
+                    text.innerHTML =
+                        element.rightContext.slice(0, lineDisplayLength) + "...";
+                    text.setAttribute("title", element.rightContext);
+                    rightContextCell.appendChild(text);
+                } else {
+                    let text = document.createElement("span");
+                    text.innerHTML = element.rightContext;
+                    rightContextCell.appendChild(text);
+                }
+                // cell target
+                createTextCell(element.targetToken,row);
+
+                // // cell target
+                // let targetCell = row.insertCell();
+                // let targetText = document.createTextNode(element.target);
+                // targetCell.style = "text-align: center;";
+                // targetCell.appendChild(targetText);
+
                 // cell count
                 let countCell = row.insertCell();
                 let countText = document.createTextNode(element.count);
                 countCell.style = "text-align: center;";
                 countCell.appendChild(countText);
+
+                // cell PMI
+                let pmiCell = row.insertCell();
+                let pmiText = document.createTextNode(element.count);
+                pmiCell.style = "text-align: center;";
+                pmiCell.appendChild(countText);
 
                 //cell source
                 let sourceCell = row.insertCell();
@@ -227,6 +279,33 @@ function createConcordanceTable(concordanceData, parentElement) {
         parentElement.appendChild(noDataMessage);
         parentElement.classList.remove("scrollable-div");
     }
+}
+
+function createTextCell(content, row) {
+    let cell = row.insertCell();
+    let text = document.createTextNode(content);
+    cell.style = "text-align: center;";
+    cell.appendChild(text);
+
+}
+
+function createSpanCell(row, contentText) {
+    // cell right span
+    let cell = row.insertCell();
+    // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
+    if (contentText.length > lineLimit) {
+        let text = document.createElement("span");
+        text.innerHTML =
+            contentText.slice(0, lineDisplayLength) + "...";
+        text.setAttribute("title", contentText);
+        cell.appendChild(text);
+    } else {
+        let text = document.createElement("span");
+        text.innerHTML = contentText;
+        cell.appendChild(text);
+    }
+
+    return cell;
 }
 // Toggles the specific concordLine's exlcusion attribute, depending on the value of checkBoxElement
 function toggleConcordanceLineExclusion(concordLine, checkBoxElement) {
@@ -284,17 +363,17 @@ function removeExcluded(concordanceData) {
         // get total number of concordance lines
         concordanceNumber += concordanceObject.concordanceLines.length;
         // remove lines where excluded is true
-        concordanceObject.concordanceLines = concordanceObject.concordanceLines .filter(line => !line.excluded);
+        concordanceObject.concordanceLines = concordanceObject.concordanceLines.filter(line => !line.excluded);
 
-        concordanceNumberAfterExcluding+=concordanceObject.concordanceLines.length;
+        concordanceNumberAfterExcluding += concordanceObject.concordanceLines.length;
     });
 
 
     // get total excluded lines in %
-    var totalExcluded = 1 - concordanceNumberAfterExcluding/concordanceNumber;
-    totalExcluded = totalExcluded.toFixed(4)*100;
+    var totalExcluded = 1 - concordanceNumberAfterExcluding / concordanceNumber;
+    totalExcluded = totalExcluded.toFixed(4) * 100;
 
-    return [concordanceData,totalExcluded];
+    return [concordanceData, totalExcluded];
 
 }
 

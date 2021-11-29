@@ -27,7 +27,8 @@ function performConcordance(wordTokens, processingTokens, concordanceInfo) {
 
         // for every occurrence  
         for (var j = 0; j < collPos.length; j++) {
-            var pos = collPos[j];
+            var pos = collPos[j][0];
+            var posTarget = collPos[j][1];
 
             var lContextExists = true;
             var rContextExists = true;
@@ -121,7 +122,7 @@ function performConcordance(wordTokens, processingTokens, concordanceInfo) {
                 word: wordTokens[pos],
                 right: rightSpan.join(' '),
                 rightContext : rightContext.join(' '),
-                targetToken : target,
+                targetToken : wordTokens[posTarget],
                 calculatedMeasurements : getCalculatedConcordanceLine(collocationsCalculated,pivot,target),
                 excluded : false,
                 count : 1

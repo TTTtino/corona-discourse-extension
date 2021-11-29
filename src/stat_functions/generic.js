@@ -40,49 +40,6 @@ function generateNgrams(wordTokens, [l, r]) {
     return ngram;
 } 
 
-// generate n-grams based on left and right span
-// returns: array of objects {word:string, left:[string], right:[string]}
-function generateNgramsConcordance(pivot,target,wordTokens, [l, r]) {
-
-    //IDEE:Erst das, dann eweils index von links und rechts speichern und dann an den indexen wieder anfangen mit context
-    // 
-    var ngram = [];
-    // iterate through each token
-    for (var i = 0; i < wordTokens.length; i++) {
-        var left = [];
-        var right = [];
-
-        // iterate from the left most token from the current token
-        for (var j = l; j > 0; j--) {
-            // if there is a token at the index
-            if (i - j >= 0) {
-                // add the token to the left list
-                left.push(wordTokens[i - j]);
-            } else {
-                continue;
-            }
-        }
-
-        // iterate through tokens to the right of current token
-        for (var k = 1; k <= r; k++) {
-            // if there is a token at the index
-            if (i + k < wordTokens.length) {
-                // add the token to the left list
-                right.push(wordTokens[i + k]);
-            } else {
-                continue;
-            }
-        }
-
-        // push the object to the ngram array
-        ngram.push({
-            word: wordTokens[i],
-            left: left,
-            right: right
-        });
-    }
-    return ngram;
-} 
 
 // get the frequency of a token in the list of tokens
 // returns: int representing occurrence of token
@@ -127,7 +84,7 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
                     // increment counter
                     if (element.left[li] === target) {
                         count++;
-                        positions.push(i)
+                        positions.push([i,i-(element.left.length-li)])
                     }
                 }
                 // iterate through right list
@@ -135,7 +92,7 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
                     // increment counter
                     if (element.right[ri] === target) {
                         count++;
-                        positions.push(i)
+                        positions.push([i,i+ri+1])
                     }
                 }
             }
@@ -152,7 +109,7 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
                     // increment counter
                     if (targetRe.test(element.left[li])) {
                         count++;
-                        positions.push(i)
+                        positions.push([i,i-(element.left.length-li)])
                     }
                 }
                 // iterate through right list and test against target regex
@@ -160,7 +117,7 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
                     // increment counter
                     if (targetRe.test(element.right[ri])) {
                         count++;
-                        positions.push(i)
+                        positions.push([i,i+ri+1])
                     }
                 }
             }
