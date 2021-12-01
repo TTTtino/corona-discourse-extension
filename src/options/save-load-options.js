@@ -358,6 +358,15 @@ function showInputParameters(collectionStats, allowList, parentElement) {
         );
     }
 
+        // Concordance Table
+        if (collectionStats.frequency != null) {
+            createTableFromObject(
+                collectionStats.frequency,
+                ["Frequency Parameter", "Value"],
+                parentElement
+            );
+        }
+
 }
 
 

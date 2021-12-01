@@ -35,10 +35,9 @@ class Collocation{
 
 // Stores parameters for token frequencies
 class Frequency{
-    constructor(tokens,regexParsing,measurement){
+    constructor(tokens,regexParsing){
         this.tokens = tokens;
         this.regexParsing = regexParsing;
-        this.measurement = measurement;
     }
 }
 

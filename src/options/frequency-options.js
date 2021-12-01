@@ -8,6 +8,12 @@ function loadFrequencyData(callback) {
                 null,
                 document.getElementById("frequency-section")
             );
+
+            document.getElementById('freq-word-count-section').style.display = 'none';
+
+            
+
+
             callback();
         } else {
 
@@ -16,6 +22,10 @@ function loadFrequencyData(callback) {
                 result.frequencyData,
                 document.getElementById("frequency-section")
             );
+
+            // show total word count in frequency section
+            document.getElementById('freq-word-count').innerHTML = result.frequencyData.totalWordCount;
+            document.getElementById('freq-word-count-section').style.visibility = 'visible';
 
             callback();
 
@@ -29,8 +39,7 @@ function getFrequencyInstructions(frequencyInst) {
     if (frequencyInst !== null) {
         frequency = new Frequency(
             frequencyInst["tokens"],
-            frequencyInst["parse-as-regex"],
-            frequencyInst["measurement"]
+            frequencyInst["parse-as-regex"]
 
         );
     }
@@ -50,8 +59,7 @@ function storeNewFrequencyInstructions(frequencyInst, callback) {
             } else {
                 result.collectionStats.frequency = new Frequency(
                     frequencyInst["tokens"],
-                    frequencyInst["parse-as-regex"],
-                    frequencyInst["measurement"]
+                    frequencyInst["parse-as-regex"]
                 );
             }
             chrome.storage.local.set({
