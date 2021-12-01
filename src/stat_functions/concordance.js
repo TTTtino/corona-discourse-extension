@@ -20,6 +20,9 @@ function performConcordance(wordTokens, processingTokens, concordanceInfo) {
 
     // for evert collocation 
     for (var coll in collocations.nGramPivotPositions) {
+        try{
+
+        
         pivot = collocations.nGramPivotPositions[coll][0][0];
         target = collocations.nGramPivotPositions[coll][0][1];
 
@@ -128,6 +131,9 @@ function performConcordance(wordTokens, processingTokens, concordanceInfo) {
                 count : 1
             });
 
+        }
+         }
+        catch(error){
 
         }
 

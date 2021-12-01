@@ -18,7 +18,10 @@ function onReaderLoad(event) {
                 storeNewConcordanceInstructions(
                     jsonIn["concordance-lines"],
                     () => {
-                        storeNewMetaInstructions(jsonIn['meta-instructions']), () => {}
+                        storeNewMetaInstructions(jsonIn['meta-instructions']), () => {
+                            storeNewFrequencyInstructions(jsonIn['frequency'],() => {
+                            })
+                        }
                     }
                 );
             });
@@ -36,9 +39,9 @@ function copyToClipboard(text) {
 function getCombinedStats(callback) {
     var statOutput = {
         researchName: null,
-        metaInstr: null,
         metaResults: null,
         collocation: null,
+        frequencies : null,
         concordanceLines: {
             concordance: null,
             totalExcluded: null
@@ -67,6 +70,9 @@ function getCombinedStats(callback) {
                     statOutput.metaInstruction = metaInstrData;
                     getMetaResultsData((metaResult) => {
                         statOutput.metaResults = metaResult;
+
+                        
+
                         callback(statOutput);
                     })
 
@@ -521,7 +527,7 @@ function exportConcordanceToCSV(title, concordanceJsonData, totalHits) {
                     right: '"' + getCleanedCSVContent(item['right']) + '"',
                     rightContext:'"' + getCleanedCSVContent(item['rightContext']) + '"',
                     target: '"' + getCleanedCSVContent(item['targetToken']) + '"',
-                    pmi: '"' + getCleanedCSVContent(item['calculatedMeasurements']['pmi']) + '"',
+                    pmi: item['calculatedMeasurements']['pmi'],
                     source: '"' + getCleanedCSVContent(lines['source']) + '"',
                     totalExcluded: concordanceJsonData['totalExcluded'],
                     totalHits: totalHits
@@ -536,7 +542,7 @@ function exportConcordanceToCSV(title, concordanceJsonData, totalHits) {
                     right: '"' + getCleanedCSVContent(item['right']) + '"',
                     rightContext:'"' + getCleanedCSVContent(item['rightContext']) + '"',
                     target: '"' + getCleanedCSVContent(item['targetToken']) + '"',
-                    pmi: '"' + getCleanedCSVContent(item['calculatedMeasurements']['pmi']) + '"',
+                    pmi: item['calculatedMeasurements']['pmi'],
                     source: '"' + getCleanedCSVContent(lines['source']) + '"',
                 });
 
@@ -554,6 +560,5 @@ function exportConcordanceToCSV(title, concordanceJsonData, totalHits) {
 }
 
 function getCleanedCSVContent(variable) {
-    variable = variable.toString();
     return variable.replace(/"/g, '""');
 }

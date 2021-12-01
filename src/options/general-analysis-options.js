@@ -35,6 +35,13 @@ function storeNewResearchName(name, callback) {
     });
 }
 
+function createTextCell(content, row) {
+    let cell = row.insertCell();
+    let text = document.createTextNode(content);
+    cell.style = "text-align: left;";
+    cell.appendChild(text);
+
+}
 
 
 // Store new meta instructions of query

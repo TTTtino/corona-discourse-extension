@@ -261,13 +261,6 @@ function createConcordanceTable(concordanceData, parentElement) {
     }
 }
 
-function createTextCell(content, row) {
-    let cell = row.insertCell();
-    let text = document.createTextNode(content);
-    cell.style = "text-align: center;";
-    cell.appendChild(text);
-
-}
 
 function createSpanCell(row, contentText) {
     // cell right span

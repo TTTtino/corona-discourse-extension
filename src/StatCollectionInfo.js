@@ -33,12 +33,14 @@ class Collocation{
     }
 }
 
-// For testing purposes
-// class TokenOccurence{
-//     constructor(token) {
-//         this.searchToken = token;
-//     }
-// }
+// Stores parameters for token frequencies
+class Frequency{
+    constructor(tokens,regexParsing,measurement){
+        this.tokens = tokens;
+        this.regexParsing = regexParsing;
+        this.measurement = measurement;
+    }
+}
 
 // Stores parameters for extracting concordance lines
 class ConcordanceLines{

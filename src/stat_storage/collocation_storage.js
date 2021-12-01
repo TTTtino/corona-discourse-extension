@@ -15,7 +15,12 @@
     // Combine two collocation data objects and return the result
     function combineCollocationData(prevCollocationData, collocationData) {
 
-        var newCollocationData = new CollocationData();
+        if (typeof prevCollocationData === 'undefined') {
+            var newCollocationData = new CollocationData();
+        } else {
+            var newCollocationData = prevCollocationData;
+        }
+
         // iterate through each key in the collocationData pivot dictionary
         for (var key in collocationData.pivotFrequencies) {
             var value = collocationData.pivotFrequencies[key];

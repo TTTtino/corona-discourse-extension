@@ -19,10 +19,16 @@
 		"pivot-tokens": ["(BAME|bame)", "(B|b)lack(s?)", "(A|a)sian(s?)", "(M|m)inorit(y|ies)", "(V|v)accin(e|es|ation|ations|ated)", "(S|s)hot(s?)", "(J|j)ab(s?)", "(I|i)mmun(ity|ised|isation)", "(D|d)ose(s?)", "(C|c)ommunit(y|ies)", "(H|h)op(e|es|ing)", "(S|s)afe(ty)?"],
 		"target-tokens": ["(BAME|bame)", "(B|b)lack(s?)", "(A|a)sian(s?)", "(M|m)inorit(y|ies)", "(V|v)accin(e|es|ation|ations|ated)", "(S|s)hot(s?)", "(J|j)ab(s?)", "(I|i)mmun(ity|ised|isation)", "(D|d)ose(s?)", "(C|c)ommunit(y|ies)", "(H|h)op(e|es|ing)", "(S|s)afe(ty)?"],
 		"allow-self-reference": false,
-		"parse-as-regex": false,
+		"parse-as-regex": true,
 		"span": [10,5],
 		"context" : [2,2],
 		"ignore-punctuation":true,
 		"measurement":"pmi"
+	},
+	"frequency": {
+		"tokens":["(BAME|bame)", "(B|b)lack(s?)", "(A|a)sian(s?)", "(M|m)inorit(y|ies)", "(V|v)accin(e|es|ation|ations|ated)", "(S|s)hot(s?)", "(J|j)ab(s?)", "(I|i)mmun(ity|ised|isation)", "(D|d)ose(s?)", "(C|c)ommunit(y|ies)", "(H|h)op(e|es|ing)", "(S|s)afe(ty)?"],
+		"parse-as-regex": true,
+		"measurement":"relative-frequency"
 	}
+
 }

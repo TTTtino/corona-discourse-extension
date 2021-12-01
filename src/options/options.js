@@ -61,7 +61,9 @@ function load_options() {
     // ---------------------- OVERVIEW TAB ----------------------
     loadCollocationData(() => {
         console.log("Loading Concordance Data");
-        loadConcordanceData(() => {});
+        loadConcordanceData(() => {
+            loadFrequencyData(() => {});
+        });
     });
 
 
@@ -194,12 +196,14 @@ function performDeleteData(callback) {
     // add more callbacks for each stat that is added
     chrome.storage.local.remove("collocationData", () => {
         chrome.storage.local.remove("concordanceData", () => {
+            chrome.storage.local.remove("frequencyData", () => {
             chrome.storage.local.remove("extensionActive", () => {
                 chrome.storage.local.remove("totalWebsitesAndHits", () => {
                     callback();
                 });
             });
         });
+    });
     });
 
 }
@@ -497,7 +501,9 @@ async function storeProjectData(jsonIn, projectId, projectName, projectDescripti
                     jsonIn["concordance-lines"],
                     () => {
                         storeNewMetaInstructions(jsonIn['meta-instructions'], () => {
-                            resolve();
+                            storeNewFrequencyInstructions(jsonIn['frequency'],() => {
+                                resolve();
+                            })
                         });
                     }
                 );

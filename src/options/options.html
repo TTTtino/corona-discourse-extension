@@ -31,7 +31,7 @@
                 <li data-tab-target="#general" class="tab active">
                     Analysis Overview / Results
                 </li>
-               
+
                 <li data-tab-target="#allow-list" class="tab">
                     Allow List
                 </li>
@@ -69,6 +69,16 @@
 
                 <div id="concordance-section" class="stats section collapsible-content" style="display: none;"></div>
 
+
+                <h3 class="sub-title">Frequency</h3>
+                <p>The number of times that a word or expression occurs.
+                </p>
+                <button type="button" class="collapsible-button active">
+                    Frequency
+                </button>
+
+                <div id="frequency-section" class="stats section collapsible-content" style="display: none;"></div>
+
                 </br>
                 </br>
                 <div class="alert alert-info">
@@ -102,7 +112,7 @@
                     </button>
                 </div>
                 </br>
-                
+
 
             </div>
             <div id="selectAnalysis" data-tab-content>
@@ -134,8 +144,8 @@
                     </form>
 
                 </div>
-                <div id ="project-overview-section">
-                <h2 id="project-overview-section" class="title">Project Overview</h2>
+                <div id="project-overview-section">
+                    <h2 id="project-overview-section" class="title">Project Overview</h2>
                     <button id="reset-selected-project" class="btn btn-outline-danger">
                         Reset Selected Project
                     </button>
@@ -162,30 +172,33 @@
                         </table>
                     </div>
                 </div>
-            <div id="help" data-tab-content>
-                <h1 class="title">Help</h1>
-                <div>
-                    <p>For information about the PriPA extension and explanations how to use it please visit our <a
-                            href="https://pripa.azurewebsites.net/extension/">website</a>.</p>
+                <div id="help" data-tab-content>
+                    <h1 class="title">Help</h1>
+                    <div>
+                        <p>For information about the PriPA extension and explanations how to use it please visit our <a
+                                href="https://pripa.azurewebsites.net/extension/">website</a>.</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <script src="/StatCollectionInfo.js"></script>
-    <script src="/ProjectInfo.js"></script>
-    <script src="../stat_functions/generic.js"></script>
-    <script src="../stat_functions/collocation.js"></script>
-    <script src="../stat_functions/concordance.js"></script>
-    <script src="../stat_storage/concordance_storage.js"></script>
+        <script src="/StatCollectionInfo.js"></script>
+        <script src="/ProjectInfo.js"></script>
+        <script src="../stat_functions/generic.js"></script>
+        <script src="../stat_functions/collocation.js"></script>
+        <script src="../stat_functions/concordance.js"></script>
+        <script src="../stat_functions/frequency.js"></script>
+        <script src="../stat_storage/concordance_storage.js"></script>
+        <script src="../stat_storage/frequency_storage.js"></script>
         <script src="../stat_functions/javascript-lemmatizer/bower_components/underscore/underscore.js"></script>
         <script src="../stat_functions/javascript-lemmatizer/js/lemmatizer.js"></script>
         <script src="general-analysis-options.js"></script>
-    <script src="allowlist-options.js"></script>
-    <script src="concordance-options.js"></script>
-    <script src="collocation-options.js"></script>
-    <script src="meta-instructions-options.js"></script>
-    <script src="save-load-options.js"></script>
-    <script src="options.js"></script>
+        <script src="allowlist-options.js"></script>
+        <script src="concordance-options.js"></script>
+        <script src="collocation-options.js"></script>
+        <script src="frequency-options.js"></script>
+        <script src="meta-instructions-options.js"></script>
+        <script src="save-load-options.js"></script>
+        <script src="options.js"></script>
 </body>
 
 </html>

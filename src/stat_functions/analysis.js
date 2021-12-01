@@ -139,14 +139,67 @@ async function runAnalysis(pageText, url,callback) {
             })
         }
 
+        var runFrequencyAnalysis = function () {
+            return new Promise(function (resolve) {
+                if (statCollection.frequency) {
+
+                    var resultsFound = false;
+
+   
+                    var calculatedFrequency = performFrequency(tokens.wordTokens, statCollection.frequency);
+
+                    // check if there are any results
+                    for (const [key, value] of Object.entries(calculatedFrequency.tokens)) {
+                        if (value.absoluteFrequency > 0) {
+                            resultsFound = true;
+                            break;
+                        }
+                    }
+
+                    // get the currently stored data on frequency
+                    chrome.storage.local.get("frequencyData", function (result) {
+                        // if none found...
+                        if (typeof result.frequencyData === "undefined") {
+                            // creates an empty frequency data and combines it with result for current page
+                            var defaultFrequency = new FrequencyData();
+     
+                            var newFreq = combineFrequencyData(defaultFrequency, calculatedFrequency);
+
+                            // set the storage to the new data
+                            chrome.storage.local.set({
+                                frequencyData: newFreq
+                                },
+                                function () {
+                                    console.log("frequencyData not stored, storing it now");
+                                    resolve(resultsFound);
+                                }
+                            );
+                        } else {
+                            // combine the data for the current page with the existing stored data
+                            var newFreq = combineFrequencyData(result.frequencyData, calculatedFrequency);
+
+                            // set the data to be the combined result
+                            chrome.storage.local.set({
+                                frequencyData: newFreq
+                            }, function () {
+                                resolve(resultsFound);
+                            });
+                        }
+                    });
+
+
+                } else {
+                    resolve(false)
+                }
+            })
+        }
+
         var collocationResultsFound = await runCollocationAnalysis();
         var concordanceResultsFound = await runConcordanceAnalysis();
+        var frequencyResultsFound = await runFrequencyAnalysis();
 
-
-        console.log("collocationResultsFound", collocationResultsFound)
-        console.log("concordanceResultsFound", concordanceResultsFound)
         
-        callback(collocationResultsFound === true || concordanceResultsFound === true);
+        callback(collocationResultsFound === true || concordanceResultsFound === true || frequencyResultsFound === true);
     });
 
 

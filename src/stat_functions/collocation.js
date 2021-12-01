@@ -10,7 +10,7 @@ function performCollocation(wordTokens, collocationInfo) {
     var nGramFrequency = {};
     var nGramPivotLocation = {}
     // iterate through each pivot token provided
-    for (let iPivot = 0; iPivot < collocationInfo.pivotTokens.length; iPivot++) {
+    for (let iPivot = 0; iPivot < collocationInfo.pivotTokens.length; iPivot++) {  
         const pivot = collocationInfo.pivotTokens[iPivot];
 
         var pivotToken = getFrequency(
