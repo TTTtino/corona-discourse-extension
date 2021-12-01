@@ -19,8 +19,7 @@ function onReaderLoad(event) {
                     jsonIn["concordance-lines"],
                     () => {
                         storeNewMetaInstructions(jsonIn['meta-instructions']), () => {
-                            storeNewFrequencyInstructions(jsonIn['frequency'],() => {
-                            })
+                            storeNewFrequencyInstructions(jsonIn['frequency'], () => {})
                         }
                     }
                 );
@@ -41,7 +40,7 @@ function getCombinedStats(callback) {
         researchName: null,
         metaResults: null,
         collocation: null,
-        frequencies : null,
+        frequency: null,
         concordanceLines: {
             concordance: null,
             totalExcluded: null
@@ -71,9 +70,12 @@ function getCombinedStats(callback) {
                     getMetaResultsData((metaResult) => {
                         statOutput.metaResults = metaResult;
 
-                        
+                        getFrequencyData((frequencyStats) => {
+                            statOutput.frequency = frequencyStats;
+                            callback(statOutput);
+                        });
 
-                        callback(statOutput);
+
                     })
 
 
@@ -96,7 +98,7 @@ function getMetaResultsData(callback) {
         // check if there is an entry for  total websites count and total websites with hits count
         if (typeof result.totalWebsitesAndHits !== 'undefined') {
             // calculate total hits in relation to total visited pages
-            totalHits = Math.round(((1/result.totalWebsitesAndHits.totalWebsites) * result.totalWebsitesAndHits.websitesWithHits) * 100);
+            totalHits = Math.round(((1 / result.totalWebsitesAndHits.totalWebsites) * result.totalWebsitesAndHits.websitesWithHits) * 100);
         }
 
         callback(totalHits);
@@ -222,7 +224,7 @@ function downloadCollectedStats() {
                 try {
                     json = JSON.parse(textToCopy);
 
-                    exportConcordanceToCSV(fileName, json['concordanceLines'],json['metaResults']);
+                    exportConcordanceToCSV(fileName, json['concordanceLines'], json['metaResults']);
 
                 } catch (error) {
                     console.log(error)
@@ -234,11 +236,24 @@ function downloadCollectedStats() {
                 // export collocations as CSV file
                 try {
 
-                    exportCollocationToCSV(fileName, json["collocation"],json['metaResults']);
+                    exportCollocationToCSV(fileName, json["collocation"], json['metaResults']);
 
                 } catch (error) {
                     console.group(error)
                     msg += " No collocation data to download. "
+                }
+
+                if (msg != '') {
+                    success += " Note: " + msg;
+                }
+
+                try {
+
+                    exportFrequencyToCSV(fileName, json["frequency"]);
+
+                } catch (error) {
+                    console.group(error)
+                    msg += " No frequency data to download. "
                 }
 
                 if (msg != '') {
@@ -358,14 +373,14 @@ function showInputParameters(collectionStats, allowList, parentElement) {
         );
     }
 
-        // Concordance Table
-        if (collectionStats.frequency != null) {
-            createTableFromObject(
-                collectionStats.frequency,
-                ["Frequency Parameter", "Value"],
-                parentElement
-            );
-        }
+    // Concordance Table
+    if (collectionStats.frequency != null) {
+        createTableFromObject(
+            collectionStats.frequency,
+            ["Frequency Parameter", "Value"],
+            parentElement
+        );
+    }
 
 }
 
@@ -422,7 +437,7 @@ function exportCSVFile(headers, items, fileTitle) {
 }
 
 //Export collocation lines JSON data into CSV file
-function exportCollocationToCSV(title, data,metaResults) {
+function exportCollocationToCSV(title, data, metaResults) {
 
     // Create headers for collocation table nGramFrequencies
     var headers = {
@@ -500,13 +515,13 @@ function exportConcordanceToCSV(title, concordanceJsonData, totalHits) {
     var headers = {
         index: '#'.replace(/,/g, ''), // remove commas to avoid errors
         count: "Frequency",
-        leftContext:'Left Context',
+        leftContext: 'Left Context',
         left: "Left Span",
         word: "Target Token",
         right: "Right Span",
-        rightContext:'Right Context',
+        rightContext: 'Right Context',
         target: "Target Token",
-        pmi:"PMI",
+        pmi: "PMI",
         source: "Source",
         totalExcluded: "Total Excluded in %",
         totalHits: "Total Hits in %"
@@ -530,11 +545,11 @@ function exportConcordanceToCSV(title, concordanceJsonData, totalHits) {
                 itemsFormatted.push({
                     index: index,
                     count: item['count'], // remove commas to avoid errors,
-                    leftContext:'"' + getCleanedCSVContent(item['leftContext']) + '"',
+                    leftContext: '"' + getCleanedCSVContent(item['leftContext']) + '"',
                     left: '"' + getCleanedCSVContent(item['left']) + '"',
                     word: '"' + getCleanedCSVContent(item['word']) + '"',
                     right: '"' + getCleanedCSVContent(item['right']) + '"',
-                    rightContext:'"' + getCleanedCSVContent(item['rightContext']) + '"',
+                    rightContext: '"' + getCleanedCSVContent(item['rightContext']) + '"',
                     target: '"' + getCleanedCSVContent(item['targetToken']) + '"',
                     pmi: item['calculatedMeasurements']['pmi'],
                     source: '"' + getCleanedCSVContent(lines['source']) + '"',
@@ -545,11 +560,11 @@ function exportConcordanceToCSV(title, concordanceJsonData, totalHits) {
                 itemsFormatted.push({
                     index: index,
                     count: item['count'], // remove commas to avoid errors,
-                    leftContext:'"' + getCleanedCSVContent(item['leftContext']) + '"',
+                    leftContext: '"' + getCleanedCSVContent(item['leftContext']) + '"',
                     left: '"' + getCleanedCSVContent(item['left']) + '"',
                     word: '"' + getCleanedCSVContent(item['word']) + '"',
                     right: '"' + getCleanedCSVContent(item['right']) + '"',
-                    rightContext:'"' + getCleanedCSVContent(item['rightContext']) + '"',
+                    rightContext: '"' + getCleanedCSVContent(item['rightContext']) + '"',
                     target: '"' + getCleanedCSVContent(item['targetToken']) + '"',
                     pmi: item['calculatedMeasurements']['pmi'],
                     source: '"' + getCleanedCSVContent(lines['source']) + '"',
@@ -565,6 +580,62 @@ function exportConcordanceToCSV(title, concordanceJsonData, totalHits) {
 
 
     exportCSVFile(headers, itemsFormatted, fileTitle); // call the exportCSVFile() function to process the JSON and trigger the download
+
+}
+
+//Export collocation lines JSON data into CSV file
+function exportFrequencyToCSV(title, data) {
+
+    // Create headers for collocation table nGramFrequencies
+    var headers = {
+        index: '#',
+        token: "Token",
+        absoluteFrequency: "Absolute Frequency",
+        relativeFrequency: "Relative Frequency",
+        logFrequency: "Logarithmic Frequency",
+        wordCount: "Total Word Count"
+    };
+
+
+    var itemsFormatted = [];
+
+    var index = 0;
+
+    // format the data for concordance lines
+    for (var item in data.tokens) {
+
+        index += 1;
+
+        if (index === 1) {
+            itemsFormatted.push({
+                index: index,
+                token: '"' + item + '"',
+                absoluteFrequency: '"' + data.tokens[item].absoluteFrequency + '"',
+                relativeFrequency: '"' + data.tokens[item].relativeFrequency + '"',
+                logFrequency: '"' + data.tokens[item].logFrequency + '"',
+                wordCount: '"' + data.totalWordCount + '"'
+
+            });
+
+        } else {
+            itemsFormatted.push({
+                index: index,
+                token: '"' + item + '"',
+                absoluteFrequency: '"' + data.tokens[item].absoluteFrequency + '"',
+                relativeFrequency: '"' + data.tokens[item].relativeFrequency + '"',
+                logFrequency: '"' + data.tokens[item].logFrequency + '"',
+                wordCount: ''
+
+            });
+        }
+
+    };
+
+
+
+    fileTitle = title + "_Frequency";
+
+    exportCSVFile(headers, itemsFormatted, fileTitle);
 
 }
 

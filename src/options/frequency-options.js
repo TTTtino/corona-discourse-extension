@@ -8,7 +8,7 @@ function loadFrequencyData(callback) {
                 null,
                 document.getElementById("frequency-section")
             );
-
+            // hide total word count in frequency section
             document.getElementById('freq-word-count-section').style.display = 'none';
 
             
