@@ -43,7 +43,6 @@ async function getTokenizedCorpus(corpus, storeLocation = false, callback) {
 // tokenize a corpus and return the token lists
 // returns: {wordTokens: [string], sentenceTokens: [string]}
 function tokenize(corpus, storeLocation = false) {
-
     // return empty tokens if no corpus given
     if (corpus === "undefined") {
         return {
@@ -60,7 +59,6 @@ function tokenize(corpus, storeLocation = false) {
     // iterate through each character of the corpus
     for (var i = 0; i < corpus.length - 1; i++) {
         var char = corpus[i];
-
         // if the character is a letter or a number
         if (/[a-zA-Z0-9]+/.test(char)) {
             if (wordStart === -1) {
@@ -71,7 +69,6 @@ function tokenize(corpus, storeLocation = false) {
             wordBuffer = wordBuffer.concat(char);
             wordEnd = i;
         }
-
 
         // if the character is '-'
         if (char === "-") {
@@ -91,19 +88,17 @@ function tokenize(corpus, storeLocation = false) {
         }
 
         // if character is ' ' or newline
-        if ((/^[.,:;]/.test(char) || /^[\s\n\r]$/.test(char)) && wordBuffer !== "") {
+        if (/^[\s\n\r]$/.test(char) && wordBuffer !== "") {
             // add word in buffer to wordTokens
-
-            wordTokens.push(wordBuffer);
-
-            if (/[.,:;]+/.test(char)) {
-                wordTokens.push(char);
+            if (storeLocation) {
+                wordTokens.push([wordBuffer, wordStart, wordEnd])
+            } else {
+                wordTokens.push(wordBuffer);
             }
-
             // reset buffer
             wordBuffer = "";
-
-
+            wordStart = -1;
+            wordEnd = -1;
         }
 
         // if the character is not a sentence ending character
@@ -131,12 +126,15 @@ function tokenize(corpus, storeLocation = false) {
             wordEnd = i;
         }
         // add word in buffer to wordTokens
-
-        wordTokens.push(wordBuffer)
-
+        if (storeLocation) {
+            wordTokens.push([wordBuffer, wordStart, wordEnd])
+        } else {
+            wordTokens.push(wordBuffer);
+        }
         // reset buffer
         wordBuffer = "";
-
+        wordStart = -1;
+        wordEnd = -1;
     }
 
     // if the sentence is not empty
@@ -151,8 +149,7 @@ function tokenize(corpus, storeLocation = false) {
     }
     return {
         sentenceTokens: sentenceTokens,
-        wordTokens: wordTokens,
-        processingTokens: [null, wordTokens]
+        wordTokens: wordTokens
     };
 }
 

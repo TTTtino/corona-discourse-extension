@@ -41,10 +41,7 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
                     concordanceInst["parse-as-regex"], // regex parsing
                     concordanceInst["span"][0], // left span
                     concordanceInst["span"][1], // right span
-                    concordanceInst["context"],
-                    concordanceInst["ignore-punctuation"],
-                    concordanceInst["measurement"],
-                    concordanceInst["allow-self-reference"]
+      
                 );
             }
             chrome.storage.local.set({
@@ -64,10 +61,7 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
                     concordanceInst["parse-as-regex"], // regex parsing
                     concordanceInst["span"][0], // left span
                     concordanceInst["span"][1], // right span
-                    concordanceInst["context"],
-                    concordanceInst["ignore-punctuation"],
-                    concordanceInst["measurement"],
-                    concordanceInst["allow-self-reference"]
+                 
                 );
             }
 
@@ -100,14 +94,10 @@ function createConcordanceTable(concordanceData, parentElement) {
         // header for the concordance table
         var header = [
             "#",
-            "Left Context",
             "Left Span",
             "Pivot",
             "Right Span",
-            "Right Context",
-            "Target",
             "Count",
-            "PMI",
             "Source",
             "Exclude?",
         ];
@@ -156,22 +146,7 @@ function createConcordanceTable(concordanceData, parentElement) {
                 let cell = row.insertCell();
                 cell.append(rowNum)
 
-                // cell left context
-                let leftContextCell = row.insertCell();
-                leftContextCell.style = "text-align: right;";
-                // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
-                if (element.leftContext.length > lineLimit) {
-                    let text = document.createElement("span");
-                    text.innerHTML = "..." + element.leftContext.slice(-lineDisplayLength);
-                    text.setAttribute("title", element.leftContext);
-                    leftContextCell.appendChild(text);
-                } else {
-                    let text = document.createElement("span");
-                    text.innerHTML = element.leftContext;
-                    leftContextCell.appendChild(text);
-                }
-
-
+               
                 // cell left span
                 let leftCell = row.insertCell();
                 leftCell.style = "text-align: right;";
@@ -188,7 +163,7 @@ function createConcordanceTable(concordanceData, parentElement) {
                 }
 
                 // cell pivot token
-                createTextCell(element.calculatedMeasurements.word,row);
+                createTextCell(element.word,row);
           
                 // cell right span
                 let rightCell = row.insertCell();
@@ -203,32 +178,11 @@ function createConcordanceTable(concordanceData, parentElement) {
                     let text = document.createElement("span");
                     text.innerHTML = element.right;
                     rightCell.appendChild(text);
-                }
-
-                // cell right context
-                let rightContextCell = row.insertCell();
-                // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
-                if (element.rightContext.length > lineLimit) {
-                    let text = document.createElement("span");
-                    text.innerHTML =
-                        element.rightContext.slice(0, lineDisplayLength) + "...";
-                    text.setAttribute("title", element.rightContext);
-                    rightContextCell.appendChild(text);
-                } else {
-                    let text = document.createElement("span");
-                    text.innerHTML = element.rightContext;
-                    rightContextCell.appendChild(text);
-                }
-                // cell target
-                createTextCell(element.targetToken,row);
-
+                }   
+      
                   // cell count
                   createTextCell(element.count,row);
 
-              
-                // cell PMI
-                createTextCell(element.calculatedMeasurements.pmi,row);
-             
 
                 //cell source
                 createTextCell(concordEntry.source,row);

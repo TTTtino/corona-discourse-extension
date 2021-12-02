@@ -40,8 +40,7 @@ function performCollocation(wordTokens, collocationInfo) {
 
                 if (ngramFreq.count > 0) {
 
-                    nGramFrequency[pivot + " " + target] = ngramFreq.count;
-                    nGramPivotLocation[pivot + " " + target] =[[pivot,target],ngramFreq.positions]
+                    nGramFrequency[pivot + " " + target] = ngramFreq;
                 }
 
             }
@@ -75,7 +74,6 @@ function performCollocation(wordTokens, collocationInfo) {
     colStorage.nGramFrequencies = nGramFrequency;
     colStorage.nGramSum = nGrams.length;
     colStorage.tokenSum = wordTokens.length;
-    colStorage.nGramPivotPositions = nGramPivotLocation;
 
     return colStorage;
 }

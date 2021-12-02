@@ -71,7 +71,6 @@ function getFrequency(word, wordTokens, regex = true) {
 // Calculate the frequency of particular pivot and target in an array of n-grams
 // returns: int representing the number of times the pivot and target appear in the n-grams list
 function getNgramFrequency(pivot, target, ngrams, regex = true) {
-    var positions = []
     var count = 0;
     if (regex === false) {
         // iterate through each ngram
@@ -84,7 +83,6 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
                     // increment counter
                     if (element.left[li] === target) {
                         count++;
-                        positions.push([i,i-(element.left.length-li)])
                     }
                 }
                 // iterate through right list
@@ -92,7 +90,6 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
                     // increment counter
                     if (element.right[ri] === target) {
                         count++;
-                        positions.push([i,i+ri+1])
                     }
                 }
             }
@@ -109,7 +106,6 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
                     // increment counter
                     if (targetRe.test(element.left[li])) {
                         count++;
-                        positions.push([i,i-(element.left.length-li)])
                     }
                 }
                 // iterate through right list and test against target regex
@@ -117,16 +113,12 @@ function getNgramFrequency(pivot, target, ngrams, regex = true) {
                     // increment counter
                     if (targetRe.test(element.right[ri])) {
                         count++;
-                        positions.push([i,i+ri+1])
                     }
                 }
             }
         }
     }
-    return {
-        count:count,
-        positions:positions
-    };
+    return count;
 }
 
 // remove the positions from the token list and only include the token
