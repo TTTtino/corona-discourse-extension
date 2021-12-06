@@ -1,7 +1,7 @@
 // Calculates the Probabilities and Frequencies based on the collocation collection info
 // and tokenised corpus
 // TODO: Improve readability and remove repeated code
-function performCollocation(wordTokens, collocationInfo) {
+function performCollocation(wordTokens,collocationInfo) {
     // generate n-grams based on the span provided
     const nGrams = generateNgrams(wordTokens, collocationInfo.span);
 
