@@ -8,21 +8,15 @@ function performCollocation(wordTokens, collocationInfo) {
     var pivotFrequencies = {};
     var targetFrequencies = {};
     var nGramFrequency = {};
-    var nGramPivotLocation = {}
     // iterate through each pivot token provided
-    for (let iPivot = 0; iPivot < collocationInfo.pivotTokens.length; iPivot++) {  
+    for (let iPivot = 0; iPivot < collocationInfo.pivotTokens.length; iPivot++) {
         const pivot = collocationInfo.pivotTokens[iPivot];
-
-        var pivotToken = getFrequency(
+        // gets the frequency of the current pivot
+        pivotFrequencies[pivot] = getFrequency(
             pivot,
             wordTokens,
             collocationInfo.parseAsRegex
         );
-        // gets the frequency of the current pivot
-        if(pivotToken > 0){
-            pivotFrequencies[pivot] = pivotToken;
-        }
-        
         for (let iTarget = 0; iTarget < collocationInfo.targetTokens.length; iTarget++) {
             const target = collocationInfo.targetTokens[iTarget];
             if (!collocationInfo.selfReference && pivot === target) {
@@ -30,43 +24,31 @@ function performCollocation(wordTokens, collocationInfo) {
                 continue;
             } else {
                 // caluclate the nGram frequency using pivot and target, and store it in nGramFrequency dictionary
-
-                var ngramFreq = getNgramFrequency(
+                nGramFrequency[pivot + " " + target] = getNgramFrequency(
                     pivot,
                     target,
                     nGrams,
                     collocationInfo.parseAsRegex
                 );
-
-                if (ngramFreq.count > 0) {
-
-                    nGramFrequency[pivot + " " + target] = ngramFreq;
-                }
-
             }
         }
     }
 
     // iterate through the target tokens
     for (
-        let iTarget = 0; iTarget < collocationInfo.targetTokens.length; iTarget++
+        let iTarget = 0;
+        iTarget < collocationInfo.targetTokens.length;
+        iTarget++
     ) {
         const target = collocationInfo.targetTokens[iTarget];
-
-        var targetFreq = getFrequency(
+        // calculate the frequency for each target
+        targetFrequencies[target] = getFrequency(
             target,
             wordTokens,
             collocationInfo.parseAsRegex
         );
-
-        if (targetFreq > 0) {
-            // calculate the frequency for each target
-            targetFrequencies[target] = targetFreq;
-        }
-
     }
-
-
+    
     // create a CollocationData Object and store the calculated frequencies to return
     var colStorage = new CollocationData();
     colStorage.pivotFrequencies = pivotFrequencies;

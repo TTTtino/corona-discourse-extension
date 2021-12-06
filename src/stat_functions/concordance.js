@@ -1,10 +1,5 @@
 
 function performConcordance(wordTokens, concordanceInfo) {
-    //console.log(wordTokens);
-    // wordTokens.forEach(element => {
-    //     console.log(corpus.slice(element[1], element[2]+1));
-    //     // console.log(element[1], element[2]+1);
-    // });
     var word = "";
     var token;
     var concordanceLineTokens = [];
@@ -69,23 +64,23 @@ function stringifyTokenArray(array, corpus = false) {
     }
 }
 
-function DEPRECATED_generateContext(index, span, wordTokens) {
-    var context = [];
-    if (span < 0) {
-        for (let i = index + span; i < index; i++) {
-            if (i >= 0) {
-                context.push(wordTokens[i]);
-            }
-        }
-    } else if (span > 0) {
-        for (let i = index + 1; i <= index + span; i++) {
-            if (i < wordTokens.length) {
-                context.push(wordTokens[i]);
-            }
-        }
+
+function stringifyConcordanceLine(concordLine, corpus = false) {
+    if(corpus){
+        return {
+            left: stringifyTokenArray(concordLine.left, corpus),
+            right: stringifyTokenArray(concordLine.right, corpus),
+            word: concordLine.wordToken[0]
+        };
+    } else{
+        return {
+            left: removePositionsFromTokenList(concordLine.left).join(" "),
+            right: removePositionsFromTokenList(concordLine.right).join(" "),
+            word: concordLine.wordToken[0]
+        };
     }
-    return context;
 }
+
 
 // returns: true if token matches any element in target list by regex, or exact
 function tokenInList(token, targetList, regex) {

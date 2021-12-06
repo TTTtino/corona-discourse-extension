@@ -14,8 +14,7 @@
         "scripting",
         "tabs",
         "storage",
-        "unlimitedStorage",
-        "cookies"
+        "unlimitedStorage"
     ],
     "host_permissions": ["*://*/*"],
     "action": {

@@ -12,11 +12,8 @@ class StatCollectionInfo {
 
 // Stores parameters for meta instructions of query
 class MetaInstructions{
-    constructor(removePunctuation,standardiseVocabulary, standardiseCasing,stopwords,loadContentAt){
-        this.removePunctuation = removePunctuation;
-        this.standardiseVocabulary = standardiseVocabulary;
+    constructor(standardiseCasing,loadContentAt){
         this.standardiseCasing = standardiseCasing;
-        this.stopwords = stopwords;
        this.loadContentAt =loadContentAt;
 
     }
@@ -43,14 +40,9 @@ class Frequency{
 
 // Stores parameters for extracting concordance lines
 class ConcordanceLines{
-    constructor(pivots,targets, regexParsing, leftSpan, rightSpan,context,ignorePunctuation,measurement,selfReference){
-        this.pivotTokens= pivots;
-        this.targetTokens= targets;
+    constructor(pivots, regexParsing, leftSpan, rightSpan){
+        this.pivotTokens = pivots;
         this.parseAsRegex= regexParsing;
         this.span= [leftSpan, rightSpan];
-        this.context = context;
-        this.selfReference= selfReference;
-        this.ignorePunctuation = ignorePunctuation;
-        this.measurement = measurement;
     }
 }

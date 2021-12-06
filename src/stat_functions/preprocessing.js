@@ -8,25 +8,7 @@ async function getTokenizedCorpus(corpus, storeLocation = false, callback) {
                 if (result.collectionStats.metaInstruction !== 'undefined') {
                     tokens.wordTokens = cleanCorpus(
                         tokens.wordTokens,
-                        result.collectionStats.metaInstruction.stopwords,
-                        result.collectionStats.metaInstruction.removePunctuation,
-                        result.collectionStats.metaInstruction.standardiseVocabulary,
                         result.collectionStats.metaInstruction.standardiseCasing);
-
-                    if (result.collectionStats.metaInstruction.standardiseVocabulary === 'lemmatisation') {
-                        tokens.processingTokens[0] = cleanCorpus(
-                            tokens.wordTokens,
-                            result.collectionStats.metaInstruction.stopwords,
-                            result.collectionStats.metaInstruction.removePunctuation,
-                            "",
-                            result.collectionStats.metaInstruction.standardiseCasing);
-
-                    } else {
-                        tokens.processingTokens[0] = tokens.wordTokens;
-                    }
-
-
-
                 }
             }
 
@@ -157,86 +139,24 @@ function tokenize(corpus, storeLocation = false) {
 
 // clean tokens
 // includes removing stopwords, apply lemmatisation and make lowercase
-function cleanCorpus(tokens, stopwords, removePunctuation, standardizeVocabulary, casing) {
+function cleanCorpus(tokens, casing) {
 
-    // remove punctuation . , ; :
-    if(removePunctuation){
-        tokens = removePunctuationFromTokenList(tokens);
-    }
+
     // make lowercase
     if (casing === 'lowercase') {
         tokens = tokensToLowerCase(tokens);
     }
 
-    tokens = removeStopwords(tokens, stopwords);
-
-    // // apply lemmatisation
-    // if (standardizeVocabulary === 'lemmatisation') {
-    //     tokens = lemmatise(tokens);
-    // }
-
-
-
     return tokens
 
 
 }
 
-// removes all stopwords from token list
-function removeStopwords(tokens, stopwords) {
-    tokens = tokens.filter((el) => !stopwords.includes(el));
-    return tokens
-}
 
-
-function removePunctuationFromTokenList(tokens){
-    tokens = tokens.filter((el) => !(/[.,:;]+/.test(el)));
-    return tokens;
-
-}
-
-function lemmatise(tokens) {
-    var lemmatizer = new Lemmatizer();
-
-    // get POS (Position Of Speech) tag of tokens.
-    // this is necessary to get the correct lemmatized token
-    var taggedWords = new POSTagger().tag(tokens);
-
-    var lemmaTokens = []
-
-    for (i = 0; i < taggedWords.length; i++) {
-
-        // map the correct lemmatizer tag of tokens
-        var posTag = '';
-
-        if (taggedWords[i][1].startsWith('J')) {
-            posTag = 'adj';
-        } else if (taggedWords[i][1].startsWith('V')) {
-            posTag = 'verb';
-        } else if (taggedWords[i][1].startsWith('N')) {
-            posTag = 'noun';
-        } else if (taggedWords[i][1].startsWith('R')) {
-            posTag = 'adv';
-        }
-
-        try {
-            lemmaTokens.push(lemmatizer.only_lemmas(taggedWords[i][0], posTag)[0]);
-
-            if (lemmaTokens[i] === undefined) {
-                lemmaTokens[i] = taggedWords[i][0];
-            }
-        } catch (err) {
-            lemmaTokens.push(taggedWords[i][0]);
-        }
-
-    }
-
-    return lemmaTokens;
-}
 
 function tokensToLowerCase(tokens) {
     for (i = 0; i < tokens.length; i++) {
-        tokens[i] = tokens[i].toLowerCase();
+        tokens[i][0] = tokens[i][0].toLowerCase();
     }
     return tokens;
 }

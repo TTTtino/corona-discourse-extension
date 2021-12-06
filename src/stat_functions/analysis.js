@@ -23,8 +23,8 @@ async function runAnalysis(pageText, url,callback) {
                     var resultsFound = false;
 
                     // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
-                    //const positionsRemoved = removePositionsFromTokenList(tokens.wordTokens)
-                    var calculatedCollocation = performCollocation(tokens.wordTokens, statCollection.collocation);
+                    const positionsRemoved = removePositionsFromTokenList(tokens.wordTokens)
+                    var calculatedCollocation = performCollocation(positionsRemoved, statCollection.collocation);
 
                     // check if there are any results
                     for (const [key, value] of Object.entries(calculatedCollocation['targetFrequencies'])) {
@@ -82,15 +82,19 @@ async function runAnalysis(pageText, url,callback) {
                 if (statCollection.concordance) {
 
                     // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
-                    var calculatedConcordance = performConcordance(tokens.wordTokens,tokens.processingTokens, statCollection.concordance);
+                    var calculatedConcordance = performConcordance(tokens.wordTokens, statCollection.concordance);
                     //console.log(calculatedConcordance);
-                    var concordanceLines = calculatedConcordance;
-                    // calculatedConcordance.forEach(element => {
-                    //     var line = stringifyConordanceLine(element, pageText);
-                    //     // console.log(line.left,  " || ",  line.word, " || ", line.right);
-                        
-                    //     concordanceLines.push(line);
-                    // });
+
+                    var concordanceLines = [];
+       
+                    calculatedConcordance.forEach(element => {
+                        var line = stringifyConcordanceLine(element, pageText);
+                        // console.log(line.left,  " || ",  line.word, " || ", line.right);
+                        line.excluded = false;
+                        line.count = 1;
+                        concordanceLines.push(line);
+        
+                    });
 
                     // chrome.storage.local.remove("concordanceData");
                     chrome.storage.local.get("concordanceData", function (result) {
@@ -145,8 +149,8 @@ async function runAnalysis(pageText, url,callback) {
 
                     var resultsFound = false;
 
-   
-                    var calculatedFrequency = performFrequency(tokens.wordTokens, statCollection.frequency);
+                    const positionsRemoved = removePositionsFromTokenList(tokens.wordTokens)
+                    var calculatedFrequency = performFrequency(positionsRemoved, statCollection.frequency);
 
                     // check if there are any results
                     for (const [key, value] of Object.entries(calculatedFrequency.tokens)) {

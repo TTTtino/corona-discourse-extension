@@ -38,7 +38,7 @@ function generateNgrams(wordTokens, [l, r]) {
         });
     }
     return ngram;
-} 
+}
 
 
 // get the frequency of a token in the list of tokens

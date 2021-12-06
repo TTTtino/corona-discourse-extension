@@ -37,7 +37,6 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
             } else {
                 defaultCollectionStats.concordance = new ConcordanceLines(
                     concordanceInst["pivot-tokens"], // pivots
-                    concordanceInst["target-tokens"], // pivots
                     concordanceInst["parse-as-regex"], // regex parsing
                     concordanceInst["span"][0], // left span
                     concordanceInst["span"][1], // right span
@@ -57,7 +56,6 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
             } else {
                 result.collectionStats.concordance = new ConcordanceLines(
                     concordanceInst["pivot-tokens"], // pivots
-                    concordanceInst["target-tokens"], // pivots
                     concordanceInst["parse-as-regex"], // regex parsing
                     concordanceInst["span"][0], // left span
                     concordanceInst["span"][1], // right span
