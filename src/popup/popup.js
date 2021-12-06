@@ -81,6 +81,3 @@ chrome.storage.local.get(['project'], function(result) {
 document.getElementById("option-button").addEventListener("click", () => {
 chrome.runtime.openOptionsPage();
 });
-
-
-

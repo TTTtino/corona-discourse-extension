@@ -130,20 +130,12 @@ function loadProject() {
                 document.getElementById("projectDetails").style.visibility = 'visible';
 
             }
-            chrome.storage.local.set({
-                extensionActive: true
-            }, () => {});
 
+        
 
 
 
         } else {
-
-
-            chrome.storage.local.set({
-                extensionActive: false
-            }, () => {});
-
 
             // select project tab
             document.getElementById("projectDetails").style.visibility = 'none';
@@ -279,6 +271,7 @@ function resetExtension(preResetFunction) {
     // reset status of extension to inactive/false
     chrome.storage.local.remove(
         'extensionActive', () => {
+
             if (preResetFunction !== null) {
                 preResetFunction();
             }
