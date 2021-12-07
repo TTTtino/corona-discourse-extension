@@ -3,15 +3,19 @@
 class StatCollectionInfo {
     constructor() {
         this.researchName = "Default Input Parameters";
-        this.metaInstruction = null;
+        this.metaInstructions = null;
         this.collocation = null;
         this.concordance = null;
     }
 }
 
+
+// Stores parameters for meta instructions of query
 class MetaInstructions{
-    constructor(loadContentAt){
-      this.loadContentAt =loadContentAt;
+    constructor(standardiseCasing,loadContentAt){
+        this.standardiseCasing = standardiseCasing;
+       this.loadContentAt =loadContentAt;
+
     }
 }
 
@@ -26,17 +30,18 @@ class Collocation{
     }
 }
 
-// For testing purposes
-// class TokenOccurence{
-//     constructor(token) {
-//         this.searchToken = token;
-//     }
-// }
+// Stores parameters for token frequencies
+class Frequency{
+    constructor(tokens,regexParsing){
+        this.tokens = tokens;
+        this.regexParsing = regexParsing;
+    }
+}
 
 // Stores parameters for extracting concordance lines
 class ConcordanceLines{
     constructor(pivots, regexParsing, leftSpan, rightSpan){
-        this.pivotTokens= pivots;
+        this.pivotTokens = pivots;
         this.parseAsRegex= regexParsing;
         this.span= [leftSpan, rightSpan];
     }

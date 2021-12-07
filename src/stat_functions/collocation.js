@@ -48,31 +48,6 @@ function performCollocation(wordTokens,collocationInfo) {
             collocationInfo.parseAsRegex
         );
     }
-
-    // var pivotProb = {};
-    // for (let iFreq = 0; iFreq < collocationInfo.pivotTokens.length; iFreq++) {
-    //     const element = collocationInfo.pivotTokens[iFreq];
-    //     pivotProb[element] = pivotFrequencies[element] / wordTokens.length;
-    // }
-
-    // var targetProb = {};
-    // for (let iFreq = 0; iFreq < collocationInfo.targetTokens.length; iFreq++) {
-    //     const element = collocationInfo.targetTokens[iFreq];
-    //     targetProb[element] = targetFrequencies[element] / wordTokens.length;
-    // }
-
-    // var nGramProb = {};
-    // for (var key in nGramFrequency) {
-    //     var value = nGramFrequency[key];
-    //     nGramProb[key] = value / nGrams.length;
-    // }
-
-    // var pmi = calculateProbPMI(
-    //     pivotProb,
-    //     targetProb,
-    //     nGramProb,
-    //     collocationInfo.selfReference
-    // );
     
     // create a CollocationData Object and store the calculated frequencies to return
     var colStorage = new CollocationData();
@@ -114,7 +89,7 @@ function calculateProbPMI(pivotProbs, targetProbs, nGramProbs, canSelfReference)
 }
 
 // calculates the PMI given just the CollocationData object containing only the frequencies
-function calculateFreqPMI(collocationData, canSelfReference){
+function calculateFreqPMI(collocationData, canSelfReference) {
     var pivotProb = {};
     // iterate through the frequencies and calculate the probabilities for each "pivot"
     for (var key in collocationData.pivotFrequencies) {
@@ -152,6 +127,6 @@ function calculateFreqPMI(collocationData, canSelfReference){
     collocationData["targetProbabilities"] = targetProb;
     collocationData["nGramProbabilities"] = nGramProb;
     collocationData["pmi"] = pmi;
-    
+
     return collocationData;
 }

@@ -1,9 +1,5 @@
+
 function performConcordance(wordTokens, concordanceInfo) {
-    //console.log(wordTokens);
-    // wordTokens.forEach(element => {
-    //     console.log(corpus.slice(element[1], element[2]+1));
-    //     // console.log(element[1], element[2]+1);
-    // });
     var word = "";
     var token;
     var concordanceLineTokens = [];
@@ -36,65 +32,7 @@ function performConcordance(wordTokens, concordanceInfo) {
     return concordanceLineTokens;
 }
 
-function DEPRECATED_performConcordance(wordTokens, concordanceInfo) {
-    //console.log(wordTokens);
-    // wordTokens.forEach(element => {
-    //     console.log(corpus.slice(element[1], element[2]+1));
-    //     // console.log(element[1], element[2]+1);
-    // });
-    var word = "";
-    var token;
-    var concordanceLineTokens = [];
-    for (var iToken = 0; iToken < wordTokens.length; iToken++) {
-        token = wordTokens[iToken];
-        word = token[0];
-        if (tokenInList(word, concordanceInfo.pivotTokens, true)) {
-            //console.log("Pivot Found");
-            let left = [];
-            for (let j = -concordanceInfo.span[0]; j < 0; j++) {
-                if (iToken + j >= 0) {
-                    const tokenB = wordTokens[iToken + j];
-                    left.push(tokenB);
-                }
-            }
-            let right = [];
-            for (let j = 1; j <= concordanceInfo.span[1]; j++) {
-                if (iToken + j < wordTokens.length) {
-                    const tokenB = wordTokens[iToken + j];
-                    right.push(tokenB);
-                }
-            }
 
-            var surround = left.concat(right);
-            //console.log(surround);
-            for (let i = 0; i < surround.length; i++) {
-                const element = surround[i];
-                if (tokenInList(element[0], concordanceInfo.targetTokens)) {
-                    var leftContext = generateContext(
-                        iToken - concordanceInfo.span[0],
-                        -concordanceInfo.context[0],
-                        wordTokens
-                    );
-                    var rightContext = generateContext(
-                        iToken + concordanceInfo.span[1],
-                        concordanceInfo.context[1],
-                        wordTokens
-                    );
-                    concordanceLineTokens.push({
-                        left: leftContext.concat(left),
-                        right: right.concat(rightContext),
-                        wordToken: token,
-                    });
-                    break;
-                }
-            }
-            //console.log(corpus.slice(concordTokenLine.left[0][1], concordTokenLine.right[concordTokenLine.right.length-1][2]+1));
-        }
-    }
-
-    return concordanceLineTokens;
-    //console.log(generateContext(wordTokens.indexOf(wordTokens.indexOf(concordanceLineTokens[5].left[0]), -5, wordTokens)));
-}
 
 function stringifyConcordanceLine(concordLine, corpus = false) {
     if(corpus){
@@ -126,23 +64,23 @@ function stringifyTokenArray(array, corpus = false) {
     }
 }
 
-function DEPRECATED_generateContext(index, span, wordTokens) {
-    var context = [];
-    if (span < 0) {
-        for (let i = index + span; i < index; i++) {
-            if (i >= 0) {
-                context.push(wordTokens[i]);
-            }
-        }
-    } else if (span > 0) {
-        for (let i = index + 1; i <= index + span; i++) {
-            if (i < wordTokens.length) {
-                context.push(wordTokens[i]);
-            }
-        }
+
+function stringifyConcordanceLine(concordLine, corpus = false) {
+    if(corpus){
+        return {
+            left: stringifyTokenArray(concordLine.left, corpus),
+            right: stringifyTokenArray(concordLine.right, corpus),
+            word: concordLine.wordToken[0]
+        };
+    } else{
+        return {
+            left: removePositionsFromTokenList(concordLine.left).join(" "),
+            right: removePositionsFromTokenList(concordLine.right).join(" "),
+            word: concordLine.wordToken[0]
+        };
     }
-    return context;
 }
+
 
 // returns: true if token matches any element in target list by regex, or exact
 function tokenInList(token, targetList, regex) {

@@ -7,6 +7,7 @@ function storeNewMetaInstructions(metaInst, callback) {
                 defaultCollectionStats.metaInstruction = null;
             } else {
                 defaultCollectionStats.metaInstruction = new MetaInstructions(
+                    metaInst["standardise-casing"],
                     metaInst["load-content-at"]
                 );
             }
@@ -23,6 +24,7 @@ function storeNewMetaInstructions(metaInst, callback) {
                 result.collectionStats.metaInstruction = null;
             } else {
                 result.collectionStats.metaInstruction =  new MetaInstructions(
+                    metaInst["standardise-casing"],
                     metaInst["load-content-at"]
                 );
             } 

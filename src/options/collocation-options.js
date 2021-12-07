@@ -217,7 +217,7 @@ function formatCollocationStatsForTable(collocationData, selfReference) {
                 const pivotTargetProb =
                     collocationData.nGramProbabilities[pivot + " " + target];
                 const pmi = collocationData.pmi[pivot + " " + target];
-                if (pivotFreq !== 0 || targetFreq !== 0) {
+                if (pivotTargetFreq > 0) {
                     const line = {
                         pivot: pivot,
                         target: target,

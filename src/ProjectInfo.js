@@ -1,4 +1,4 @@
-// Class representing info of  selected project
+// Class representing info of  selected project 
 
 class ProjectInfo{
     constructor(id,name, description) {

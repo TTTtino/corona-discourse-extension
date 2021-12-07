@@ -1,11 +1,7 @@
-// requires: allowList-options.js, concordance-options, collocation-options, save-load-options.js
+// requires: allowList-options.js, concordance-options, collocation-options, save-load-options.js 
 var SERVER_URL = 'https://pripa-devel.azurewebsites.net';
 
-
-
 console.log("OPTIONS.js");
-
-
 
 // load all the necessary things required in the options page
 function load_options() {
@@ -38,7 +34,7 @@ function load_options() {
             list.appendChild(option);
         }
 
-        loadProject();
+            loadProject();
 
     });
 
@@ -54,19 +50,20 @@ function load_options() {
         var websiteTable = document.getElementById("allowlist-table");
         // iterate through each entry in the allowlist and add to the allowlist table
         console.log("websites", websites)
-
         for (var i = 0; i < websites.length; i++) {
             createAllowListRow(websiteTable, websites[i], i);
         }
 
-        // for each type of stat to collect, each one must be loaded using callbacks
+        // for each type of stat to collect, each one must be loaded using callback
 
     });
 
     // ---------------------- OVERVIEW TAB ----------------------
     loadCollocationData(() => {
         console.log("Loading Concordance Data");
-        loadConcordanceData(() => {});
+        loadConcordanceData(() => {
+            loadFrequencyData(() => {});
+        });
     });
 
 
@@ -107,7 +104,6 @@ function loadProject() {
     // get the input parameters for the currently selected project
     chrome.storage.local.get("project", function (result) {
 
-
         // check if there is a currently selected project
         // if so, show project and description
         if (typeof result.project !== "undefined") {
@@ -139,8 +135,6 @@ function loadProject() {
 
         } else {
 
-
-
             // select project tab
             document.getElementById("projectDetails").style.visibility = 'none';
         }
@@ -148,7 +142,6 @@ function loadProject() {
 
 
     });
-
 
 }
 // Takes in a string and saves it as a title for the data currently being collected and then performs a callback function
@@ -193,12 +186,14 @@ function performDeleteData(callback) {
     // add more callbacks for each stat that is added
     chrome.storage.local.remove("collocationData", () => {
         chrome.storage.local.remove("concordanceData", () => {
+            chrome.storage.local.remove("frequencyData", () => {
             chrome.storage.local.remove("extensionActive", () => {
                 chrome.storage.local.remove("totalWebsitesAndHits", () => {
                     callback();
                 });
             });
         });
+    });
     });
 
 }
@@ -220,6 +215,11 @@ function resetStoredData(preResetFunction) {
             }
 
 
+                chrome.storage.local.remove("extensionActive", () => {
+
+                    alert("All collected data was successfully deleted.")
+                    location.reload();
+                });
         });
 
 
@@ -269,6 +269,7 @@ function resetExtension(preResetFunction) {
     // reset status of extension to inactive/false
     chrome.storage.local.remove(
         'extensionActive', () => {
+
             if (preResetFunction !== null) {
                 preResetFunction();
             }
@@ -412,6 +413,7 @@ for (i = 0; i < coll.length; i++) {
 
 // get the input parameters for stat collection and display it on the page
 chrome.storage.local.get("collectionStats", function (result) {
+
     chrome.storage.local.get({
         allowedWebsites: []
     }, function (resultUrls) {
@@ -502,7 +504,6 @@ document.getElementById("select-analysis").addEventListener("click", () => {
         });
     }
 });
-
 async function storeProjectData(jsonIn, projectId, projectName, projectDescription) {
     let storeStatInstr = new Promise((resolve, reject) => {
         storeNewResearchName(jsonIn["title"], () => {
@@ -511,7 +512,9 @@ async function storeProjectData(jsonIn, projectId, projectName, projectDescripti
                     jsonIn["concordance-lines"],
                     () => {
                         storeNewMetaInstructions(jsonIn['meta-instructions'], () => {
-                            resolve();
+                            storeNewFrequencyInstructions(jsonIn['frequency'],() => {
+                                resolve();
+                            })
                         });
                     }
                 );
@@ -563,5 +566,4 @@ async function storeProjectData(jsonIn, projectId, projectName, projectDescripti
         alert("The project " + projectName + " was successfully set as the project you are participating in. You will now be redirected to the overview.")
         location.reload();
     });
-    s
 }

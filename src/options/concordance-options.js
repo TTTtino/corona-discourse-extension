@@ -39,7 +39,8 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
                     concordanceInst["pivot-tokens"], // pivots
                     concordanceInst["parse-as-regex"], // regex parsing
                     concordanceInst["span"][0], // left span
-                    concordanceInst["span"][1] // right span
+                    concordanceInst["span"][1], // right span
+      
                 );
             }
             chrome.storage.local.set({
@@ -57,7 +58,8 @@ function storeNewConcordanceInstructions(concordanceInst, callback) {
                     concordanceInst["pivot-tokens"], // pivots
                     concordanceInst["parse-as-regex"], // regex parsing
                     concordanceInst["span"][0], // left span
-                    concordanceInst["span"][1] // right span
+                    concordanceInst["span"][1], // right span
+                 
                 );
             }
 
@@ -90,9 +92,9 @@ function createConcordanceTable(concordanceData, parentElement) {
         // header for the concordance table
         var header = [
             "#",
-            "Left Content",
+            "Left Span",
             "Pivot",
-            "Right Content",
+            "Right Span",
             "Count",
             "Source",
             "Exclude?",
@@ -142,6 +144,7 @@ function createConcordanceTable(concordanceData, parentElement) {
                 let cell = row.insertCell();
                 cell.append(rowNum)
 
+               
                 // cell left span
                 let leftCell = row.insertCell();
                 leftCell.style = "text-align: right;";
@@ -157,12 +160,9 @@ function createConcordanceTable(concordanceData, parentElement) {
                     leftCell.appendChild(text);
                 }
 
-                let wordCell = row.insertCell();
-                wordCell.classList.add("centered-cell");
-                let text = document.createElement("span");
-                text.innerHTML = element.word;
-                wordCell.appendChild(text);
-
+                // cell pivot token
+                createTextCell(element.word,row);
+          
                 // cell right span
                 let rightCell = row.insertCell();
                 // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
@@ -176,20 +176,14 @@ function createConcordanceTable(concordanceData, parentElement) {
                     let text = document.createElement("span");
                     text.innerHTML = element.right;
                     rightCell.appendChild(text);
-                }
+                }   
+      
+                  // cell count
+                  createTextCell(element.count,row);
 
-                // cell count
-                let countCell = row.insertCell();
-                let countText = document.createTextNode(element.count);
-                countCell.style = "text-align: center;";
-                countCell.appendChild(countText);
 
                 //cell source
-                let sourceCell = row.insertCell();
-                let sourceText = document.createTextNode(concordEntry.source);
-                sourceCell.style = "text-align: center;";
-                sourceCell.appendChild(sourceText);
-
+                createTextCell(concordEntry.source,row);
 
                 // cell exclude
                 let excludedCell = row.insertCell();
@@ -217,6 +211,26 @@ function createConcordanceTable(concordanceData, parentElement) {
         parentElement.appendChild(noDataMessage);
         parentElement.classList.remove("scrollable-div");
     }
+}
+
+
+function createSpanCell(row, contentText) {
+    // cell right span
+    let cell = row.insertCell();
+    // if the left has more than [lineLimit] characters then a span is used and its title would be the whole text
+    if (contentText.length > lineLimit) {
+        let text = document.createElement("span");
+        text.innerHTML =
+            contentText.slice(0, lineDisplayLength) + "...";
+        text.setAttribute("title", contentText);
+        cell.appendChild(text);
+    } else {
+        let text = document.createElement("span");
+        text.innerHTML = contentText;
+        cell.appendChild(text);
+    }
+
+    return cell;
 }
 // Toggles the specific concordLine's exlcusion attribute, depending on the value of checkBoxElement
 function toggleConcordanceLineExclusion(concordLine, checkBoxElement) {
@@ -274,17 +288,17 @@ function removeExcluded(concordanceData) {
         // get total number of concordance lines
         concordanceNumber += concordanceObject.concordanceLines.length;
         // remove lines where excluded is true
-        concordanceObject.concordanceLines = concordanceObject.concordanceLines .filter(line => !line.excluded);
+        concordanceObject.concordanceLines = concordanceObject.concordanceLines.filter(line => !line.excluded);
 
-        concordanceNumberAfterExcluding+=concordanceObject.concordanceLines.length;
+        concordanceNumberAfterExcluding += concordanceObject.concordanceLines.length;
     });
 
 
     // get total excluded lines in %
-    var totalExcluded = 1 - concordanceNumberAfterExcluding/concordanceNumber;
-    totalExcluded = totalExcluded.toFixed(4)*100;
+    var totalExcluded = 1 - concordanceNumberAfterExcluding / concordanceNumber;
+    totalExcluded = totalExcluded.toFixed(4) * 100;
 
-    return [concordanceData,totalExcluded];
+    return [concordanceData, totalExcluded];
 
 }
 

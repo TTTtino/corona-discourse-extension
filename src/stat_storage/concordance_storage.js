@@ -32,20 +32,6 @@
         // iterate through each of the newly calculated concordance lines
         for (var i = 0; i < calcConcordanceLines.length; i++) {
 
-            //const insConcord = calcConcordanceLines[i];
-            // let j = testConcordData.concordanceLines.length - 1;
-            // while(j >= 0 && testConcordData.concordanceLines[j].word.toLowerCase() > insConcord.word.toLowerCase()){
-            //     j -= 1;
-            // }
-            // if(concordanceLineEquivalent(testConcordData.concordanceLines[j], insConcord)){
-            //     testConcordData.concordanceLines[j].count += 1;
-            // } else if(concordanceLineEquivalent(testConcordData.concordanceLines[j+1], insConcord)){
-            //     testConcordData.concordanceLines[j+1].count += 1;
-            // }else{
-            //     insConcord.count = 1;
-            //     testConcordData.concordanceLines.splice(j+1, 0, insConcord);
-            // }
-
             const insConcord = calcConcordanceLines[i];
             // function that returns true if some concordLine is equivalent to the insConcord
             const containsInsConcord = (concordLine) => {
@@ -64,17 +50,6 @@
 
         }
 
-        // sort the new concordance lines by the word
-        // testConcordData.concordanceLines.sort((firstEl, secondEl) => {
-        //     if(firstEl.word.toLowerCase() < secondEl.word.toLowerCase()){
-        //         return -1;
-        //     } else if(firstEl.word.toLowerCase() > secondEl.word.toLowerCase()){
-        //         return 1;
-        //     } else{
-        //         return 0;
-        //     }
-        // });
-        //newConcordData.concordanceLines = prevConcordData.concordanceLines.concat(calcConcordanceLines);
         return testConcordData;
     }
 
