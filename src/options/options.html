@@ -76,8 +76,18 @@
                     <p>By clicking 'Yes, submit results', you agree to storing the results externally for research
                         purposes
                         only.
+                        <p>If you were provided with an invitation ID, please enter it below before submitting your results.</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="input-invitation-id">Invitation ID :</label>
+                                <input class="form-control" type="text" id="input-invitation-id" placeholder="Invitation ID"></br>
+                            </div>
+                   
+                        </div>
                         </br><b>If you do not agree</b> with that please press 'No, don't submit results and delete
                         results'. </p>
+              
                     <div>
                         <button id="reset-stats-button" class="btn btn-outline-danger">
                             No, don't submit results and delete results
@@ -112,9 +122,8 @@
                         will be shown. If you decide to participate in the project, please press the "Choose project"
                         button
                         which will be shown when selecting a project.</p>
-                    <form method="post"
-                        onsubmit="return confirm('Are you sure you want to participate in this analysis?');">
-
+                    <form method="post" onsubmit="return confirm('Are you sure you want to participate in this analysis?');">
+                      
                         <div>
                             <select id="availableAnalysis" class="form-select"></select>
 
@@ -129,8 +138,7 @@
                             <input type="button" id="select-analysis" class="btn btn-outline-primary"
                                 value="Confirm Selection">
                         </div>
-
-
+              
                     </form>
 
                 </div>
@@ -179,6 +187,7 @@
     <script src="../stat_functions/collocation.js"></script>
     <script src="../stat_functions/concordance.js"></script>
     <script src="../stat_storage/concordance_storage.js"></script>
+    <script src="luhn.js"></script>
     <script src="allowlist-options.js"></script>
     <script src="concordance-options.js"></script>
     <script src="collocation-options.js"></script>

@@ -2,6 +2,7 @@
 var SERVER_URL = 'https://pripa-devel.azurewebsites.net';
 
 
+
 console.log("OPTIONS.js");
 
 
@@ -281,42 +282,62 @@ document
     .getElementById("submit-results")
     .addEventListener("click", () => {
 
-        if (confirm("Are you sure you want to submit your results? Select 'OK' to submit these results to the researchers.")) {
+        // check if an invitation id was provided
+        var invitationId = document.getElementById("input-invitation-id").value
+        var invitationIdIsValid = true;
 
-            getResultsAsJSON((textToCopy) => {
-
-                chrome.storage.local.get("project", function (result) {
-
-                    if (typeof result.project !== "undefined") {
-                        data = {
-                            project_id: result.project.id,
-                            result: JSON.parse(textToCopy)
-                        }
-
-
-                        fetch(SERVER_URL + '/api/results/', {
-                            method: 'POST',
-                            body: JSON.stringify(data),
-                            headers: {
-                                'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
-                                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-
-                            },
-                            credentials: 'include'
-                        }).then(function (response) {
-                            if (response.status === 200) {
-                                alert("Your results were successfully submitted. Thank you for participating in " + result.project.name + ". \nFor information and further support please navigate to the 'Help' tab.")
-                            } else {
-                                alert("Unfortunately, a problem occurred and your results couldn't be submitted. Please try again. \nTo contact the researchers and for further support please navigate to the 'Help' tab.")
-                            }
-                        });
-                    } else {
-                        alert("Results couldn't be submitted");
-
-                    }
-                });
-            });
+        if (invitationId !== "") {
+            //perform luhn check to see if invitation ID is valid
+            invitationIdIsValid = luhnChk(invitationId);
         }
+
+        if (!invitationIdIsValid) {
+            alert("The provided invitation ID is invalid. Please check it and try again.")
+        } else {
+
+            if (confirm("Are you sure you want to submit your results? Select 'OK' to submit these results to the researchers.")) {
+
+                getResultsAsJSON((textToCopy) => {
+
+                    chrome.storage.local.get("project", function (result) {
+
+                        if (typeof result.project !== "undefined") {
+
+                            var jsonResult = JSON.parse(textToCopy)
+                            jsonResult['invitationId'] = invitationId
+
+                            data = {
+                                project_id: result.project.id,
+                                result: jsonResult
+                            }
+
+
+                            fetch(SERVER_URL + '/api/results/', {
+                                method: 'POST',
+                                body: JSON.stringify(data),
+                                headers: {
+                                    'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
+                                    'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+
+                                },
+                                credentials: 'include'
+                            }).then(function (response) {
+                                if (response.status === 200) {
+                                    alert("Your results were successfully submitted. Thank you for participating in " + result.project.name + ". \nFor information and further support please navigate to the 'Help' tab.")
+                                } else {
+                                    alert("Unfortunately, a problem occurred and your results couldn't be submitted. Please try again. \nTo contact the researchers and for further support please navigate to the 'Help' tab.")
+                                }
+                            });
+                        } else {
+                            alert("Results couldn't be submitted");
+
+                        }
+                    });
+                });
+            }
+
+        }
+
     });
 
 // reset the stored data when the reset-stats-button is clicked
