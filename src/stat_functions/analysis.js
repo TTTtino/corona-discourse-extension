@@ -23,7 +23,7 @@ async function runAnalysis(pageText, url,callback) {
                     var resultsFound = false;
 
                     // calculates collocation probabilities and frequencies and outputs a CollocationData object (stat_storage/collocation_storage.js)
-                    //const positionsRemoved = removePositionsFromTokenList(tokens.wordTokens)
+                    const positionsRemoved = removePositionsFromTokenList(tokens.wordTokens)
                     var calculatedCollocation = performCollocation(positionsRemoved, statCollection.collocation);
 
                     // check if there are any results

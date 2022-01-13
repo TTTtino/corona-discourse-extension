@@ -190,8 +190,12 @@ function createConcordanceTable(concordanceData, parentElement) {
                 let checkBox = document.createElement("INPUT");
                 checkBox.setAttribute("type", "checkbox");
                 checkBox.checked = element.excluded;
-                checkBox.addEventListener("click", () => {
-                    toggleConcordanceLineExclusion(element, checkBox);
+                checkBox.addEventListener("click", (e) => {
+                    var td= e.target.parentNode;
+                    var tr= td.parentNode;
+                    var row= tr.rowIndex;  
+                    
+                    toggleConcordanceLineExclusion(element, checkBox,row);
                 });
                 excludedCell.style = "text-align: center;";
                 excludedCell.appendChild(checkBox);
@@ -232,8 +236,11 @@ function createSpanCell(row, contentText) {
 
     return cell;
 }
-// Toggles the specific concordLine's exlcusion attribute, depending on the value of checkBoxElement
-function toggleConcordanceLineExclusion(concordLine, checkBoxElement) {
+// Toggles the specific concordLine's exclusion attribute, depending on the value of checkBoxElement
+function toggleConcordanceLineExclusion(concordLine, checkBoxElement,loc) {
+
+    loc = loc-1;
+
     // make concord line excluded
     chrome.storage.local.get("concordanceData", function (result) {
         let concordanceDataResult = result.concordanceData;
@@ -246,18 +253,10 @@ function toggleConcordanceLineExclusion(concordLine, checkBoxElement) {
             );
         };
 
-        var loc = '';
-
 
         concordanceDataResult.forEach(concordObject => {
 
-            // finds the index of the concordance line where they are equivalent
-            loc =
-                concordObject.concordanceLines.findIndex(
-                    containsConcordLine
-                );
-
-            if (loc > 0) {
+            if (loc > -1) {
                 if (checkBoxElement.checked == true) {
                     concordObject.concordanceLines[loc].excluded = true;
                 } else {

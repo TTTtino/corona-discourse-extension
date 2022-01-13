@@ -41,7 +41,7 @@
             const duplLoc = testConcordData.concordanceLines.findIndex(containsInsConcord);
             // if it does exist
             if (duplLoc >= 0) {
-                // add to the count instead of adding a duplicate
+                // add to the  instead of adding a duplicate
                 testConcordData.concordanceLines[duplLoc].count += 1;
             } else {
                 // push if concordance line hasn't been seen before

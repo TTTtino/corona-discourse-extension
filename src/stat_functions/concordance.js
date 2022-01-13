@@ -21,11 +21,19 @@ function performConcordance(wordTokens, concordanceInfo) {
                     right.push(tokenB);
                 }
             }
-            concordanceLineTokens.push({
-                left: left,
-                right: right,
-                wordToken: token,
-            });
+
+    
+            if(!concordanceLineExists(concordanceLineTokens,left,right,token)){
+                concordanceLineTokens.push({
+                    left: left,
+                    right: right,
+                    wordToken: token,
+                });
+            }
+               
+            
+
+         
         }
     }
 
@@ -33,6 +41,27 @@ function performConcordance(wordTokens, concordanceInfo) {
 }
 
 
+
+function concordanceLineExists(lines, left,right,word){
+
+    var alreadyExists = false;
+
+    lines.every(concordObject => {
+        alreadyExists =   
+        word === concordObject.wordToken &&
+        left === concordObject.left &&
+        right === concordObject.right
+        
+
+        if(alreadyExists === true){
+            return false;
+        }
+
+        return true;
+    });
+
+    return alreadyExists;
+}
 
 function stringifyConcordanceLine(concordLine, corpus = false) {
     if(corpus){
